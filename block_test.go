@@ -35,6 +35,32 @@ func TestNewBlock(test *testing.T) {
 	assert.Equal(test, wantedBlock, block)
 }
 
+func TestNewGenesisBlock(test *testing.T) {
+	data := new(MockHasher)
+	proofer := new(MockProofer)
+	proofer.
+		On("Hash", Block{
+			Timestamp: clock(),
+			Data:      data,
+			PrevHash:  "",
+		}).
+		Return("hash")
+
+	block := NewGenesisBlock(data, Dependencies{
+		Clock:   clock,
+		Proofer: proofer,
+	})
+
+	wantedBlock := Block{
+		Timestamp: clock(),
+		Data:      data,
+		Hash:      "hash",
+		PrevHash:  "",
+	}
+	mock.AssertExpectationsForObjects(test, data, proofer)
+	assert.Equal(test, wantedBlock, block)
+}
+
 func clock() time.Time {
 	year, month, day := 2006, time.January, 2
 	hour, minute, second := 15, 4, 5
