@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+//go:generate mockery --name=Hasher --inpackage --case=underscore --testonly
+
 // Hasher ...
 type Hasher interface {
 	Hash() string
