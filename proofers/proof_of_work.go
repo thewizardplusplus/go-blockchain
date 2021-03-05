@@ -39,3 +39,8 @@ func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 
 	return fmt.Sprintf("%s:%x", &nonce, hash)
 }
+
+// Validate ...
+func (proofer ProofOfWork) Validate(block blockchain.Block) bool {
+	return block.Hash == proofer.Hash(block)
+}
