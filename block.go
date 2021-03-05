@@ -12,6 +12,8 @@ type Hasher interface {
 // Clock ...
 type Clock func() time.Time
 
+//go:generate mockery --name=Proofer --inpackage --case=underscore --testonly
+
 // Proofer ...
 type Proofer interface {
 	Hash(block Block) string
