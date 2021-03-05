@@ -9,6 +9,9 @@ type Hasher interface {
 	Hash() string
 }
 
+// Clock ...
+type Clock func() time.Time
+
 // Proofer ...
 type Proofer interface {
 	Hash(block Block) string
