@@ -9,6 +9,12 @@ type Hasher interface {
 	Hash() string
 }
 
+// Proofer ...
+type Proofer interface {
+	Hash(block Block) string
+	Validate(block Block) bool
+}
+
 // Block ...
 type Block struct {
 	Timestamp time.Time
