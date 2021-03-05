@@ -18,6 +18,12 @@ type Proofer interface {
 	Validate(block Block) bool
 }
 
+// Dependencies ...
+type Dependencies struct {
+	Clock   Clock
+	Proofer Proofer
+}
+
 // Block ...
 type Block struct {
 	Timestamp time.Time
