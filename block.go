@@ -52,3 +52,15 @@ func NewBlock(data Hasher, prevBlock Block, dependencies Dependencies) Block {
 func NewGenesisBlock(data Hasher, dependencies Dependencies) Block {
 	return NewBlock(data, Block{}, dependencies)
 }
+
+// IsValid ...
+func (block Block) IsValid(prevBlock Block, dependencies Dependencies) bool {
+	if !block.Timestamp.After(prevBlock.Timestamp) {
+		return false
+	}
+	if block.PrevHash != prevBlock.Hash {
+		return false
+	}
+
+	return dependencies.Proofer.Validate(block)
+}
