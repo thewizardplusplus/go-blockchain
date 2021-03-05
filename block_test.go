@@ -61,6 +61,41 @@ func TestNewGenesisBlock(test *testing.T) {
 	assert.Equal(test, wantedBlock, block)
 }
 
+func TestBlock_IsValid(test *testing.T) {
+	type fields struct {
+		Timestamp time.Time
+		Data      Hasher
+		Hash      string
+		PrevHash  string
+	}
+	type args struct {
+		prevBlock    Block
+		dependencies Dependencies
+	}
+
+	for _, data := range []struct {
+		name   string
+		fields fields
+		args   args
+		want   assert.BoolAssertionFunc
+	}{
+		// TODO: Add test cases.
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			block := Block{
+				Timestamp: data.fields.Timestamp,
+				Data:      data.fields.Data,
+				Hash:      data.fields.Hash,
+				PrevHash:  data.fields.PrevHash,
+			}
+			got := block.IsValid(data.args.prevBlock, data.args.dependencies)
+
+			mock.AssertExpectationsForObjects(test, data.fields.Data)
+			data.want(test, got)
+		})
+	}
+}
+
 func clock() time.Time {
 	year, month, day := 2006, time.January, 2
 	hour, minute, second := 15, 4, 5
