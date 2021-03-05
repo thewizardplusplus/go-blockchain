@@ -47,3 +47,8 @@ func NewBlock(data Hasher, prevBlock Block, dependencies Dependencies) Block {
 
 	return block
 }
+
+// NewGenesisBlock ...
+func NewGenesisBlock(data Hasher, dependencies Dependencies) Block {
+	return NewBlock(data, Block{}, dependencies)
+}
