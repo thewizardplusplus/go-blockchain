@@ -26,6 +26,22 @@ func TestSimple_Hash(test *testing.T) {
 	assert.Equal(test, wantedHash, hash)
 }
 
+func TestSimple_Validate(test *testing.T) {
+	data := new(MockHasher)
+	data.On("Hash").Return("hash")
+
+	var proofer Simple
+	isValid := proofer.Validate(blockchain.Block{
+		Timestamp: clock(),
+		Data:      data,
+		Hash:      "4a4292671f697950d1d1d3ec16967cacf0ca1c5e20a1e21b5e49712cf5e422ae",
+		PrevHash:  "previous hash",
+	})
+
+	mock.AssertExpectationsForObjects(test, data)
+	assert.True(test, isValid)
+}
+
 func clock() time.Time {
 	year, month, day := 2006, time.January, 2
 	hour, minute, second := 15, 4, 5
