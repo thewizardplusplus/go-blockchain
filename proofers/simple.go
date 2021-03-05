@@ -16,3 +16,8 @@ func (proofer Simple) Hash(block blockchain.Block) string {
 	hash := sha256.Sum256([]byte(data))
 	return hex.EncodeToString(hash[:])
 }
+
+// Validate ...
+func (proofer Simple) Validate(block blockchain.Block) bool {
+	return block.Hash == proofer.Hash(block)
+}
