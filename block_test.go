@@ -61,6 +61,23 @@ func TestNewGenesisBlock(test *testing.T) {
 	assert.Equal(test, wantedBlock, block)
 }
 
+func TestBlock_MergedData(test *testing.T) {
+	data := new(MockHasher)
+	data.On("Hash").Return("hash")
+
+	block := Block{
+		Timestamp: clock(),
+		Data:      data,
+		Hash:      "hash",
+		PrevHash:  "previous hash",
+	}
+	mergedData := block.MergedData()
+
+	wantedMergedData := "2006-01-02 15:04:05 +0000 UTChashprevious hash"
+	mock.AssertExpectationsForObjects(test, data)
+	assert.Equal(test, wantedMergedData, mergedData)
+}
+
 func TestBlock_IsValid(test *testing.T) {
 	type fields struct {
 		Timestamp time.Time
