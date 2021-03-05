@@ -12,7 +12,7 @@ type Simple struct{}
 
 // Hash ...
 func (proofer Simple) Hash(block blockchain.Block) string {
-	data := block.Timestamp.String() + block.Data.Hash() + block.PrevHash
+	data := block.MergedData()
 	hash := sha256.Sum256([]byte(data))
 	return hex.EncodeToString(hash[:])
 }

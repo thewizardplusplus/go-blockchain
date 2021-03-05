@@ -21,10 +21,7 @@ func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 	var nonce big.Int
 	var hash [sha256.Size]byte
 	for {
-		data := block.Timestamp.String() +
-			block.Data.Hash() +
-			block.PrevHash +
-			nonce.String()
+		data := block.MergedData() + nonce.String()
 		hash = sha256.Sum256([]byte(data))
 
 		hashAsInt := big.NewInt(0)
