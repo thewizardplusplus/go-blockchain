@@ -31,3 +31,15 @@ type Block struct {
 	Hash      string
 	PrevHash  string
 }
+
+// NewBlock ...
+func NewBlock(data Hasher, prevBlock Block, dependencies Dependencies) Block {
+	block := Block{
+		Timestamp: dependencies.Clock(),
+		Data:      data,
+		PrevHash:  prevBlock.Hash,
+	}
+	block.Hash = dependencies.Proofer.Hash(block)
+
+	return block
+}
