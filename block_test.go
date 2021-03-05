@@ -79,7 +79,134 @@ func TestBlock_IsValid(test *testing.T) {
 		args   args
 		want   assert.BoolAssertionFunc
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			args: args{
+				prevBlock: Block{
+					Timestamp: clock().Add(-time.Hour),
+					Hash:      "previous hash",
+				},
+				dependencies: Dependencies{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On("Validate", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "previous hash",
+							}).
+							Return(true)
+
+						return proofer
+					}(),
+				},
+			},
+			want: assert.True,
+		},
+		{
+			name: "failure due to timestamps",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			args: args{
+				prevBlock: Block{
+					Timestamp: clock().Add(time.Hour),
+					Hash:      "previous hash",
+				},
+				dependencies: Dependencies{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On("Validate", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "previous hash",
+							}).
+							Return(true)
+
+						return proofer
+					}(),
+				},
+			},
+			want: assert.False,
+		},
+		{
+			name: "failure due to hashes",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			args: args{
+				prevBlock: Block{
+					Timestamp: clock().Add(-time.Hour),
+					Hash:      "incorrect hash",
+				},
+				dependencies: Dependencies{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On("Validate", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "previous hash",
+							}).
+							Return(true)
+
+						return proofer
+					}(),
+				},
+			},
+			want: assert.False,
+		},
+		{
+			name: "failure due to proofers",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			args: args{
+				prevBlock: Block{
+					Timestamp: clock().Add(-time.Hour),
+					Hash:      "previous hash",
+				},
+				dependencies: Dependencies{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On("Validate", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "previous hash",
+							}).
+							Return(false)
+
+						return proofer
+					}(),
+				},
+			},
+			want: assert.False,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			block := Block{
