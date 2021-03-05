@@ -53,6 +53,11 @@ func NewGenesisBlock(data Hasher, dependencies Dependencies) Block {
 	return NewBlock(data, Block{}, dependencies)
 }
 
+// MergedData ...
+func (block Block) MergedData() string {
+	return block.Timestamp.String() + block.Data.Hash() + block.PrevHash
+}
+
 // IsValid ...
 func (block Block) IsValid(prevBlock Block, dependencies Dependencies) bool {
 	if !block.Timestamp.After(prevBlock.Timestamp) {
