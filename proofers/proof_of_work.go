@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/thewizardplusplus/go-blockchain"
 )
@@ -39,5 +40,20 @@ func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 
 // Validate ...
 func (proofer ProofOfWork) Validate(block blockchain.Block) bool {
-	return block.Hash == proofer.Hash(block)
+	var target big.Int
+	target.SetBit(&target, proofer.TargetBit, 1)
+
+	hashParts := strings.SplitN(block.Hash, ":", 2)
+	if len(hashParts) != 2 {
+		return false
+	}
+
+	nonceAsStr := hashParts[0]
+	data := block.MergedData() + nonceAsStr
+	hash := sha256.Sum256([]byte(data))
+
+	hashAsInt := big.NewInt(0)
+	hashAsInt.SetBytes(hash[:])
+
+	return hashAsInt.Cmp(&target) == -1 /* is less */
 }
