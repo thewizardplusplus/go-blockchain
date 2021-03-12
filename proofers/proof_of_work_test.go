@@ -39,7 +39,57 @@ func TestProofOfWork_Validate(test *testing.T) {
 		args   args
 		want   assert.BoolAssertionFunc
 	}{
-		// TODO: Add test cases.
+		{
+			name:   "success",
+			fields: fields{TargetBit: 248},
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data: func() blockchain.Hasher {
+						data := new(MockHasher)
+						data.On("Hash").Return("hash")
+
+						return data
+					}(),
+					Hash: "315:" +
+						"0093bb88b062fb387b240d14d862365f1cda9c0cda6140f19dd84deca2e91bc5",
+					PrevHash: "previous hash",
+				},
+			},
+			want: assert.True,
+		},
+		{
+			name:   "failure",
+			fields: fields{TargetBit: 248},
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data: func() blockchain.Hasher {
+						data := new(MockHasher)
+						data.On("Hash").Return("hash #2")
+
+						return data
+					}(),
+					Hash: "315:" +
+						"0093bb88b062fb387b240d14d862365f1cda9c0cda6140f19dd84deca2e91bc5",
+					PrevHash: "previous hash",
+				},
+			},
+			want: assert.False,
+		},
+		{
+			name:   "incorrect hash",
+			fields: fields{TargetBit: 248},
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "incorrect",
+					PrevHash:  "previous hash",
+				},
+			},
+			want: assert.False,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			proofer := ProofOfWork{TargetBit: data.fields.TargetBit}
