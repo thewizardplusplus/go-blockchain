@@ -26,18 +26,27 @@ func TestProofOfWork_Hash(test *testing.T) {
 }
 
 func TestProofOfWork_Validate(test *testing.T) {
-	data := new(MockHasher)
-	data.On("Hash").Return("hash")
+	type fields struct {
+		TargetBit int
+	}
+	type args struct {
+		block blockchain.Block
+	}
 
-	proofer := ProofOfWork{TargetBit: 248}
-	isValid := proofer.Validate(blockchain.Block{
-		Timestamp: clock(),
-		Data:      data,
-		Hash: "315:" +
-			"0093bb88b062fb387b240d14d862365f1cda9c0cda6140f19dd84deca2e91bc5",
-		PrevHash: "previous hash",
-	})
+	for _, data := range []struct {
+		name   string
+		fields fields
+		args   args
+		want   assert.BoolAssertionFunc
+	}{
+		// TODO: Add test cases.
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			proofer := ProofOfWork{TargetBit: data.fields.TargetBit}
+			got := proofer.Validate(data.args.block)
 
-	mock.AssertExpectationsForObjects(test, data)
-	assert.True(test, isValid)
+			mock.AssertExpectationsForObjects(test, data.args.block.Data)
+			data.want(test, got)
+		})
+	}
 }
