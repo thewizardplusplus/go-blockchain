@@ -41,7 +41,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 	}{
 		{
 			name:   "success",
-			fields: fields{TargetBit: 248},
+			fields: fields{TargetBit: 23},
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
@@ -51,8 +51,9 @@ func TestProofOfWork_Validate(test *testing.T) {
 
 						return data
 					}(),
-					Hash: "315:" +
-						"0093bb88b062fb387b240d14d862365f1cda9c0cda6140f19dd84deca2e91bc5",
+					Hash: "248:" +
+						"26:" +
+						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
 					PrevHash: "previous hash",
 				},
 			},
@@ -60,7 +61,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 		},
 		{
 			name:   "failure",
-			fields: fields{TargetBit: 248},
+			fields: fields{TargetBit: 23},
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
@@ -70,22 +71,38 @@ func TestProofOfWork_Validate(test *testing.T) {
 
 						return data
 					}(),
-					Hash: "315:" +
-						"0093bb88b062fb387b240d14d862365f1cda9c0cda6140f19dd84deca2e91bc5",
+					Hash: "248:" +
+						"26:" +
+						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
 					PrevHash: "previous hash",
 				},
 			},
 			want: assert.False,
 		},
 		{
-			name:   "incorrect hash",
-			fields: fields{TargetBit: 248},
+			name:   "incorrect hash structure",
+			fields: fields{TargetBit: 23},
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
 					Data:      new(MockHasher),
 					Hash:      "incorrect",
 					PrevHash:  "previous hash",
+				},
+			},
+			want: assert.False,
+		},
+		{
+			name:   "incorrect target bit",
+			fields: fields{TargetBit: 23},
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash: "incorrect:" +
+						"26:" +
+						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
+					PrevHash: "previous hash",
 				},
 			},
 			want: assert.False,
