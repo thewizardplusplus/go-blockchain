@@ -5,6 +5,36 @@
 [![Build Status](https://travis-ci.org/thewizardplusplus/go-blockchain.svg?branch=master)](https://travis-ci.org/thewizardplusplus/go-blockchain)
 [![codecov](https://codecov.io/gh/thewizardplusplus/go-blockchain/branch/master/graph/badge.svg)](https://codecov.io/gh/thewizardplusplus/go-blockchain)
 
+The library that implements models and algorithms of blockchain.
+
+## Features
+
+- models:
+  - block:
+    - storing:
+      - timestamp;
+      - custom data;
+      - hash;
+      - previous hash;
+    - operations:
+      - creation (using a proofer);
+      - getting merged data;
+      - self-validation (using a proofer);
+  - genesis block:
+    - based on a usual block without a previous hash;
+- proofers:
+  - operations:
+    - block hashing;
+    - block validation;
+  - kinds:
+    - simple:
+      - based on once hashing by the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) algorithm;
+    - [proof of work](https://en.wikipedia.org/wiki/Proof_of_work):
+      - based on the [Hashcash](https://en.wikipedia.org/wiki/Hashcash) algorithm;
+      - additional storing in a block (in a hash actually):
+        - nonce;
+        - target bit.
+
 ## Installation
 
 Prepare the directory:
