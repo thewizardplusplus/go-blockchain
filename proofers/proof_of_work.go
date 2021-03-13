@@ -22,11 +22,7 @@ func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 	for {
 		data := block.MergedData() + nonce.String() + strconv.Itoa(proofer.TargetBit)
 		hash = makeHash(data)
-
-		hashAsInt := big.NewInt(0)
-		hashAsInt.SetBytes(hash)
-
-		if hashAsInt.Cmp(target) == -1 /* is less */ {
+		if isHashFitTarget(hash, target) {
 			break
 		}
 
@@ -54,9 +50,5 @@ func (proofer ProofOfWork) Validate(block blockchain.Block) bool {
 	nonceAsStr := hashParts[1]
 	data := block.MergedData() + nonceAsStr + targetBitAsStr
 	hash := makeHash(data)
-
-	hashAsInt := big.NewInt(0)
-	hashAsInt.SetBytes(hash)
-
-	return hashAsInt.Cmp(target) == -1 /* is less */
+	return isHashFitTarget(hash, target)
 }

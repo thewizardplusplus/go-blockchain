@@ -16,3 +16,10 @@ func makeTarget(targetBit int) *big.Int {
 
 	return target
 }
+
+func isHashFitTarget(hash []byte, target *big.Int) bool {
+	hashAsInt := big.NewInt(0)
+	hashAsInt.SetBytes(hash)
+
+	return hashAsInt.Cmp(target) == -1 // is less
+}
