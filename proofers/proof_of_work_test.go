@@ -60,7 +60,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 			want: assert.True,
 		},
 		{
-			name:   "failure",
+			name:   "failure with another block data",
 			fields: fields{TargetBit: 23},
 			args: args{
 				block: blockchain.Block{
@@ -72,6 +72,46 @@ func TestProofOfWork_Validate(test *testing.T) {
 						return data
 					}(),
 					Hash: "248:" +
+						"26:" +
+						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
+					PrevHash: "previous hash",
+				},
+			},
+			want: assert.False,
+		},
+		{
+			name:   "failure with another nonce",
+			fields: fields{TargetBit: 23},
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data: func() blockchain.Hasher {
+						data := new(MockHasher)
+						data.On("Hash").Return("hash")
+
+						return data
+					}(),
+					Hash: "248:" +
+						"42:" +
+						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
+					PrevHash: "previous hash",
+				},
+			},
+			want: assert.False,
+		},
+		{
+			name:   "failure with another target bit",
+			fields: fields{TargetBit: 23},
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data: func() blockchain.Hasher {
+						data := new(MockHasher)
+						data.On("Hash").Return("hash")
+
+						return data
+					}(),
+					Hash: "42:" +
 						"26:" +
 						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
 					PrevHash: "previous hash",
