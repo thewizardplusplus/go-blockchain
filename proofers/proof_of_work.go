@@ -41,16 +41,22 @@ func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 
 // Validate ...
 func (proofer ProofOfWork) Validate(block blockchain.Block) bool {
-	var target big.Int
-	target.SetBit(&target, proofer.TargetBit, 1)
-
-	hashParts := strings.SplitN(block.Hash, ":", 2)
-	if len(hashParts) != 2 {
+	hashParts := strings.SplitN(block.Hash, ":", 3)
+	if len(hashParts) != 3 {
 		return false
 	}
 
-	nonceAsStr := hashParts[0]
-	data := block.MergedData() + nonceAsStr
+	targetBitAsStr := hashParts[0]
+	targetBit, err := strconv.Atoi(targetBitAsStr)
+	if err != nil {
+		return false
+	}
+
+	var target big.Int
+	target.SetBit(&target, targetBit, 1)
+
+	nonceAsStr := hashParts[1]
+	data := block.MergedData() + nonceAsStr + targetBitAsStr
 	hash := sha256.Sum256([]byte(data))
 
 	hashAsInt := big.NewInt(0)
