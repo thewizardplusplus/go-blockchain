@@ -16,11 +16,9 @@ type ProofOfWork struct {
 
 // Hash ...
 func (proofer ProofOfWork) Hash(block blockchain.Block) string {
-	var target big.Int
-	target.SetBit(&target, proofer.TargetBit, 1)
-
 	var nonce big.Int
 	var hash []byte
+	target := makeTarget(proofer.TargetBit)
 	for {
 		data := block.MergedData() + nonce.String() + strconv.Itoa(proofer.TargetBit)
 		hash = makeHash(data)
@@ -28,7 +26,7 @@ func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 		hashAsInt := big.NewInt(0)
 		hashAsInt.SetBytes(hash)
 
-		if hashAsInt.Cmp(&target) == -1 /* is less */ {
+		if hashAsInt.Cmp(target) == -1 /* is less */ {
 			break
 		}
 
@@ -51,8 +49,7 @@ func (proofer ProofOfWork) Validate(block blockchain.Block) bool {
 		return false
 	}
 
-	var target big.Int
-	target.SetBit(&target, targetBit, 1)
+	target := makeTarget(targetBit)
 
 	nonceAsStr := hashParts[1]
 	data := block.MergedData() + nonceAsStr + targetBitAsStr
@@ -61,5 +58,5 @@ func (proofer ProofOfWork) Validate(block blockchain.Block) bool {
 	hashAsInt := big.NewInt(0)
 	hashAsInt.SetBytes(hash)
 
-	return hashAsInt.Cmp(&target) == -1 /* is less */
+	return hashAsInt.Cmp(target) == -1 /* is less */
 }
