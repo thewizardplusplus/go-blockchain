@@ -1,7 +1,6 @@
 package proofers
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
 
 	"github.com/thewizardplusplus/go-blockchain"
@@ -13,8 +12,8 @@ type Simple struct{}
 // Hash ...
 func (proofer Simple) Hash(block blockchain.Block) string {
 	data := block.MergedData()
-	hash := sha256.Sum256([]byte(data))
-	return hex.EncodeToString(hash[:])
+	hash := makeHash(data)
+	return hex.EncodeToString(hash)
 }
 
 // Validate ...

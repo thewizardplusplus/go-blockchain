@@ -1,7 +1,6 @@
 package proofers
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"math/big"
 	"strconv"
@@ -21,13 +20,13 @@ func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 	target.SetBit(&target, proofer.TargetBit, 1)
 
 	var nonce big.Int
-	var hash [sha256.Size]byte
+	var hash []byte
 	for {
 		data := block.MergedData() + nonce.String() + strconv.Itoa(proofer.TargetBit)
-		hash = sha256.Sum256([]byte(data))
+		hash = makeHash(data)
 
 		hashAsInt := big.NewInt(0)
-		hashAsInt.SetBytes(hash[:])
+		hashAsInt.SetBytes(hash)
 
 		if hashAsInt.Cmp(&target) == -1 /* is less */ {
 			break
@@ -57,10 +56,10 @@ func (proofer ProofOfWork) Validate(block blockchain.Block) bool {
 
 	nonceAsStr := hashParts[1]
 	data := block.MergedData() + nonceAsStr + targetBitAsStr
-	hash := sha256.Sum256([]byte(data))
+	hash := makeHash(data)
 
 	hashAsInt := big.NewInt(0)
-	hashAsInt.SetBytes(hash[:])
+	hashAsInt.SetBytes(hash)
 
 	return hashAsInt.Cmp(&target) == -1 /* is less */
 }
