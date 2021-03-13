@@ -1,38 +1,4 @@
-# go-blockchain
-
-[![GoDoc](https://godoc.org/github.com/thewizardplusplus/go-blockchain?status.svg)](https://godoc.org/github.com/thewizardplusplus/go-blockchain)
-[![Go Report Card](https://goreportcard.com/badge/github.com/thewizardplusplus/go-blockchain)](https://goreportcard.com/report/github.com/thewizardplusplus/go-blockchain)
-[![Build Status](https://travis-ci.org/thewizardplusplus/go-blockchain.svg?branch=master)](https://travis-ci.org/thewizardplusplus/go-blockchain)
-[![codecov](https://codecov.io/gh/thewizardplusplus/go-blockchain/branch/master/graph/badge.svg)](https://codecov.io/gh/thewizardplusplus/go-blockchain)
-
-## Installation
-
-Prepare the directory:
-
-```
-$ mkdir --parents "$(go env GOPATH)/src/github.com/thewizardplusplus/"
-$ cd "$(go env GOPATH)/src/github.com/thewizardplusplus/"
-```
-
-Clone this repository:
-
-```
-$ git clone https://github.com/thewizardplusplus/go-blockchain.git
-$ cd go-blockchain
-```
-
-Install dependencies with the [dep](https://golang.github.io/dep/) tool:
-
-```
-$ dep ensure -vendor-only
-```
-
-## Examples
-
-`blockchain.Block`:
-
-```go
-package main
+package blockchain_test
 
 import (
 	"encoding/json"
@@ -49,7 +15,7 @@ func (hasher StringHasher) Hash() string {
 	return string(hasher)
 }
 
-func main() {
+func ExampleBlock() {
 	timestamp := time.Date(2006, time.January, 2, 15, 4, 5, 0, time.UTC)
 	dependencies := blockchain.Dependencies{
 		// use the custom clock function to get the same blocks
@@ -114,10 +80,3 @@ func main() {
 	//   }
 	// ]
 }
-```
-
-## License
-
-The MIT License (MIT)
-
-Copyright &copy; 2021 thewizardplusplus
