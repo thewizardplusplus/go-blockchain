@@ -20,7 +20,7 @@ func TestProofOfWork_Hash(test *testing.T) {
 	})
 
 	wantedHash :=
-		"315:0093bb88b062fb387b240d14d862365f1cda9c0cda6140f19dd84deca2e91bc5"
+		"248:26:00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191"
 	mock.AssertExpectationsForObjects(test, data)
 	assert.Equal(test, wantedHash, hash)
 }
