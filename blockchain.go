@@ -13,8 +13,15 @@ type Storage interface {
 	StoreBlock(block Block) error
 }
 
+// Dependencies ...
+type Dependencies struct {
+	BlockDependencies
+
+	Storage Storage
+}
+
 // Blockchain ...
 type Blockchain struct {
-	storage   Storage
-	lastBlock Block
+	dependencies Dependencies
+	lastBlock    Block
 }
