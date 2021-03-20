@@ -25,3 +25,27 @@ type Blockchain struct {
 	dependencies Dependencies
 	lastBlock    Block
 }
+
+// NewBlockchain ...
+func NewBlockchain(
+	genesisBlockData Hasher,
+	dependencies Dependencies,
+) (*Blockchain, error) {
+	lastBlock, err := dependencies.Storage.LoadLastBlock()
+	switch {
+	case err == nil:
+	case errors.Cause(err) == ErrEmptyStorage:
+		genesisBlock :=
+			NewGenesisBlock(genesisBlockData, dependencies.BlockDependencies)
+		if err := dependencies.Storage.StoreBlock(genesisBlock); err != nil {
+			return nil, errors.Wrap(err, "unable to store the genesis block")
+		}
+
+		lastBlock = genesisBlock
+	default:
+		return nil, errors.Wrap(err, "unable to load the last block")
+	}
+
+	blockchain := &Blockchain{dependencies: dependencies, lastBlock: lastBlock}
+	return blockchain, nil
+}
