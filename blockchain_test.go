@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -19,7 +20,144 @@ func TestNewBlockchain(test *testing.T) {
 		wantLastBlock Block
 		wantErr       assert.ErrorAssertionFunc
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success with a nonempty storage",
+			args: args{
+				genesisBlockData: new(MockHasher),
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Clock:   clock,
+						Proofer: new(MockProofer),
+					},
+					Storage: func() Storage {
+						storage := new(MockStorage)
+						storage.
+							On("LoadLastBlock").
+							Return(
+								Block{
+									Timestamp: clock(),
+									Data:      new(MockHasher),
+									Hash:      "hash",
+									PrevHash:  "previous hash",
+								},
+								nil,
+							)
+
+						return storage
+					}(),
+				},
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "success with an empty storage",
+			args: args{
+				genesisBlockData: new(MockHasher),
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Clock: clock,
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.
+								On("Hash", Block{
+									Timestamp: clock(),
+									Data:      new(MockHasher),
+									PrevHash:  "",
+								}).
+								Return("hash")
+
+							return proofer
+						}(),
+					},
+					Storage: func() Storage {
+						storage := new(MockStorage)
+						storage.On("LoadLastBlock").Return(Block{}, ErrEmptyStorage)
+						storage.
+							On("StoreBlock", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "",
+							}).
+							Return(nil)
+
+						return storage
+					}(),
+				},
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "hash",
+				PrevHash:  "",
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error on last block loading",
+			args: args{
+				genesisBlockData: new(MockHasher),
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Clock:   clock,
+						Proofer: new(MockProofer),
+					},
+					Storage: func() Storage {
+						storage := new(MockStorage)
+						storage.On("LoadLastBlock").Return(Block{}, iotest.ErrTimeout)
+
+						return storage
+					}(),
+				},
+			},
+			wantLastBlock: Block{},
+			wantErr:       assert.Error,
+		},
+		{
+			name: "error on genesis block storing",
+			args: args{
+				genesisBlockData: new(MockHasher),
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Clock: clock,
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.
+								On("Hash", Block{
+									Timestamp: clock(),
+									Data:      new(MockHasher),
+									PrevHash:  "",
+								}).
+								Return("hash")
+
+							return proofer
+						}(),
+					},
+					Storage: func() Storage {
+						storage := new(MockStorage)
+						storage.On("LoadLastBlock").Return(Block{}, ErrEmptyStorage)
+						storage.
+							On("StoreBlock", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "",
+							}).
+							Return(iotest.ErrTimeout)
+
+						return storage
+					}(),
+				},
+			},
+			wantLastBlock: Block{},
+			wantErr:       assert.Error,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			gotBlockchain, gotErr :=
