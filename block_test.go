@@ -20,7 +20,7 @@ func TestNewBlock(test *testing.T) {
 		Return("hash")
 
 	prevBlock := Block{Hash: "previous hash"}
-	block := NewBlock(data, prevBlock, Dependencies{
+	block := NewBlock(data, prevBlock, BlockDependencies{
 		Clock:   clock,
 		Proofer: proofer,
 	})
@@ -46,7 +46,7 @@ func TestNewGenesisBlock(test *testing.T) {
 		}).
 		Return("hash")
 
-	block := NewGenesisBlock(data, Dependencies{
+	block := NewGenesisBlock(data, BlockDependencies{
 		Clock:   clock,
 		Proofer: proofer,
 	})
@@ -87,7 +87,7 @@ func TestBlock_IsValid(test *testing.T) {
 	}
 	type args struct {
 		prevBlock    Block
-		dependencies Dependencies
+		dependencies BlockDependencies
 	}
 
 	for _, data := range []struct {
@@ -109,7 +109,7 @@ func TestBlock_IsValid(test *testing.T) {
 					Timestamp: clock().Add(-time.Hour),
 					Hash:      "previous hash",
 				},
-				dependencies: Dependencies{
+				dependencies: BlockDependencies{
 					Clock: clock,
 					Proofer: func() Proofer {
 						proofer := new(MockProofer)
@@ -141,7 +141,7 @@ func TestBlock_IsValid(test *testing.T) {
 					Timestamp: clock().Add(time.Hour),
 					Hash:      "previous hash",
 				},
-				dependencies: Dependencies{
+				dependencies: BlockDependencies{
 					Clock: clock,
 					Proofer: func() Proofer {
 						proofer := new(MockProofer)
@@ -173,7 +173,7 @@ func TestBlock_IsValid(test *testing.T) {
 					Timestamp: clock().Add(-time.Hour),
 					Hash:      "incorrect hash",
 				},
-				dependencies: Dependencies{
+				dependencies: BlockDependencies{
 					Clock: clock,
 					Proofer: func() Proofer {
 						proofer := new(MockProofer)
@@ -205,7 +205,7 @@ func TestBlock_IsValid(test *testing.T) {
 					Timestamp: clock().Add(-time.Hour),
 					Hash:      "previous hash",
 				},
-				dependencies: Dependencies{
+				dependencies: BlockDependencies{
 					Clock: clock,
 					Proofer: func() Proofer {
 						proofer := new(MockProofer)

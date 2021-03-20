@@ -17,7 +17,7 @@ func (hasher StringHasher) Hash() string {
 
 func ExampleBlock() {
 	timestamp := time.Date(2006, time.January, 2, 15, 4, 5, 0, time.UTC)
-	dependencies := blockchain.Dependencies{
+	dependencies := blockchain.BlockDependencies{
 		// use the custom clock function to get the same blocks
 		Clock: func() time.Time {
 			timestamp = timestamp.Add(time.Hour)

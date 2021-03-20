@@ -22,8 +22,8 @@ type Proofer interface {
 	Validate(block Block) bool
 }
 
-// Dependencies ...
-type Dependencies struct {
+// BlockDependencies ...
+type BlockDependencies struct {
 	Clock   Clock
 	Proofer Proofer
 }
@@ -37,7 +37,11 @@ type Block struct {
 }
 
 // NewBlock ...
-func NewBlock(data Hasher, prevBlock Block, dependencies Dependencies) Block {
+func NewBlock(
+	data Hasher,
+	prevBlock Block,
+	dependencies BlockDependencies,
+) Block {
 	block := Block{
 		Timestamp: dependencies.Clock(),
 		Data:      data,
@@ -49,7 +53,7 @@ func NewBlock(data Hasher, prevBlock Block, dependencies Dependencies) Block {
 }
 
 // NewGenesisBlock ...
-func NewGenesisBlock(data Hasher, dependencies Dependencies) Block {
+func NewGenesisBlock(data Hasher, dependencies BlockDependencies) Block {
 	return NewBlock(data, Block{}, dependencies)
 }
 
@@ -59,7 +63,10 @@ func (block Block) MergedData() string {
 }
 
 // IsValid ...
-func (block Block) IsValid(prevBlock Block, dependencies Dependencies) bool {
+func (block Block) IsValid(
+	prevBlock Block,
+	dependencies BlockDependencies,
+) bool {
 	if !block.Timestamp.After(prevBlock.Timestamp) {
 		return false
 	}
