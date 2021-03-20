@@ -12,3 +12,9 @@ type Storage interface {
 	LoadLastBlock() (Block, error)
 	StoreBlock(block Block) error
 }
+
+// Blockchain ...
+type Blockchain struct {
+	storage   Storage
+	lastBlock Block
+}
