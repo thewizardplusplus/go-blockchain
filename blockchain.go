@@ -51,3 +51,18 @@ func NewBlockchain(
 	blockchain := &Blockchain{dependencies: dependencies, lastBlock: lastBlock}
 	return blockchain, nil
 }
+
+// AddBlock ...
+func (blockchain *Blockchain) AddBlock(data Hasher) error {
+	block := NewBlock(
+		data,
+		blockchain.lastBlock,
+		blockchain.dependencies.BlockDependencies,
+	)
+	if err := blockchain.dependencies.Storage.StoreBlock(block); err != nil {
+		return errors.Wrap(err, "unable to store the block")
+	}
+
+	blockchain.lastBlock = block
+	return nil
+}
