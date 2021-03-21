@@ -194,7 +194,108 @@ func TestBlockchain_AddBlock(test *testing.T) {
 		wantLastBlock Block
 		wantErr       assert.ErrorAssertionFunc
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Clock: clock,
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.
+								On("Hash", Block{
+									Timestamp: clock(),
+									Data:      new(MockHasher),
+									PrevHash:  "hash",
+								}).
+								Return("next hash")
+
+							return proofer
+						}(),
+					},
+					Storage: func() Storage {
+						storage := new(MockStorage)
+						storage.
+							On("StoreBlock", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "next hash",
+								PrevHash:  "hash",
+							}).
+							Return(nil)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				data: new(MockHasher),
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "next hash",
+				PrevHash:  "hash",
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Clock: clock,
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.
+								On("Hash", Block{
+									Timestamp: clock(),
+									Data:      new(MockHasher),
+									PrevHash:  "hash",
+								}).
+								Return("next hash")
+
+							return proofer
+						}(),
+					},
+					Storage: func() Storage {
+						storage := new(MockStorage)
+						storage.
+							On("StoreBlock", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "next hash",
+								PrevHash:  "hash",
+							}).
+							Return(iotest.ErrTimeout)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				data: new(MockHasher),
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.Error,
+		},
 	} {
 		test.Run(data.name, func(t *testing.T) {
 			blockchain := &Blockchain{
