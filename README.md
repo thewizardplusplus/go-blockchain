@@ -22,6 +22,19 @@ The library that implements models and algorithms of blockchain.
       - self-validation (using a proofer);
   - genesis block:
     - based on a usual block without a previous hash;
+  - blockchain:
+    - storing:
+      - storage;
+      - last block;
+    - operations:
+      - creation:
+        - loading the last block from the storage;
+        - when the storage is empty:
+          - creation a genesis block using a proofer;
+          - storing the genesis block to the storage;
+      - adding a block:
+        - creation a block using a proofer;
+        - storing the block to the storage;
 - proofers:
   - operations:
     - block hashing;
@@ -33,7 +46,16 @@ The library that implements models and algorithms of blockchain.
       - based on the [Hashcash](https://en.wikipedia.org/wiki/Hashcash) algorithm;
       - additional storing in a block (in a hash actually):
         - nonce;
-        - target bit.
+        - target bit;
+- storages:
+  - operations:
+    - loading the last block;
+    - storing a block;
+  - kinds:
+    - memory storage:
+      - storing blocks in memory;
+      - additional operations:
+        - getting the stored blocks.
 
 ## Installation
 
