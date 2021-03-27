@@ -9,6 +9,11 @@ type MemoryStorage struct {
 	blocks []blockchain.Block
 }
 
+// Blocks ...
+func (storage MemoryStorage) Blocks() []blockchain.Block {
+	return storage.blocks
+}
+
 // LoadLastBlock ...
 func (storage MemoryStorage) LoadLastBlock() (blockchain.Block, error) {
 	if len(storage.blocks) == 0 {
