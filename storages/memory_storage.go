@@ -18,3 +18,9 @@ func (storage MemoryStorage) LoadLastBlock() (blockchain.Block, error) {
 	lastBlock := storage.blocks[len(storage.blocks)-1]
 	return lastBlock, nil
 }
+
+// StoreBlock ...
+func (storage *MemoryStorage) StoreBlock(block blockchain.Block) error {
+	storage.blocks = append(storage.blocks, block)
+	return nil
+}
