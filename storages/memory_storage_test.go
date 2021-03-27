@@ -9,6 +9,37 @@ import (
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
+func TestMemoryStorage_Blocks(test *testing.T) {
+	storage := MemoryStorage{
+		blocks: []blockchain.Block{
+			{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "hash #1",
+				PrevHash:  "",
+			},
+			{
+				Timestamp: clock().Add(time.Hour),
+				Data:      new(MockHasher),
+				Hash:      "hash #2",
+				PrevHash:  "hash #1",
+			},
+			{
+				Timestamp: clock().Add(2 * time.Hour),
+				Data:      new(MockHasher),
+				Hash:      "hash #3",
+				PrevHash:  "hash #2",
+			},
+		},
+	}
+	gotBlocks := storage.Blocks()
+
+	for _, block := range storage.blocks {
+		mock.AssertExpectationsForObjects(test, block.Data)
+	}
+	assert.Equal(test, storage.blocks, gotBlocks)
+}
+
 func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 	type fields struct {
 		blocks []blockchain.Block
