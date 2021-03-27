@@ -82,6 +82,39 @@ func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 	}
 }
 
+func TestMemoryStorage_StoreBlock(test *testing.T) {
+	type fields struct {
+		blocks []blockchain.Block
+	}
+	type args struct {
+		block blockchain.Block
+	}
+
+	for _, data := range []struct {
+		name       string
+		fields     fields
+		args       args
+		wantBlocks []blockchain.Block
+		wantErr    assert.ErrorAssertionFunc
+	}{
+		// TODO: Add test cases.
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			storage := &MemoryStorage{
+				blocks: data.fields.blocks,
+			}
+			gotErr := storage.StoreBlock(data.args.block)
+
+			for _, block := range data.fields.blocks {
+				mock.AssertExpectationsForObjects(test, block.Data)
+			}
+			mock.AssertExpectationsForObjects(test, data.args.block.Data)
+			assert.Equal(test, data.wantBlocks, storage.blocks)
+			data.wantErr(test, gotErr)
+		})
+	}
+}
+
 func clock() time.Time {
 	year, month, day := 2006, time.January, 2
 	hour, minute, second := 15, 4, 5
