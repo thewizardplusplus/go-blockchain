@@ -97,7 +97,89 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 		wantBlocks []blockchain.Block
 		wantErr    assert.ErrorAssertionFunc
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success with a nonempty storage",
+			fields: fields{
+				blocks: []blockchain.Block{
+					{
+						Timestamp: clock(),
+						Data:      new(MockHasher),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data:      new(MockHasher),
+						Hash:      "hash #2",
+						PrevHash:  "hash #1",
+					},
+					{
+						Timestamp: clock().Add(2 * time.Hour),
+						Data:      new(MockHasher),
+						Hash:      "hash #3",
+						PrevHash:  "hash #2",
+					},
+				},
+			},
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock().Add(3 * time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "hash #4",
+					PrevHash:  "hash #3",
+				},
+			},
+			wantBlocks: []blockchain.Block{
+				{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+				{
+					Timestamp: clock().Add(3 * time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "hash #4",
+					PrevHash:  "hash #3",
+				},
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "success with an empty storage",
+			fields: fields{
+				blocks: nil,
+			},
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+			},
+			wantBlocks: []blockchain.Block{
+				{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+			},
+			wantErr: assert.NoError,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			storage := &MemoryStorage{
