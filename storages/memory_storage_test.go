@@ -2,6 +2,7 @@ package storages
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -19,7 +20,52 @@ func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 		wantLastBlock blockchain.Block
 		wantErr       assert.ErrorAssertionFunc
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success",
+			fields: fields{
+				blocks: []blockchain.Block{
+					{
+						Timestamp: clock(),
+						Data:      new(MockHasher),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data:      new(MockHasher),
+						Hash:      "hash #2",
+						PrevHash:  "hash #1",
+					},
+					{
+						Timestamp: clock().Add(2 * time.Hour),
+						Data:      new(MockHasher),
+						Hash:      "hash #3",
+						PrevHash:  "hash #2",
+					},
+				},
+			},
+			wantLastBlock: blockchain.Block{
+				Timestamp: clock().Add(2 * time.Hour),
+				Data:      new(MockHasher),
+				Hash:      "hash #3",
+				PrevHash:  "hash #2",
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error",
+			fields: fields{
+				blocks: nil,
+			},
+			wantLastBlock: blockchain.Block{},
+			wantErr: func(
+				test assert.TestingT,
+				err error,
+				msgAndArgs ...interface{},
+			) bool {
+				return assert.Equal(test, blockchain.ErrEmptyStorage, err, msgAndArgs...)
+			},
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			storage := MemoryStorage{
@@ -34,4 +80,15 @@ func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 			data.wantErr(test, gotErr)
 		})
 	}
+}
+
+func clock() time.Time {
+	year, month, day := 2006, time.January, 2
+	hour, minute, second := 15, 4, 5
+	return time.Date(
+		year, month, day,
+		hour, minute, second,
+		0,        // nanosecond
+		time.UTC, // location
+	)
 }
