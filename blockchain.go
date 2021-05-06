@@ -39,7 +39,7 @@ func NewBlockchain(
 	case errors.Cause(err) == ErrEmptyStorage:
 		genesisBlock :=
 			NewGenesisBlock(genesisBlockData, dependencies.BlockDependencies)
-		if err := dependencies.Storage.StoreBlock(genesisBlock); err != nil {
+		if err = dependencies.Storage.StoreBlock(genesisBlock); err != nil {
 			return nil, errors.Wrap(err, "unable to store the genesis block")
 		}
 
