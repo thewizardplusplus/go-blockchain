@@ -46,9 +46,5 @@ func (blocks BlockGroup) IsValid(
 		lastBlockValidator =
 			func(block Block) bool { return block.IsValid(nil, dependencies) }
 	}
-	if !lastBlockValidator(blocks[lastIndex]) {
-		return false
-	}
-
-	return true
+	return lastBlockValidator(blocks[lastIndex])
 }
