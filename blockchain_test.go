@@ -310,6 +310,7 @@ func TestBlockchain_AddBlock(test *testing.T) {
 				data.fields.dependencies.Proofer,
 				data.fields.dependencies.Storage,
 				data.fields.lastBlock.Data,
+				data.args.data,
 				blockchain.lastBlock.Data,
 			)
 			assert.Equal(test, data.wantLastBlock, blockchain.lastBlock)
