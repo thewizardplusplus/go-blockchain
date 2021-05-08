@@ -107,6 +107,9 @@ func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 			for _, block := range data.fields.blocks {
 				mock.AssertExpectationsForObjects(test, block.Data)
 			}
+			if gotLastBlock != (blockchain.Block{}) {
+				mock.AssertExpectationsForObjects(test, gotLastBlock.Data)
+			}
 			assert.Equal(test, data.wantLastBlock, gotLastBlock)
 			data.wantErr(test, gotErr)
 		})
