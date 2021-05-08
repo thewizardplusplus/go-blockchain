@@ -142,20 +142,8 @@ func TestBlock_IsValid(test *testing.T) {
 					Hash:      "previous hash",
 				},
 				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", Block{
-								Timestamp: clock(),
-								Data:      new(MockHasher),
-								Hash:      "hash",
-								PrevHash:  "previous hash",
-							}).
-							Return(true)
-
-						return proofer
-					}(),
+					Clock:   clock,
+					Proofer: new(MockProofer),
 				},
 			},
 			want: assert.False,
@@ -174,20 +162,8 @@ func TestBlock_IsValid(test *testing.T) {
 					Hash:      "incorrect hash",
 				},
 				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", Block{
-								Timestamp: clock(),
-								Data:      new(MockHasher),
-								Hash:      "hash",
-								PrevHash:  "previous hash",
-							}).
-							Return(true)
-
-						return proofer
-					}(),
+					Clock:   clock,
+					Proofer: new(MockProofer),
 				},
 			},
 			want: assert.False,
@@ -234,7 +210,11 @@ func TestBlock_IsValid(test *testing.T) {
 			}
 			got := block.IsValid(data.args.prevBlock, data.args.dependencies)
 
-			mock.AssertExpectationsForObjects(test, data.fields.Data)
+			mock.AssertExpectationsForObjects(
+				test,
+				data.fields.Data,
+				data.args.dependencies.Proofer,
+			)
 			data.want(test, got)
 		})
 	}
