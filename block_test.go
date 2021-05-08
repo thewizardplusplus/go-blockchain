@@ -240,6 +240,44 @@ func TestBlock_IsValid(test *testing.T) {
 	}
 }
 
+func TestBlock_IsValidGenesisBlock(test *testing.T) {
+	type fields struct {
+		Timestamp time.Time
+		Data      Hasher
+		Hash      string
+		PrevHash  string
+	}
+	type args struct {
+		dependencies BlockDependencies
+	}
+
+	for _, data := range []struct {
+		name   string
+		fields fields
+		args   args
+		want   assert.BoolAssertionFunc
+	}{
+		// TODO: Add test cases.
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			block := Block{
+				Timestamp: data.fields.Timestamp,
+				Data:      data.fields.Data,
+				Hash:      data.fields.Hash,
+				PrevHash:  data.fields.PrevHash,
+			}
+			got := block.IsValidGenesisBlock(data.args.dependencies)
+
+			mock.AssertExpectationsForObjects(
+				test,
+				data.fields.Data,
+				data.args.dependencies.Proofer,
+			)
+			data.want(test, got)
+		})
+	}
+}
+
 func clock() time.Time {
 	year, month, day := 2006, time.January, 2
 	hour, minute, second := 15, 4, 5
