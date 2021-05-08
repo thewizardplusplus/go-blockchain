@@ -257,7 +257,94 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 		args   args
 		want   assert.BoolAssertionFunc
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "hash",
+				PrevHash:  "",
+			},
+			args: args{
+				dependencies: BlockDependencies{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On("Validate", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "",
+							}).
+							Return(true)
+
+						return proofer
+					}(),
+				},
+			},
+			want: assert.True,
+		},
+		{
+			name: "failure due to timestamps",
+			fields: fields{
+				Timestamp: time.Time{},
+				Data:      new(MockHasher),
+				Hash:      "hash",
+				PrevHash:  "",
+			},
+			args: args{
+				dependencies: BlockDependencies{
+					Clock:   clock,
+					Proofer: new(MockProofer),
+				},
+			},
+			want: assert.False,
+		},
+		{
+			name: "failure due to hashes",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			args: args{
+				dependencies: BlockDependencies{
+					Clock:   clock,
+					Proofer: new(MockProofer),
+				},
+			},
+			want: assert.False,
+		},
+		{
+			name: "failure due to proofers",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      new(MockHasher),
+				Hash:      "hash",
+				PrevHash:  "",
+			},
+			args: args{
+				dependencies: BlockDependencies{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On("Validate", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "",
+							}).
+							Return(false)
+
+						return proofer
+					}(),
+				},
+			},
+			want: assert.False,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			block := Block{
