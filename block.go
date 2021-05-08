@@ -76,3 +76,8 @@ func (block Block) IsValid(
 
 	return dependencies.Proofer.Validate(block)
 }
+
+// IsValidGenesisBlock ...
+func (block Block) IsValidGenesisBlock(dependencies BlockDependencies) bool {
+	return block.IsValid(Block{}, dependencies)
+}
