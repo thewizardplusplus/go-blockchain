@@ -6,11 +6,11 @@ import (
 
 // MemoryStorage ...
 type MemoryStorage struct {
-	blocks []blockchain.Block
+	blocks blockchain.BlockGroup
 }
 
 // Blocks ...
-func (storage MemoryStorage) Blocks() []blockchain.Block {
+func (storage MemoryStorage) Blocks() blockchain.BlockGroup {
 	return storage.blocks
 }
 

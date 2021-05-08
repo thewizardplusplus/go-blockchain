@@ -11,7 +11,7 @@ import (
 
 func TestMemoryStorage_Blocks(test *testing.T) {
 	storage := MemoryStorage{
-		blocks: []blockchain.Block{
+		blocks: blockchain.BlockGroup{
 			{
 				Timestamp: clock(),
 				Data:      new(MockHasher),
@@ -42,7 +42,7 @@ func TestMemoryStorage_Blocks(test *testing.T) {
 
 func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 	type fields struct {
-		blocks []blockchain.Block
+		blocks blockchain.BlockGroup
 	}
 
 	for _, data := range []struct {
@@ -54,7 +54,7 @@ func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 		{
 			name: "success",
 			fields: fields{
-				blocks: []blockchain.Block{
+				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
 						Data:      new(MockHasher),
@@ -118,7 +118,7 @@ func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 
 func TestMemoryStorage_StoreBlock(test *testing.T) {
 	type fields struct {
-		blocks []blockchain.Block
+		blocks blockchain.BlockGroup
 	}
 	type args struct {
 		block blockchain.Block
@@ -128,13 +128,13 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 		name       string
 		fields     fields
 		args       args
-		wantBlocks []blockchain.Block
+		wantBlocks blockchain.BlockGroup
 		wantErr    assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success with a nonempty storage",
 			fields: fields{
-				blocks: []blockchain.Block{
+				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
 						Data:      new(MockHasher),
@@ -163,7 +163,7 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 					PrevHash:  "hash #3",
 				},
 			},
-			wantBlocks: []blockchain.Block{
+			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
 					Data:      new(MockHasher),
@@ -204,7 +204,7 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 					PrevHash:  "",
 				},
 			},
-			wantBlocks: []blockchain.Block{
+			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
 					Data:      new(MockHasher),
