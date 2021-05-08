@@ -13,7 +13,10 @@ const (
 type BlockGroup []Block
 
 // IsValid ...
-func (blocks BlockGroup) IsValid(dependencies BlockDependencies) bool {
+func (blocks BlockGroup) IsValid(
+	validationMode ValidationMode,
+	dependencies BlockDependencies,
+) bool {
 	lastIndex := len(blocks) - 1
 	for index, block := range blocks[:lastIndex] {
 		prevBlock := &blocks[index+1]
@@ -22,7 +25,16 @@ func (blocks BlockGroup) IsValid(dependencies BlockDependencies) bool {
 		}
 	}
 
-	if !blocks[lastIndex].IsValidGenesisBlock(dependencies) {
+	var lastBlockValidator func(block Block) bool
+	switch validationMode {
+	case AsFullBlockchain:
+		lastBlockValidator =
+			func(block Block) bool { return block.IsValidGenesisBlock(dependencies) }
+	case AsBlockchainChunk:
+		lastBlockValidator =
+			func(block Block) bool { return block.IsValid(nil, dependencies) }
+	}
+	if !lastBlockValidator(blocks[lastIndex]) {
 		return false
 	}
 
