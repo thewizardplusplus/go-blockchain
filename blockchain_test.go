@@ -165,6 +165,7 @@ func TestNewBlockchain(test *testing.T) {
 
 			mock.AssertExpectationsForObjects(
 				test,
+				data.args.genesisBlockData,
 				data.args.dependencies.Proofer,
 				data.args.dependencies.Storage,
 			)
