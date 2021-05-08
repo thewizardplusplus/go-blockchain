@@ -18,6 +18,10 @@ func (blocks BlockGroup) IsValid(
 	validationMode ValidationMode,
 	dependencies BlockDependencies,
 ) bool {
+	if len(blocks) == 0 {
+		return true
+	}
+
 	if len(prependedChunk) != 0 {
 		prevBlock := &blocks[0]
 		if !prependedChunk[len(prependedChunk)-1].IsValid(prevBlock, dependencies) {
