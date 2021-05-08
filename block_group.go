@@ -1,5 +1,14 @@
 package blockchain
 
+// ValidationMode ...
+type ValidationMode int
+
+// ...
+const (
+	AsFullBlockchain ValidationMode = iota
+	AsBlockchainChunk
+)
+
 // BlockGroup ...
 type BlockGroup []Block
 
