@@ -86,7 +86,7 @@ func TestBlock_IsValid(test *testing.T) {
 		PrevHash  string
 	}
 	type args struct {
-		prevBlock    Block
+		prevBlock    *Block
 		dependencies BlockDependencies
 	}
 
@@ -105,7 +105,7 @@ func TestBlock_IsValid(test *testing.T) {
 				PrevHash:  "previous hash",
 			},
 			args: args{
-				prevBlock: Block{
+				prevBlock: &Block{
 					Timestamp: clock().Add(-time.Hour),
 					Hash:      "previous hash",
 				},
@@ -137,7 +137,7 @@ func TestBlock_IsValid(test *testing.T) {
 				PrevHash:  "previous hash",
 			},
 			args: args{
-				prevBlock: Block{
+				prevBlock: &Block{
 					Timestamp: clock().Add(time.Hour),
 					Hash:      "previous hash",
 				},
@@ -157,7 +157,7 @@ func TestBlock_IsValid(test *testing.T) {
 				PrevHash:  "previous hash",
 			},
 			args: args{
-				prevBlock: Block{
+				prevBlock: &Block{
 					Timestamp: clock().Add(-time.Hour),
 					Hash:      "incorrect hash",
 				},
@@ -177,7 +177,7 @@ func TestBlock_IsValid(test *testing.T) {
 				PrevHash:  "previous hash",
 			},
 			args: args{
-				prevBlock: Block{
+				prevBlock: &Block{
 					Timestamp: clock().Add(-time.Hour),
 					Hash:      "previous hash",
 				},

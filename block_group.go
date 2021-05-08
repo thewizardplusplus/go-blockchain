@@ -7,7 +7,7 @@ type BlockGroup []Block
 func (blocks BlockGroup) IsValid(dependencies BlockDependencies) bool {
 	lastIndex := len(blocks) - 1
 	for index, block := range blocks[:lastIndex] {
-		prevBlock := blocks[index+1]
+		prevBlock := &blocks[index+1]
 		if !block.IsValid(prevBlock, dependencies) {
 			return false
 		}

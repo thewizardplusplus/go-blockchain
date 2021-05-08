@@ -64,13 +64,18 @@ func (block Block) MergedData() string {
 
 // IsValid ...
 func (block Block) IsValid(
-	prevBlock Block,
+	prevBlock *Block,
 	dependencies BlockDependencies,
 ) bool {
-	if !block.Timestamp.After(prevBlock.Timestamp) {
+	var prevTimestamp time.Time
+	if prevBlock != nil {
+		prevTimestamp = prevBlock.Timestamp
+	}
+	if !block.Timestamp.After(prevTimestamp) {
 		return false
 	}
-	if block.PrevHash != prevBlock.Hash {
+
+	if prevBlock != nil && block.PrevHash != prevBlock.Hash {
 		return false
 	}
 
@@ -79,5 +84,5 @@ func (block Block) IsValid(
 
 // IsValidGenesisBlock ...
 func (block Block) IsValidGenesisBlock(dependencies BlockDependencies) bool {
-	return block.IsValid(Block{}, dependencies)
+	return block.IsValid(&Block{}, dependencies)
 }
