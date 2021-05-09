@@ -22,6 +22,16 @@ The library that implements models and algorithms of blockchain.
       - self-validation (using a proofer);
   - genesis block:
     - based on a usual block without a previous hash;
+  - block group:
+    - storing:
+      - group of blocks;
+    - operations:
+      - self-validation (using a proofer):
+        - modes:
+          - as a full blockchain;
+          - as a blockchain chunk;
+        - takes into account a prepended chunk;
+        - allows empty block groups;
   - blockchain:
     - storing:
       - storage;
