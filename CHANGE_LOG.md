@@ -1,5 +1,21 @@
 # Change Log
 
+## [v1.2](https://github.com/thewizardplusplus/go-blockchain/tree/v1.2) (2021-05-09)
+
+Implementing a block group abstraction with self-validation; supporting the two modes of its validation: as a full blockchain and as a blockchain chunk.
+
+- models:
+  - block group:
+    - storing:
+      - group of blocks;
+    - operations:
+      - self-validation (using a proofer):
+        - modes:
+          - as a full blockchain;
+          - as a blockchain chunk;
+        - takes into account a prepended chunk;
+        - allows empty block groups.
+
 ## [v1.1](https://github.com/thewizardplusplus/go-blockchain/tree/v1.1) (2021-03-27)
 
 Implementing a blockchain abstraction that works with a storage and a memory storage for it.
