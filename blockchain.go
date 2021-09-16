@@ -4,9 +4,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ErrEmptyStorage ...
-var ErrEmptyStorage = errors.New("empty storage")
-
 // Dependencies ...
 type Dependencies struct {
 	BlockDependencies
