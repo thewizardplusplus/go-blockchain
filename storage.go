@@ -14,3 +14,12 @@ type Storage interface {
 	LoadLastBlock() (Block, error)
 	StoreBlock(block Block) error
 }
+
+// Loader ...
+type Loader interface {
+	LoadBlocks(cursor interface{}, count int) (
+		blocks BlockGroup,
+		nextCursor interface{},
+		err error,
+	)
+}
