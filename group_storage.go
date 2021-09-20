@@ -11,6 +11,16 @@ type GroupStorage interface {
 	StoreBlockGroup(blocks BlockGroup) error
 }
 
+// NewGroupStorage ...
+func NewGroupStorage(storage Storage) GroupStorage {
+	groupStorage, ok := storage.(GroupStorage)
+	if ok {
+		return groupStorage
+	}
+
+	return GroupStorageWrapper{Storage: storage}
+}
+
 // GroupStorageWrapper ...
 type GroupStorageWrapper struct {
 	Storage
