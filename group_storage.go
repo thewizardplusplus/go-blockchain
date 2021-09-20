@@ -6,3 +6,8 @@ type GroupStorage interface {
 
 	StoreBlockGroup(blocks BlockGroup) error
 }
+
+// GroupStorageWrapper ...
+type GroupStorageWrapper struct {
+	Storage
+}
