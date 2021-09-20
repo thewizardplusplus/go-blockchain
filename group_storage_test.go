@@ -19,7 +19,20 @@ func TestNewGroupStorage(test *testing.T) {
 		args             args
 		wantGroupStorage GroupStorage
 	}{
-		// TODO: Add test cases.
+		{
+			name: "with the group storage",
+			args: args{
+				storage: new(MockGroupStorage),
+			},
+			wantGroupStorage: new(MockGroupStorage),
+		},
+		{
+			name: "with the storage",
+			args: args{
+				storage: new(MockStorage),
+			},
+			wantGroupStorage: GroupStorageWrapper{Storage: new(MockStorage)},
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			gotGroupStorage := NewGroupStorage(data.args.storage)
