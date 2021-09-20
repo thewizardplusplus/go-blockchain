@@ -27,3 +27,15 @@ func (queue BlockPriorityQueue) Swap(i int, j int) {
 func (queue *BlockPriorityQueue) Push(block interface{}) {
 	*queue = append(*queue, block.(blockchain.Block))
 }
+
+// Pop ...
+func (queue *BlockPriorityQueue) Pop() interface{} {
+	lastIndex := len(*queue) - 1
+	lastBlock := (*queue)[lastIndex]
+	// reset the popped block to avoid memory leaks via its reference fields
+	(*queue)[lastIndex] = blockchain.Block{}
+
+	*queue = (*queue)[:lastIndex]
+
+	return lastBlock
+}
