@@ -9,6 +9,27 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func TestNewGroupStorage(test *testing.T) {
+	type args struct {
+		storage Storage
+	}
+
+	for _, data := range []struct {
+		name             string
+		args             args
+		wantGroupStorage GroupStorage
+	}{
+		// TODO: Add test cases.
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			gotGroupStorage := NewGroupStorage(data.args.storage)
+
+			mock.AssertExpectationsForObjects(test, data.args.storage)
+			assert.Equal(test, data.wantGroupStorage, gotGroupStorage)
+		})
+	}
+}
+
 func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 	type fields struct {
 		Storage Storage
