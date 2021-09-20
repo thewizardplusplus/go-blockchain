@@ -244,13 +244,15 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 			storage := &MemoryStorage{
 				blocks: data.fields.blocks,
 			}
+			heap.Init((*BlockPriorityQueue)(&storage.blocks))
+
 			gotErr := storage.StoreBlock(data.args.block)
 
 			for _, block := range data.fields.blocks {
 				mock.AssertExpectationsForObjects(test, block.Data)
 			}
 			mock.AssertExpectationsForObjects(test, data.args.block.Data)
-			assert.Equal(test, data.wantBlocks, storage.blocks)
+			assert.Equal(test, data.wantBlocks, storage.Blocks())
 			data.wantErr(test, gotErr)
 		})
 	}

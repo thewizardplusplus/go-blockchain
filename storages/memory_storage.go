@@ -42,6 +42,6 @@ func (storage *MemoryStorage) LoadLastBlock() (blockchain.Block, error) {
 
 // StoreBlock ...
 func (storage *MemoryStorage) StoreBlock(block blockchain.Block) error {
-	storage.blocks = append(storage.blocks, block)
+	heap.Push((*BlockPriorityQueue)(&storage.blocks), block)
 	return nil
 }
