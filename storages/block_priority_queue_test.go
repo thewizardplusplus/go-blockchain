@@ -145,3 +145,52 @@ func TestBlockPriorityQueue_Less(test *testing.T) {
 		})
 	}
 }
+
+func TestBlockPriorityQueue_Swap(test *testing.T) {
+	queue := BlockPriorityQueue(blockchain.BlockGroup{
+		{
+			Timestamp: clock(),
+			Data:      new(MockHasher),
+			Hash:      "hash #1",
+			PrevHash:  "",
+		},
+		{
+			Timestamp: clock().Add(time.Hour),
+			Data:      new(MockHasher),
+			Hash:      "hash #2",
+			PrevHash:  "hash #1",
+		},
+		{
+			Timestamp: clock().Add(2 * time.Hour),
+			Data:      new(MockHasher),
+			Hash:      "hash #3",
+			PrevHash:  "hash #2",
+		},
+	})
+	queue.Swap(0, 2)
+
+	wantQueue := BlockPriorityQueue(blockchain.BlockGroup{
+		{
+			Timestamp: clock().Add(2 * time.Hour),
+			Data:      new(MockHasher),
+			Hash:      "hash #3",
+			PrevHash:  "hash #2",
+		},
+		{
+			Timestamp: clock().Add(time.Hour),
+			Data:      new(MockHasher),
+			Hash:      "hash #2",
+			PrevHash:  "hash #1",
+		},
+		{
+			Timestamp: clock(),
+			Data:      new(MockHasher),
+			Hash:      "hash #1",
+			PrevHash:  "",
+		},
+	})
+	for _, block := range queue {
+		mock.AssertExpectationsForObjects(test, block.Data)
+	}
+	assert.Equal(test, wantQueue, queue)
+}
