@@ -6,3 +6,8 @@ import (
 
 // BlockPriorityQueue ...
 type BlockPriorityQueue blockchain.BlockGroup
+
+// Len ...
+func (queue BlockPriorityQueue) Len() int {
+	return len(queue)
+}
