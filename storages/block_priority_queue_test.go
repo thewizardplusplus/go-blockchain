@@ -254,3 +254,57 @@ func TestBlockPriorityQueue_Push(test *testing.T) {
 	}
 	assert.Equal(test, wantQueue, queue)
 }
+
+func TestBlockPriorityQueue_Pop(test *testing.T) {
+	queue := BlockPriorityQueue(blockchain.BlockGroup{
+		{
+			Timestamp: clock(),
+			Data:      new(MockHasher),
+			Hash:      "hash #1",
+			PrevHash:  "",
+		},
+		{
+			Timestamp: clock().Add(time.Hour),
+			Data:      new(MockHasher),
+			Hash:      "hash #2",
+			PrevHash:  "hash #1",
+		},
+		{
+			Timestamp: clock().Add(2 * time.Hour),
+			Data:      new(MockHasher),
+			Hash:      "hash #3",
+			PrevHash:  "hash #2",
+		},
+	})
+	lastBlock := queue.Pop()
+
+	wantQueue := BlockPriorityQueue(blockchain.BlockGroup{
+		{
+			Timestamp: clock(),
+			Data:      new(MockHasher),
+			Hash:      "hash #1",
+			PrevHash:  "",
+		},
+		{
+			Timestamp: clock().Add(time.Hour),
+			Data:      new(MockHasher),
+			Hash:      "hash #2",
+			PrevHash:  "hash #1",
+		},
+	})
+	for _, block := range queue {
+		mock.AssertExpectationsForObjects(test, block.Data)
+	}
+	assert.Equal(test, wantQueue, queue)
+
+	wantLastBlock := blockchain.Block{
+		Timestamp: clock().Add(2 * time.Hour),
+		Data:      new(MockHasher),
+		Hash:      "hash #3",
+		PrevHash:  "hash #2",
+	}
+	if assert.IsType(test, blockchain.Block{}, lastBlock) {
+		mock.AssertExpectationsForObjects(test, lastBlock.(blockchain.Block).Data)
+	}
+	assert.Equal(test, wantLastBlock, lastBlock)
+}
