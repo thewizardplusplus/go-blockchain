@@ -22,3 +22,8 @@ func (queue BlockPriorityQueue) Less(i int, j int) bool {
 func (queue BlockPriorityQueue) Swap(i int, j int) {
 	queue[i], queue[j] = queue[j], queue[i]
 }
+
+// Push ...
+func (queue *BlockPriorityQueue) Push(block interface{}) {
+	*queue = append(*queue, block.(blockchain.Block))
+}
