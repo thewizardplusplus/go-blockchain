@@ -4,6 +4,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate mockery --name=GroupStorage --inpackage --case=underscore --testonly
+
 // GroupStorage ...
 type GroupStorage interface {
 	Storage
