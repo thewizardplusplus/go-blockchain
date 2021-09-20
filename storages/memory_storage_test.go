@@ -1,6 +1,7 @@
 package storages
 
 import (
+	"container/heap"
 	"testing"
 	"time"
 
@@ -32,12 +33,34 @@ func TestMemoryStorage_Blocks(test *testing.T) {
 			},
 		},
 	}
+	heap.Init((*BlockPriorityQueue)(&storage.blocks))
+
 	gotBlocks := storage.Blocks()
 
+	wantBlocks := blockchain.BlockGroup{
+		{
+			Timestamp: clock(),
+			Data:      new(MockHasher),
+			Hash:      "hash #1",
+			PrevHash:  "",
+		},
+		{
+			Timestamp: clock().Add(time.Hour),
+			Data:      new(MockHasher),
+			Hash:      "hash #2",
+			PrevHash:  "hash #1",
+		},
+		{
+			Timestamp: clock().Add(2 * time.Hour),
+			Data:      new(MockHasher),
+			Hash:      "hash #3",
+			PrevHash:  "hash #2",
+		},
+	}
 	for _, block := range storage.blocks {
 		mock.AssertExpectationsForObjects(test, block.Data)
 	}
-	assert.Equal(test, storage.blocks, gotBlocks)
+	assert.Equal(test, wantBlocks, gotBlocks)
 }
 
 func TestMemoryStorage_LoadLastBlock(test *testing.T) {

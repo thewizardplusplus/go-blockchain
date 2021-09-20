@@ -1,6 +1,8 @@
 package storages
 
 import (
+	"container/heap"
+
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
@@ -11,7 +13,18 @@ type MemoryStorage struct {
 
 // Blocks ...
 func (storage MemoryStorage) Blocks() blockchain.BlockGroup {
-	return storage.blocks
+	blocksCopy := make(blockchain.BlockGroup, len(storage.blocks))
+	copy(blocksCopy, storage.blocks)
+	heap.Init((*BlockPriorityQueue)(&blocksCopy))
+
+	blocks := make(blockchain.BlockGroup, len(storage.blocks))
+	for len(blocksCopy) != 0 {
+		targetIndex := len(blocksCopy) - 1
+		lastBlock := heap.Pop((*BlockPriorityQueue)(&blocksCopy))
+		blocks[targetIndex] = lastBlock.(blockchain.Block)
+	}
+
+	return blocks
 }
 
 // LoadLastBlock ...
