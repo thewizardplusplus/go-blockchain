@@ -15,6 +15,8 @@ type Storage interface {
 	StoreBlock(block Block) error
 }
 
+//go:generate mockery --name=Loader --inpackage --case=underscore --testonly
+
 // Loader ...
 type Loader interface {
 	LoadBlocks(cursor interface{}, count int) (
