@@ -28,7 +28,7 @@ type Loader interface {
 
 // LoadStorage ...
 func LoadStorage(
-	storage Storage,
+	storage GroupStorage,
 	loader Loader,
 	initialCursor interface{},
 	chunkSize int,
@@ -44,12 +44,9 @@ func LoadStorage(
 			break
 		}
 
-		for index, block := range blocks {
-			if err := storage.StoreBlock(block); err != nil {
-				const message = "unable to store block #%d " +
-					"from the blocks corresponding to cursor %v"
-				return cursor, errors.Wrapf(err, message, index, cursor)
-			}
+		if err := storage.StoreBlockGroup(blocks); err != nil {
+			const message = "unable to store the blocks corresponding to cursor %v"
+			return cursor, errors.Wrapf(err, message, cursor)
 		}
 
 		cursor = nextCursor

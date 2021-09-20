@@ -11,7 +11,7 @@ import (
 
 func TestLoadStorage(test *testing.T) {
 	type args struct {
-		storage       Storage
+		storage       GroupStorage
 		loader        Loader
 		initialCursor interface{}
 		chunkSize     int
@@ -26,7 +26,7 @@ func TestLoadStorage(test *testing.T) {
 		{
 			name: "success without blocks",
 			args: args{
-				storage: new(MockStorage),
+				storage: new(MockGroupStorage),
 				loader: func() Loader {
 					loader := new(MockLoader)
 					loader.On("LoadBlocks", "cursor-one", 23).Return(nil, "cursor-two", nil)
@@ -42,7 +42,7 @@ func TestLoadStorage(test *testing.T) {
 		{
 			name: "success with blocks",
 			args: args{
-				storage: func() Storage {
+				storage: func() GroupStorage {
 					blocks := BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
@@ -58,10 +58,8 @@ func TestLoadStorage(test *testing.T) {
 						},
 					}
 
-					storage := new(MockStorage)
-					for _, block := range blocks {
-						storage.On("StoreBlock", block).Return(nil)
-					}
+					storage := new(MockGroupStorage)
+					storage.On("StoreBlockGroup", blocks).Return(nil)
 
 					return storage
 				}(),
@@ -96,7 +94,7 @@ func TestLoadStorage(test *testing.T) {
 		{
 			name: "error with block loading",
 			args: args{
-				storage: new(MockStorage),
+				storage: new(MockGroupStorage),
 				loader: func() Loader {
 					loader := new(MockLoader)
 					loader.
@@ -114,16 +112,24 @@ func TestLoadStorage(test *testing.T) {
 		{
 			name: "error with block storing",
 			args: args{
-				storage: func() Storage {
-					block := Block{
-						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockHasher),
-						Hash:      "next hash",
-						PrevHash:  "hash",
+				storage: func() GroupStorage {
+					blocks := BlockGroup{
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data:      new(MockHasher),
+							Hash:      "next hash",
+							PrevHash:  "hash",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockHasher),
+							Hash:      "hash",
+							PrevHash:  "previous hash",
+						},
 					}
 
-					storage := new(MockStorage)
-					storage.On("StoreBlock", block).Return(iotest.ErrTimeout)
+					storage := new(MockGroupStorage)
+					storage.On("StoreBlockGroup", blocks).Return(iotest.ErrTimeout)
 
 					return storage
 				}(),
