@@ -125,6 +125,8 @@ func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 			storage := MemoryStorage{
 				blocks: data.fields.blocks,
 			}
+			heap.Init((*BlockPriorityQueue)(&storage.blocks))
+
 			gotLastBlock, gotErr := storage.LoadLastBlock()
 
 			for _, block := range data.fields.blocks {

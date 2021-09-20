@@ -28,13 +28,16 @@ func (storage MemoryStorage) Blocks() blockchain.BlockGroup {
 }
 
 // LoadLastBlock ...
-func (storage MemoryStorage) LoadLastBlock() (blockchain.Block, error) {
+func (storage *MemoryStorage) LoadLastBlock() (blockchain.Block, error) {
 	if len(storage.blocks) == 0 {
 		return blockchain.Block{}, blockchain.ErrEmptyStorage
 	}
 
-	lastBlock := storage.blocks[len(storage.blocks)-1]
-	return lastBlock, nil
+	lastBlock := heap.Pop((*BlockPriorityQueue)(&storage.blocks))
+	// restore the popped block
+	heap.Push((*BlockPriorityQueue)(&storage.blocks), lastBlock)
+
+	return lastBlock.(blockchain.Block), nil
 }
 
 // StoreBlock ...
