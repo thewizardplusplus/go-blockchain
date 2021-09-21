@@ -1,5 +1,33 @@
 # Change Log
 
+## [v1.3](https://github.com/thewizardplusplus/go-blockchain/tree/v1.3) (2021-09-21)
+
+Implementing the loading of block groups to a storage via the external interface; supporting the automatical validation of the loaded block groups.
+
+- models:
+  - block group:
+    - operations:
+      - validation of the last block (using a proofer):
+        - modes:
+          - as a full blockchain;
+          - as a blockchain chunk;
+  - block group loaders:
+    - loading block groups via the external interface;
+    - automatically saving the loaded block groups to a storage;
+    - wrappers:
+      - chunk validating loader:
+        - automatically validates the loaded block group as a blockchain chunk;
+      - last block validating loader:
+        - automatically validates the last block from the loaded block group;
+        - automatically preloads the next block group to perform the above validation;
+      - memoizing loader:
+        - remembers loaded block groups;
+- storages:
+  - operations:
+    - storing a block group (optional);
+  - wrappers:
+    - wrapper that adds support for saving a block group to those storages that cannot do this.
+
 ## [v1.2](https://github.com/thewizardplusplus/go-blockchain/tree/v1.2) (2021-05-09)
 
 Implementing a block group abstraction with self-validation; supporting the two modes of its validation: as a full blockchain and as a blockchain chunk.
