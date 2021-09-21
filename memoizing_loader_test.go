@@ -3,6 +3,8 @@ package blockchain
 import (
 	"sync"
 	"testing"
+	"testing/iotest"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -40,7 +42,175 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 		wantNextCursor     interface{}
 		wantErr            assert.ErrorAssertionFunc
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success with the not memoized request",
+			fields: fields{
+				loader: func() Loader {
+					blocks := BlockGroup{
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data:      new(MockHasher),
+							Hash:      "next hash",
+							PrevHash:  "hash",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockHasher),
+							Hash:      "hash",
+							PrevHash:  "previous hash",
+						},
+					}
+
+					loader := new(MockLoader)
+					loader.On("LoadBlocks", "cursor-one", 23).Return(blocks, "cursor-two", nil)
+
+					return loader
+				}(),
+				loadingResults: new(sync.Map),
+			},
+			args: args{
+				cursor: "cursor-one",
+				count:  23,
+			},
+			wantLoadingResults: []memoizedRecord{
+				{
+					key: loadingParameters{
+						cursor: "cursor-one",
+						count:  23,
+					},
+					value: loadingResult{
+						blocks: BlockGroup{
+							{
+								Timestamp: clock().Add(time.Hour),
+								Data:      new(MockHasher),
+								Hash:      "next hash",
+								PrevHash:  "hash",
+							},
+							{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "previous hash",
+							},
+						},
+						nextCursor: "cursor-two",
+					},
+				},
+			},
+			wantBlocks: BlockGroup{
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "next hash",
+					PrevHash:  "hash",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			wantNextCursor: "cursor-two",
+			wantErr:        assert.NoError,
+		},
+		{
+			name: "success with the memoized request",
+			fields: fields{
+				loader: new(MockLoader),
+				loadingResults: func() *sync.Map {
+					blocks := BlockGroup{
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data:      new(MockHasher),
+							Hash:      "next hash",
+							PrevHash:  "hash",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockHasher),
+							Hash:      "hash",
+							PrevHash:  "previous hash",
+						},
+					}
+
+					parameters := loadingParameters{cursor: "cursor-one", count: 23}
+					results := loadingResult{blocks: blocks, nextCursor: "cursor-two"}
+
+					loadingResults := new(sync.Map)
+					loadingResults.Store(parameters, results)
+
+					return loadingResults
+				}(),
+			},
+			args: args{
+				cursor: "cursor-one",
+				count:  23,
+			},
+			wantLoadingResults: []memoizedRecord{
+				{
+					key: loadingParameters{
+						cursor: "cursor-one",
+						count:  23,
+					},
+					value: loadingResult{
+						blocks: BlockGroup{
+							{
+								Timestamp: clock().Add(time.Hour),
+								Data:      new(MockHasher),
+								Hash:      "next hash",
+								PrevHash:  "hash",
+							},
+							{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "previous hash",
+							},
+						},
+						nextCursor: "cursor-two",
+					},
+				},
+			},
+			wantBlocks: BlockGroup{
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "next hash",
+					PrevHash:  "hash",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			wantNextCursor: "cursor-two",
+			wantErr:        assert.NoError,
+		},
+		{
+			name: "error",
+			fields: fields{
+				loader: func() Loader {
+					loader := new(MockLoader)
+					loader.
+						On("LoadBlocks", "cursor-one", 23).
+						Return(nil, nil, iotest.ErrTimeout)
+
+					return loader
+				}(),
+				loadingResults: new(sync.Map),
+			},
+			args: args{
+				cursor: "cursor-one",
+				count:  23,
+			},
+			wantLoadingResults: nil,
+			wantBlocks:         nil,
+			wantNextCursor:     nil,
+			wantErr:            assert.Error,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			loader := MemoizingLoader{
