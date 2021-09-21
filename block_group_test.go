@@ -351,3 +351,37 @@ func TestBlockGroup_IsValid(test *testing.T) {
 		})
 	}
 }
+
+func TestBlockGroup_IsLastBlockValid(test *testing.T) {
+	type args struct {
+		prevBlock      *Block
+		validationMode ValidationMode
+		dependencies   BlockDependencies
+	}
+
+	for _, data := range []struct {
+		name   string
+		blocks BlockGroup
+		args   args
+		want   assert.BoolAssertionFunc
+	}{
+		// TODO: Add test cases.
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			got := data.blocks.IsLastBlockValid(
+				data.args.prevBlock,
+				data.args.validationMode,
+				data.args.dependencies,
+			)
+
+			for _, block := range data.blocks {
+				mock.AssertExpectationsForObjects(test, block.Data)
+			}
+			if data.args.prevBlock != nil {
+				mock.AssertExpectationsForObjects(test, data.args.prevBlock.Data)
+			}
+			mock.AssertExpectationsForObjects(test, data.args.dependencies.Proofer)
+			data.want(test, got)
+		})
+	}
+}
