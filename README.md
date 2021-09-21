@@ -32,6 +32,21 @@ The library that implements models and algorithms of blockchain.
           - as a blockchain chunk;
         - takes into account a prepended chunk;
         - allows empty block groups;
+      - validation of the last block (using a proofer):
+        - modes:
+          - as a full blockchain;
+          - as a blockchain chunk;
+  - block group loaders:
+    - loading block groups via the external interface;
+    - automatically saving the loaded block groups to a storage;
+    - wrappers:
+      - chunk validating loader:
+        - automatically validates the loaded block group as a blockchain chunk;
+      - last block validating loader:
+        - automatically validates the last block from the loaded block group;
+        - automatically preloads the next block group to perform the above validation;
+      - memoizing loader:
+        - remembers loaded block groups;
   - blockchain:
     - storing:
       - storage;
@@ -61,6 +76,9 @@ The library that implements models and algorithms of blockchain.
   - operations:
     - loading the last block;
     - storing a block;
+    - storing a block group (optional);
+  - wrappers:
+    - wrapper that adds support for saving a block group to those storages that cannot do this;
   - kinds:
     - memory storage:
       - storing blocks in memory;
