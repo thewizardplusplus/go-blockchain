@@ -45,15 +45,14 @@ func (blocks BlockGroup) IsLastBlockValid(
 	validationMode ValidationMode,
 	dependencies BlockDependencies,
 ) bool {
-	var lastBlockValidator func(block Block) bool
+	var isValid bool
+	lastBlock := blocks[len(blocks)-1]
 	switch validationMode {
 	case AsFullBlockchain:
-		lastBlockValidator =
-			func(block Block) bool { return block.IsValidGenesisBlock(dependencies) }
+		isValid = lastBlock.IsValidGenesisBlock(dependencies)
 	case AsBlockchainChunk:
-		lastBlockValidator =
-			func(block Block) bool { return block.IsValid(prevBlock, dependencies) }
+		isValid = lastBlock.IsValid(prevBlock, dependencies)
 	}
 
-	return lastBlockValidator(blocks[len(blocks)-1])
+	return isValid
 }
