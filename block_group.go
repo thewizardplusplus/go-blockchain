@@ -23,20 +23,28 @@ func (blocks BlockGroup) IsValid(
 	}
 
 	if len(prependedChunk) != 0 {
-		prevBlock := &blocks[0]
-		if !prependedChunk[len(prependedChunk)-1].IsValid(prevBlock, dependencies) {
+		prevBlock, validationMode := &blocks[0], AsBlockchainChunk
+		if !prependedChunk.IsLastBlockValid(prevBlock, validationMode, dependencies) {
 			return false
 		}
 	}
 
-	lastIndex := len(blocks) - 1
-	for index, block := range blocks[:lastIndex] {
+	for index, block := range blocks[:len(blocks)-1] {
 		prevBlock := &blocks[index+1]
 		if !block.IsValid(prevBlock, dependencies) {
 			return false
 		}
 	}
 
+	return blocks.IsLastBlockValid(nil, validationMode, dependencies)
+}
+
+// IsLastBlockValid ...
+func (blocks BlockGroup) IsLastBlockValid(
+	prevBlock *Block,
+	validationMode ValidationMode,
+	dependencies BlockDependencies,
+) bool {
 	var lastBlockValidator func(block Block) bool
 	switch validationMode {
 	case AsFullBlockchain:
@@ -44,7 +52,8 @@ func (blocks BlockGroup) IsValid(
 			func(block Block) bool { return block.IsValidGenesisBlock(dependencies) }
 	case AsBlockchainChunk:
 		lastBlockValidator =
-			func(block Block) bool { return block.IsValid(nil, dependencies) }
+			func(block Block) bool { return block.IsValid(prevBlock, dependencies) }
 	}
-	return lastBlockValidator(blocks[lastIndex])
+
+	return lastBlockValidator(blocks[len(blocks)-1])
 }
