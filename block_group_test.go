@@ -365,7 +365,208 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 		args   args
 		want   assert.BoolAssertionFunc
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success as a full blockchain",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "next hash",
+					PrevHash:  "hash",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "hash",
+					PrevHash:  "",
+				},
+			},
+			args: args{
+				prevBlock:      nil,
+				validationMode: AsFullBlockchain,
+				dependencies: BlockDependencies{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On("Validate", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "",
+							}).
+							Return(true)
+
+						return proofer
+					}(),
+				},
+			},
+			want: assert.True,
+		},
+		{
+			name: "success as a blockchain chunk without the previous block",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "next hash",
+					PrevHash:  "hash",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				prevBlock:      nil,
+				validationMode: AsBlockchainChunk,
+				dependencies: BlockDependencies{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On("Validate", Block{
+								Timestamp: clock(),
+								Data:      new(MockHasher),
+								Hash:      "hash",
+								PrevHash:  "previous hash",
+							}).
+							Return(true)
+
+						return proofer
+					}(),
+				},
+			},
+			want: assert.True,
+		},
+		{
+			name: "success as a blockchain chunk with the previous block",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "hash #4",
+					PrevHash:  "hash #3",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+			},
+			args: args{
+				prevBlock: &Block{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+				validationMode: AsBlockchainChunk,
+				dependencies: BlockDependencies{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On("Validate", Block{
+								Timestamp: clock().Add(time.Hour),
+								Data:      new(MockHasher),
+								Hash:      "hash #3",
+								PrevHash:  "hash #2",
+							}).
+							Return(true)
+
+						return proofer
+					}(),
+				},
+			},
+			want: assert.True,
+		},
+		{
+			name: "failure as a full blockchain",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "next hash",
+					PrevHash:  "hash",
+				},
+				{
+					Timestamp: time.Time{},
+					Data:      new(MockHasher),
+					Hash:      "hash",
+					PrevHash:  "",
+				},
+			},
+			args: args{
+				prevBlock:      nil,
+				validationMode: AsFullBlockchain,
+				dependencies: BlockDependencies{
+					Clock:   clock,
+					Proofer: new(MockProofer),
+				},
+			},
+			want: assert.False,
+		},
+		{
+			name: "failure as a blockchain chunk without the previous block",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "next hash",
+					PrevHash:  "hash",
+				},
+				{
+					Timestamp: time.Time{},
+					Data:      new(MockHasher),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				prevBlock:      nil,
+				validationMode: AsBlockchainChunk,
+				dependencies: BlockDependencies{
+					Clock:   clock,
+					Proofer: new(MockProofer),
+				},
+			},
+			want: assert.False,
+		},
+		{
+			name: "failure as a blockchain chunk with the previous block",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "hash #4",
+					PrevHash:  "hash #3",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockHasher),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+			},
+			args: args{
+				prevBlock: &Block{
+					Timestamp: clock(),
+					Data:      new(MockHasher),
+					Hash:      "incorrect hash #2",
+					PrevHash:  "incorrect hash #1",
+				},
+				validationMode: AsBlockchainChunk,
+				dependencies: BlockDependencies{
+					Clock:   clock,
+					Proofer: new(MockProofer),
+				},
+			},
+			want: assert.False,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			got := data.blocks.IsLastBlockValid(
