@@ -1,4 +1,4 @@
-package proofers
+package blockchain
 
 import (
 	"fmt"

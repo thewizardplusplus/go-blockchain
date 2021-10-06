@@ -46,13 +46,13 @@ func TestLoadStorage(test *testing.T) {
 					blocks := BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockHasher),
+							Data:      new(MockStringer),
 							Hash:      "next hash",
 							PrevHash:  "hash",
 						},
 						{
 							Timestamp: clock(),
-							Data:      new(MockHasher),
+							Data:      new(MockStringer),
 							Hash:      "hash",
 							PrevHash:  "previous hash",
 						},
@@ -67,13 +67,13 @@ func TestLoadStorage(test *testing.T) {
 					blocks := BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockHasher),
+							Data:      new(MockStringer),
 							Hash:      "next hash",
 							PrevHash:  "hash",
 						},
 						{
 							Timestamp: clock(),
-							Data:      new(MockHasher),
+							Data:      new(MockStringer),
 							Hash:      "hash",
 							PrevHash:  "previous hash",
 						},
@@ -116,13 +116,13 @@ func TestLoadStorage(test *testing.T) {
 					blocks := BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockHasher),
+							Data:      new(MockStringer),
 							Hash:      "next hash",
 							PrevHash:  "hash",
 						},
 						{
 							Timestamp: clock(),
-							Data:      new(MockHasher),
+							Data:      new(MockStringer),
 							Hash:      "hash",
 							PrevHash:  "previous hash",
 						},
@@ -137,13 +137,13 @@ func TestLoadStorage(test *testing.T) {
 					blocks := BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockHasher),
+							Data:      new(MockStringer),
 							Hash:      "next hash",
 							PrevHash:  "hash",
 						},
 						{
 							Timestamp: clock(),
-							Data:      new(MockHasher),
+							Data:      new(MockStringer),
 							Hash:      "hash",
 							PrevHash:  "previous hash",
 						},

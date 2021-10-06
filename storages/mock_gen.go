@@ -1,15 +1,15 @@
 package storages
 
 import (
-	"github.com/thewizardplusplus/go-blockchain"
+	"fmt"
 )
 
-//go:generate mockery --name=Hasher --inpackage --case=underscore --testonly
+//go:generate mockery --name=Stringer --inpackage --case=underscore --testonly
 
-// Hasher ...
+// Stringer ...
 //
 // It's used only for mock generating.
 //
-type Hasher interface {
-	blockchain.Hasher
+type Stringer interface {
+	fmt.Stringer
 }

@@ -1,6 +1,7 @@
 package proofers
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,8 +10,8 @@ import (
 )
 
 func TestProofOfWork_Hash(test *testing.T) {
-	data := new(MockHasher)
-	data.On("Hash").Return("hash")
+	data := new(MockStringer)
+	data.On("String").Return("hash")
 
 	proofer := ProofOfWork{TargetBit: 248}
 	hash := proofer.Hash(blockchain.Block{
@@ -45,9 +46,9 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data: func() blockchain.Hasher {
-						data := new(MockHasher)
-						data.On("Hash").Return("hash")
+					Data: func() fmt.Stringer {
+						data := new(MockStringer)
+						data.On("String").Return("hash")
 
 						return data
 					}(),
@@ -65,9 +66,9 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data: func() blockchain.Hasher {
-						data := new(MockHasher)
-						data.On("Hash").Return("hash #2")
+					Data: func() fmt.Stringer {
+						data := new(MockStringer)
+						data.On("String").Return("hash #2")
 
 						return data
 					}(),
@@ -85,9 +86,9 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data: func() blockchain.Hasher {
-						data := new(MockHasher)
-						data.On("Hash").Return("hash")
+					Data: func() fmt.Stringer {
+						data := new(MockStringer)
+						data.On("String").Return("hash")
 
 						return data
 					}(),
@@ -105,9 +106,9 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data: func() blockchain.Hasher {
-						data := new(MockHasher)
-						data.On("Hash").Return("hash")
+					Data: func() fmt.Stringer {
+						data := new(MockStringer)
+						data.On("String").Return("hash")
 
 						return data
 					}(),
@@ -125,7 +126,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "incorrect",
 					PrevHash:  "previous hash",
 				},
@@ -138,7 +139,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash: "incorrect:" +
 						"26:" +
 						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",

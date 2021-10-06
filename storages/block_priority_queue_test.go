@@ -13,19 +13,19 @@ func TestBlockPriorityQueue_Len(test *testing.T) {
 	queue := BlockPriorityQueue(blockchain.BlockGroup{
 		{
 			Timestamp: clock(),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #1",
 			PrevHash:  "",
 		},
 		{
 			Timestamp: clock().Add(time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #2",
 			PrevHash:  "hash #1",
 		},
 		{
 			Timestamp: clock().Add(2 * time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #3",
 			PrevHash:  "hash #2",
 		},
@@ -55,19 +55,19 @@ func TestBlockPriorityQueue_Less(test *testing.T) {
 			queue: BlockPriorityQueue(blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -83,19 +83,19 @@ func TestBlockPriorityQueue_Less(test *testing.T) {
 			queue: BlockPriorityQueue(blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -111,19 +111,19 @@ func TestBlockPriorityQueue_Less(test *testing.T) {
 			queue: BlockPriorityQueue(blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -150,19 +150,19 @@ func TestBlockPriorityQueue_Swap(test *testing.T) {
 	queue := BlockPriorityQueue(blockchain.BlockGroup{
 		{
 			Timestamp: clock(),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #1",
 			PrevHash:  "",
 		},
 		{
 			Timestamp: clock().Add(time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #2",
 			PrevHash:  "hash #1",
 		},
 		{
 			Timestamp: clock().Add(2 * time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #3",
 			PrevHash:  "hash #2",
 		},
@@ -172,19 +172,19 @@ func TestBlockPriorityQueue_Swap(test *testing.T) {
 	wantQueue := BlockPriorityQueue(blockchain.BlockGroup{
 		{
 			Timestamp: clock().Add(2 * time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #3",
 			PrevHash:  "hash #2",
 		},
 		{
 			Timestamp: clock().Add(time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #2",
 			PrevHash:  "hash #1",
 		},
 		{
 			Timestamp: clock(),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #1",
 			PrevHash:  "",
 		},
@@ -199,26 +199,26 @@ func TestBlockPriorityQueue_Push(test *testing.T) {
 	queue := BlockPriorityQueue(blockchain.BlockGroup{
 		{
 			Timestamp: clock(),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #1",
 			PrevHash:  "",
 		},
 		{
 			Timestamp: clock().Add(time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #2",
 			PrevHash:  "hash #1",
 		},
 		{
 			Timestamp: clock().Add(2 * time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #3",
 			PrevHash:  "hash #2",
 		},
 	})
 	queue.Push(blockchain.Block{
 		Timestamp: clock().Add(3 * time.Hour),
-		Data:      new(MockHasher),
+		Data:      new(MockStringer),
 		Hash:      "hash #4",
 		PrevHash:  "hash #3",
 	})
@@ -226,25 +226,25 @@ func TestBlockPriorityQueue_Push(test *testing.T) {
 	wantQueue := BlockPriorityQueue(blockchain.BlockGroup{
 		{
 			Timestamp: clock(),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #1",
 			PrevHash:  "",
 		},
 		{
 			Timestamp: clock().Add(time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #2",
 			PrevHash:  "hash #1",
 		},
 		{
 			Timestamp: clock().Add(2 * time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #3",
 			PrevHash:  "hash #2",
 		},
 		{
 			Timestamp: clock().Add(3 * time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #4",
 			PrevHash:  "hash #3",
 		},
@@ -259,19 +259,19 @@ func TestBlockPriorityQueue_Pop(test *testing.T) {
 	queue := BlockPriorityQueue(blockchain.BlockGroup{
 		{
 			Timestamp: clock(),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #1",
 			PrevHash:  "",
 		},
 		{
 			Timestamp: clock().Add(time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #2",
 			PrevHash:  "hash #1",
 		},
 		{
 			Timestamp: clock().Add(2 * time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #3",
 			PrevHash:  "hash #2",
 		},
@@ -281,13 +281,13 @@ func TestBlockPriorityQueue_Pop(test *testing.T) {
 	wantQueue := BlockPriorityQueue(blockchain.BlockGroup{
 		{
 			Timestamp: clock(),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #1",
 			PrevHash:  "",
 		},
 		{
 			Timestamp: clock().Add(time.Hour),
-			Data:      new(MockHasher),
+			Data:      new(MockStringer),
 			Hash:      "hash #2",
 			PrevHash:  "hash #1",
 		},
@@ -299,7 +299,7 @@ func TestBlockPriorityQueue_Pop(test *testing.T) {
 
 	wantLastBlock := blockchain.Block{
 		Timestamp: clock().Add(2 * time.Hour),
-		Data:      new(MockHasher),
+		Data:      new(MockStringer),
 		Hash:      "hash #3",
 		PrevHash:  "hash #2",
 	}

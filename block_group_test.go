@@ -39,13 +39,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "next hash",
 					PrevHash:  "hash",
 				},
 				{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash",
 					PrevHash:  "",
 				},
@@ -60,13 +60,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 						for _, block := range (BlockGroup{
 							{
 								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "next hash",
 								PrevHash:  "hash",
 							},
 							{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "",
 							},
@@ -85,13 +85,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "next hash",
 					PrevHash:  "hash",
 				},
 				{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash",
 					PrevHash:  "previous hash",
 				},
@@ -106,13 +106,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 						for _, block := range (BlockGroup{
 							{
 								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "next hash",
 								PrevHash:  "hash",
 							},
 							{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "previous hash",
 							},
@@ -131,13 +131,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
@@ -146,13 +146,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 				prependedChunk: BlockGroup{
 					{
 						Timestamp: clock().Add(3 * time.Hour),
-						Data:      new(MockHasher),
+						Data:      new(MockStringer),
 						Hash:      "hash #4",
 						PrevHash:  "hash #3",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockHasher),
+						Data:      new(MockStringer),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
@@ -165,19 +165,19 @@ func TestBlockGroup_IsValid(test *testing.T) {
 						for _, block := range (BlockGroup{
 							{
 								Timestamp: clock().Add(2 * time.Hour),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash #3",
 								PrevHash:  "hash #2",
 							},
 							{
 								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash #2",
 								PrevHash:  "hash #1",
 							},
 							{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash #1",
 								PrevHash:  "",
 							},
@@ -196,13 +196,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "next incorrect hash",
 					PrevHash:  "incorrect hash",
 				},
 				{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash",
 					PrevHash:  "",
 				},
@@ -222,13 +222,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "next hash",
 					PrevHash:  "hash",
 				},
 				{
 					Timestamp: time.Time{},
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash",
 					PrevHash:  "",
 				},
@@ -243,7 +243,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 						proofer.
 							On("Validate", Block{
 								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "next hash",
 								PrevHash:  "hash",
 							}).
@@ -260,13 +260,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "next hash",
 					PrevHash:  "hash",
 				},
 				{
 					Timestamp: time.Time{},
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash",
 					PrevHash:  "previous hash",
 				},
@@ -281,7 +281,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 						proofer.
 							On("Validate", Block{
 								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "next hash",
 								PrevHash:  "hash",
 							}).
@@ -298,13 +298,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
@@ -313,13 +313,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 				prependedChunk: BlockGroup{
 					{
 						Timestamp: clock().Add(3 * time.Hour),
-						Data:      new(MockHasher),
+						Data:      new(MockStringer),
 						Hash:      "hash #4",
 						PrevHash:  "hash #3",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockHasher),
+						Data:      new(MockStringer),
 						Hash:      "incorrect hash #2",
 						PrevHash:  "incorrect hash #1",
 					},
@@ -370,13 +370,13 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "next hash",
 					PrevHash:  "hash",
 				},
 				{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash",
 					PrevHash:  "",
 				},
@@ -391,7 +391,7 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 						proofer.
 							On("Validate", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "",
 							}).
@@ -408,13 +408,13 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "next hash",
 					PrevHash:  "hash",
 				},
 				{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash",
 					PrevHash:  "previous hash",
 				},
@@ -429,7 +429,7 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 						proofer.
 							On("Validate", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "previous hash",
 							}).
@@ -446,13 +446,13 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -460,7 +460,7 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 			args: args{
 				prevBlock: &Block{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
@@ -472,7 +472,7 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 						proofer.
 							On("Validate", Block{
 								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash #3",
 								PrevHash:  "hash #2",
 							}).
@@ -489,13 +489,13 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "next hash",
 					PrevHash:  "hash",
 				},
 				{
 					Timestamp: time.Time{},
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash",
 					PrevHash:  "",
 				},
@@ -515,13 +515,13 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "next hash",
 					PrevHash:  "hash",
 				},
 				{
 					Timestamp: time.Time{},
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash",
 					PrevHash:  "previous hash",
 				},
@@ -541,13 +541,13 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -555,7 +555,7 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 			args: args{
 				prevBlock: &Block{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "incorrect hash #2",
 					PrevHash:  "incorrect hash #1",
 				},

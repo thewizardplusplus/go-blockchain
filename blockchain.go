@@ -1,6 +1,8 @@
 package blockchain
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 )
 
@@ -19,7 +21,7 @@ type Blockchain struct {
 
 // NewBlockchain ...
 func NewBlockchain(
-	genesisBlockData Hasher,
+	genesisBlockData fmt.Stringer,
 	dependencies Dependencies,
 ) (*Blockchain, error) {
 	lastBlock, err := dependencies.Storage.LoadLastBlock()
@@ -42,7 +44,7 @@ func NewBlockchain(
 }
 
 // AddBlock ...
-func (blockchain *Blockchain) AddBlock(data Hasher) error {
+func (blockchain *Blockchain) AddBlock(data fmt.Stringer) error {
 	block := NewBlock(
 		data,
 		blockchain.lastBlock,

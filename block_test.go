@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 )
 
 func TestNewBlock(test *testing.T) {
-	data := new(MockHasher)
+	data := new(MockStringer)
 	proofer := new(MockProofer)
 	proofer.
 		On("Hash", Block{
@@ -36,7 +37,7 @@ func TestNewBlock(test *testing.T) {
 }
 
 func TestNewGenesisBlock(test *testing.T) {
-	data := new(MockHasher)
+	data := new(MockStringer)
 	proofer := new(MockProofer)
 	proofer.
 		On("Hash", Block{
@@ -62,8 +63,8 @@ func TestNewGenesisBlock(test *testing.T) {
 }
 
 func TestBlock_MergedData(test *testing.T) {
-	data := new(MockHasher)
-	data.On("Hash").Return("hash")
+	data := new(MockStringer)
+	data.On("String").Return("hash")
 
 	block := Block{
 		Timestamp: clock(),
@@ -81,7 +82,7 @@ func TestBlock_MergedData(test *testing.T) {
 func TestBlock_IsValid(test *testing.T) {
 	type fields struct {
 		Timestamp time.Time
-		Data      Hasher
+		Data      fmt.Stringer
 		Hash      string
 		PrevHash  string
 	}
@@ -100,7 +101,7 @@ func TestBlock_IsValid(test *testing.T) {
 			name: "success with a previous block",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "previous hash",
 			},
@@ -116,7 +117,7 @@ func TestBlock_IsValid(test *testing.T) {
 						proofer.
 							On("Validate", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "previous hash",
 							}).
@@ -132,7 +133,7 @@ func TestBlock_IsValid(test *testing.T) {
 			name: "success without a previous block (with a previous hash)",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "previous hash",
 			},
@@ -145,7 +146,7 @@ func TestBlock_IsValid(test *testing.T) {
 						proofer.
 							On("Validate", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "previous hash",
 							}).
@@ -161,7 +162,7 @@ func TestBlock_IsValid(test *testing.T) {
 			name: "success without a previous block (without a previous hash)",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "",
 			},
@@ -174,7 +175,7 @@ func TestBlock_IsValid(test *testing.T) {
 						proofer.
 							On("Validate", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "",
 							}).
@@ -190,7 +191,7 @@ func TestBlock_IsValid(test *testing.T) {
 			name: "failure due to timestamps (with a previous block)",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "previous hash",
 			},
@@ -210,7 +211,7 @@ func TestBlock_IsValid(test *testing.T) {
 			name: "failure due to timestamps (without a previous block)",
 			fields: fields{
 				Timestamp: time.Time{},
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "previous hash",
 			},
@@ -227,7 +228,7 @@ func TestBlock_IsValid(test *testing.T) {
 			name: "failure due to hashes",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "previous hash",
 			},
@@ -247,7 +248,7 @@ func TestBlock_IsValid(test *testing.T) {
 			name: "failure due to proofers",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "previous hash",
 			},
@@ -263,7 +264,7 @@ func TestBlock_IsValid(test *testing.T) {
 						proofer.
 							On("Validate", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "previous hash",
 							}).
@@ -298,7 +299,7 @@ func TestBlock_IsValid(test *testing.T) {
 func TestBlock_IsValidGenesisBlock(test *testing.T) {
 	type fields struct {
 		Timestamp time.Time
-		Data      Hasher
+		Data      fmt.Stringer
 		Hash      string
 		PrevHash  string
 	}
@@ -316,7 +317,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 			name: "success",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "",
 			},
@@ -328,7 +329,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 						proofer.
 							On("Validate", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "",
 							}).
@@ -344,7 +345,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 			name: "failure due to timestamps",
 			fields: fields{
 				Timestamp: time.Time{},
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "",
 			},
@@ -360,7 +361,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 			name: "failure due to hashes",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "previous hash",
 			},
@@ -376,7 +377,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 			name: "failure due to proofers",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "",
 			},
@@ -388,7 +389,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 						proofer.
 							On("Validate", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "",
 							}).

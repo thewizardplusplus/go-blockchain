@@ -1,15 +1,9 @@
 package blockchain
 
 import (
+	"fmt"
 	"time"
 )
-
-//go:generate mockery --name=Hasher --inpackage --case=underscore --testonly
-
-// Hasher ...
-type Hasher interface {
-	Hash() string
-}
 
 // Clock ...
 type Clock func() time.Time
@@ -31,14 +25,14 @@ type BlockDependencies struct {
 // Block ...
 type Block struct {
 	Timestamp time.Time
-	Data      Hasher
+	Data      fmt.Stringer
 	Hash      string
 	PrevHash  string
 }
 
 // NewBlock ...
 func NewBlock(
-	data Hasher,
+	data fmt.Stringer,
 	prevBlock Block,
 	dependencies BlockDependencies,
 ) Block {
@@ -53,13 +47,13 @@ func NewBlock(
 }
 
 // NewGenesisBlock ...
-func NewGenesisBlock(data Hasher, dependencies BlockDependencies) Block {
+func NewGenesisBlock(data fmt.Stringer, dependencies BlockDependencies) Block {
 	return NewBlock(data, Block{}, dependencies)
 }
 
 // MergedData ...
 func (block Block) MergedData() string {
-	return block.Timestamp.String() + block.Data.Hash() + block.PrevHash
+	return block.Timestamp.String() + block.Data.String() + block.PrevHash
 }
 
 // IsValid ...

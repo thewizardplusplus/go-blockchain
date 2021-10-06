@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"fmt"
 	"testing"
 	"testing/iotest"
 
@@ -10,7 +11,7 @@ import (
 
 func TestNewBlockchain(test *testing.T) {
 	type args struct {
-		genesisBlockData Hasher
+		genesisBlockData fmt.Stringer
 		dependencies     Dependencies
 	}
 
@@ -23,7 +24,7 @@ func TestNewBlockchain(test *testing.T) {
 		{
 			name: "success with a nonempty storage",
 			args: args{
-				genesisBlockData: new(MockHasher),
+				genesisBlockData: new(MockStringer),
 				dependencies: Dependencies{
 					BlockDependencies: BlockDependencies{
 						Clock:   clock,
@@ -36,7 +37,7 @@ func TestNewBlockchain(test *testing.T) {
 							Return(
 								Block{
 									Timestamp: clock(),
-									Data:      new(MockHasher),
+									Data:      new(MockStringer),
 									Hash:      "hash",
 									PrevHash:  "previous hash",
 								},
@@ -49,7 +50,7 @@ func TestNewBlockchain(test *testing.T) {
 			},
 			wantLastBlock: Block{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "previous hash",
 			},
@@ -58,7 +59,7 @@ func TestNewBlockchain(test *testing.T) {
 		{
 			name: "success with an empty storage",
 			args: args{
-				genesisBlockData: new(MockHasher),
+				genesisBlockData: new(MockStringer),
 				dependencies: Dependencies{
 					BlockDependencies: BlockDependencies{
 						Clock: clock,
@@ -67,7 +68,7 @@ func TestNewBlockchain(test *testing.T) {
 							proofer.
 								On("Hash", Block{
 									Timestamp: clock(),
-									Data:      new(MockHasher),
+									Data:      new(MockStringer),
 									PrevHash:  "",
 								}).
 								Return("hash")
@@ -81,7 +82,7 @@ func TestNewBlockchain(test *testing.T) {
 						storage.
 							On("StoreBlock", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "",
 							}).
@@ -93,7 +94,7 @@ func TestNewBlockchain(test *testing.T) {
 			},
 			wantLastBlock: Block{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "",
 			},
@@ -102,7 +103,7 @@ func TestNewBlockchain(test *testing.T) {
 		{
 			name: "error on last block loading",
 			args: args{
-				genesisBlockData: new(MockHasher),
+				genesisBlockData: new(MockStringer),
 				dependencies: Dependencies{
 					BlockDependencies: BlockDependencies{
 						Clock:   clock,
@@ -122,7 +123,7 @@ func TestNewBlockchain(test *testing.T) {
 		{
 			name: "error on genesis block storing",
 			args: args{
-				genesisBlockData: new(MockHasher),
+				genesisBlockData: new(MockStringer),
 				dependencies: Dependencies{
 					BlockDependencies: BlockDependencies{
 						Clock: clock,
@@ -131,7 +132,7 @@ func TestNewBlockchain(test *testing.T) {
 							proofer.
 								On("Hash", Block{
 									Timestamp: clock(),
-									Data:      new(MockHasher),
+									Data:      new(MockStringer),
 									PrevHash:  "",
 								}).
 								Return("hash")
@@ -145,7 +146,7 @@ func TestNewBlockchain(test *testing.T) {
 						storage.
 							On("StoreBlock", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "hash",
 								PrevHash:  "",
 							}).
@@ -185,7 +186,7 @@ func TestBlockchain_AddBlock(test *testing.T) {
 		lastBlock    Block
 	}
 	type args struct {
-		data Hasher
+		data fmt.Stringer
 	}
 
 	for _, data := range []struct {
@@ -206,7 +207,7 @@ func TestBlockchain_AddBlock(test *testing.T) {
 							proofer.
 								On("Hash", Block{
 									Timestamp: clock(),
-									Data:      new(MockHasher),
+									Data:      new(MockStringer),
 									PrevHash:  "hash",
 								}).
 								Return("next hash")
@@ -219,7 +220,7 @@ func TestBlockchain_AddBlock(test *testing.T) {
 						storage.
 							On("StoreBlock", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "next hash",
 								PrevHash:  "hash",
 							}).
@@ -230,17 +231,17 @@ func TestBlockchain_AddBlock(test *testing.T) {
 				},
 				lastBlock: Block{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash",
 					PrevHash:  "previous hash",
 				},
 			},
 			args: args{
-				data: new(MockHasher),
+				data: new(MockStringer),
 			},
 			wantLastBlock: Block{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "next hash",
 				PrevHash:  "hash",
 			},
@@ -257,7 +258,7 @@ func TestBlockchain_AddBlock(test *testing.T) {
 							proofer.
 								On("Hash", Block{
 									Timestamp: clock(),
-									Data:      new(MockHasher),
+									Data:      new(MockStringer),
 									PrevHash:  "hash",
 								}).
 								Return("next hash")
@@ -270,7 +271,7 @@ func TestBlockchain_AddBlock(test *testing.T) {
 						storage.
 							On("StoreBlock", Block{
 								Timestamp: clock(),
-								Data:      new(MockHasher),
+								Data:      new(MockStringer),
 								Hash:      "next hash",
 								PrevHash:  "hash",
 							}).
@@ -281,17 +282,17 @@ func TestBlockchain_AddBlock(test *testing.T) {
 				},
 				lastBlock: Block{
 					Timestamp: clock(),
-					Data:      new(MockHasher),
+					Data:      new(MockStringer),
 					Hash:      "hash",
 					PrevHash:  "previous hash",
 				},
 			},
 			args: args{
-				data: new(MockHasher),
+				data: new(MockStringer),
 			},
 			wantLastBlock: Block{
 				Timestamp: clock(),
-				Data:      new(MockHasher),
+				Data:      new(MockStringer),
 				Hash:      "hash",
 				PrevHash:  "previous hash",
 			},

@@ -10,8 +10,8 @@ import (
 )
 
 func TestSimple_Hash(test *testing.T) {
-	data := new(MockHasher)
-	data.On("Hash").Return("hash")
+	data := new(MockStringer)
+	data.On("String").Return("hash")
 
 	var proofer Simple
 	hash := proofer.Hash(blockchain.Block{
@@ -27,8 +27,8 @@ func TestSimple_Hash(test *testing.T) {
 }
 
 func TestSimple_Validate(test *testing.T) {
-	data := new(MockHasher)
-	data.On("Hash").Return("hash")
+	data := new(MockStringer)
+	data.On("String").Return("hash")
 
 	var proofer Simple
 	isValid := proofer.Validate(blockchain.Block{

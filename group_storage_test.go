@@ -74,19 +74,19 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 					blocks := BlockGroup{
 						{
 							Timestamp: clock(),
-							Data:      new(MockHasher),
+							Data:      new(MockStringer),
 							Hash:      "hash #1",
 							PrevHash:  "",
 						},
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockHasher),
+							Data:      new(MockStringer),
 							Hash:      "hash #2",
 							PrevHash:  "hash #1",
 						},
 						{
 							Timestamp: clock().Add(2 * time.Hour),
-							Data:      new(MockHasher),
+							Data:      new(MockStringer),
 							Hash:      "hash #3",
 							PrevHash:  "hash #2",
 						},
@@ -104,19 +104,19 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 				blocks: BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockHasher),
+						Data:      new(MockStringer),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockHasher),
+						Data:      new(MockStringer),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockHasher),
+						Data:      new(MockStringer),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
@@ -130,7 +130,7 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 				Storage: func() Storage {
 					block := Block{
 						Timestamp: clock(),
-						Data:      new(MockHasher),
+						Data:      new(MockStringer),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					}
@@ -145,19 +145,19 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 				blocks: BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockHasher),
+						Data:      new(MockStringer),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockHasher),
+						Data:      new(MockStringer),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockHasher),
+						Data:      new(MockStringer),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
