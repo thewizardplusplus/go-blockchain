@@ -122,7 +122,7 @@ import (
 
 	"github.com/thewizardplusplus/go-blockchain"
 	"github.com/thewizardplusplus/go-blockchain/proofers"
-	"github.com/thewizardplusplus/go-blockchain/storages"
+	"github.com/thewizardplusplus/go-blockchain/storing/storages"
 )
 
 type StringData string
@@ -429,7 +429,8 @@ import (
 
 	"github.com/thewizardplusplus/go-blockchain"
 	"github.com/thewizardplusplus/go-blockchain/proofers"
-	"github.com/thewizardplusplus/go-blockchain/storages"
+	"github.com/thewizardplusplus/go-blockchain/storing"
+	"github.com/thewizardplusplus/go-blockchain/storing/storages"
 )
 
 type StringData string
@@ -532,7 +533,7 @@ func main() {
 
 	var storage storages.MemoryStorage
 	if _, err := blockchain.LoadStorage(
-		blockchain.NewGroupStorage(&storage),
+		storing.NewGroupStorage(&storage),
 		blockchain.LastBlockValidatingLoader{
 			Loader: blockchain.NewMemoizingLoader(blockchain.ChunkValidatingLoader{
 				Loader: SliceLoader{

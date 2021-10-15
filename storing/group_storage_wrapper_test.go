@@ -1,4 +1,4 @@
-package blockchain
+package storing
 
 import (
 	"testing"
@@ -7,48 +7,15 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/thewizardplusplus/go-blockchain"
 )
-
-func TestNewGroupStorage(test *testing.T) {
-	type args struct {
-		storage Storage
-	}
-
-	for _, data := range []struct {
-		name             string
-		args             args
-		wantGroupStorage GroupStorage
-	}{
-		{
-			name: "with the group storage",
-			args: args{
-				storage: new(MockGroupStorage),
-			},
-			wantGroupStorage: new(MockGroupStorage),
-		},
-		{
-			name: "with the storage",
-			args: args{
-				storage: new(MockStorage),
-			},
-			wantGroupStorage: GroupStorageWrapper{Storage: new(MockStorage)},
-		},
-	} {
-		test.Run(data.name, func(test *testing.T) {
-			gotGroupStorage := NewGroupStorage(data.args.storage)
-
-			mock.AssertExpectationsForObjects(test, data.args.storage)
-			assert.Equal(test, data.wantGroupStorage, gotGroupStorage)
-		})
-	}
-}
 
 func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 	type fields struct {
-		Storage Storage
+		Storage blockchain.Storage
 	}
 	type args struct {
-		blocks BlockGroup
+		blocks blockchain.BlockGroup
 	}
 
 	for _, data := range []struct {
@@ -70,8 +37,8 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 		{
 			name: "success with blocks",
 			fields: fields{
-				Storage: func() Storage {
-					blocks := BlockGroup{
+				Storage: func() blockchain.Storage {
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock(),
 							Data:      new(MockStringer),
@@ -101,7 +68,7 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 				}(),
 			},
 			args: args{
-				blocks: BlockGroup{
+				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
 						Data:      new(MockStringer),
@@ -127,8 +94,8 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 		{
 			name: "error",
 			fields: fields{
-				Storage: func() Storage {
-					block := Block{
+				Storage: func() blockchain.Storage {
+					block := blockchain.Block{
 						Timestamp: clock(),
 						Data:      new(MockStringer),
 						Hash:      "hash #1",
@@ -142,7 +109,7 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 				}(),
 			},
 			args: args{
-				blocks: BlockGroup{
+				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
 						Data:      new(MockStringer),
@@ -179,4 +146,15 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 			data.wantErr(test, gotErr)
 		})
 	}
+}
+
+func clock() time.Time {
+	year, month, day := 2006, time.January, 2
+	hour, minute, second := 15, 4, 5
+	return time.Date(
+		year, month, day,
+		hour, minute, second,
+		0,        // nanosecond
+		time.UTC, // location
+	)
 }
