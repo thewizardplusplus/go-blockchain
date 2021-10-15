@@ -1,4 +1,4 @@
-package blockchain
+package loading
 
 import (
 	"sync"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/thewizardplusplus/go-blockchain"
 )
 
 func TestNewMemoizingLoader(test *testing.T) {
@@ -21,7 +22,7 @@ func TestNewMemoizingLoader(test *testing.T) {
 
 func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 	type fields struct {
-		loader         Loader
+		loader         blockchain.Loader
 		loadingResults *sync.Map
 	}
 	type args struct {
@@ -38,15 +39,15 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 		fields             fields
 		args               args
 		wantLoadingResults []memoizedRecord
-		wantBlocks         BlockGroup
+		wantBlocks         blockchain.BlockGroup
 		wantNextCursor     interface{}
 		wantErr            assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success with the not memoized request",
 			fields: fields{
-				loader: func() Loader {
-					blocks := BlockGroup{
+				loader: func() blockchain.Loader {
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
 							Data:      new(MockStringer),
@@ -79,7 +80,7 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 						count:  23,
 					},
 					value: loadingResult{
-						blocks: BlockGroup{
+						blocks: blockchain.BlockGroup{
 							{
 								Timestamp: clock().Add(time.Hour),
 								Data:      new(MockStringer),
@@ -97,7 +98,7 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 					},
 				},
 			},
-			wantBlocks: BlockGroup{
+			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
 					Data:      new(MockStringer),
@@ -119,7 +120,7 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 			fields: fields{
 				loader: new(MockLoader),
 				loadingResults: func() *sync.Map {
-					blocks := BlockGroup{
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
 							Data:      new(MockStringer),
@@ -154,7 +155,7 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 						count:  23,
 					},
 					value: loadingResult{
-						blocks: BlockGroup{
+						blocks: blockchain.BlockGroup{
 							{
 								Timestamp: clock().Add(time.Hour),
 								Data:      new(MockStringer),
@@ -172,7 +173,7 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 					},
 				},
 			},
-			wantBlocks: BlockGroup{
+			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
 					Data:      new(MockStringer),
@@ -192,7 +193,7 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 		{
 			name: "error",
 			fields: fields{
-				loader: func() Loader {
+				loader: func() blockchain.Loader {
 					loader := new(MockLoader)
 					loader.
 						On("LoadBlocks", "cursor-one", 23).

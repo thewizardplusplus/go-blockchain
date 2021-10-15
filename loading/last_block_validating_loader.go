@@ -1,13 +1,14 @@
-package blockchain
+package loading
 
 import (
 	"github.com/pkg/errors"
+	"github.com/thewizardplusplus/go-blockchain"
 )
 
 // LastBlockValidatingLoader ...
 type LastBlockValidatingLoader struct {
-	Loader       Loader
-	Dependencies BlockDependencies
+	Loader       blockchain.Loader
+	Dependencies blockchain.BlockDependencies
 }
 
 // LoadBlocks ...
@@ -15,7 +16,7 @@ func (loader LastBlockValidatingLoader) LoadBlocks(
 	cursor interface{},
 	count int,
 ) (
-	blocks BlockGroup,
+	blocks blockchain.BlockGroup,
 	nextCursor interface{},
 	err error,
 ) {
@@ -34,13 +35,13 @@ func (loader LastBlockValidatingLoader) LoadBlocks(
 		return nil, nil, errors.Wrapf(err, message, cursor, nextCursor)
 	}
 
-	var prevBlock *Block
-	var validationMode ValidationMode
+	var prevBlock *blockchain.Block
+	var validationMode blockchain.ValidationMode
 	if len(nextBlocks) == 0 {
-		validationMode = AsFullBlockchain
+		validationMode = blockchain.AsFullBlockchain
 	} else {
 		prevBlock = &nextBlocks[0]
-		validationMode = AsBlockchainChunk
+		validationMode = blockchain.AsBlockchainChunk
 	}
 	err = blocks.IsLastBlockValid(prevBlock, validationMode, loader.Dependencies)
 	if err != nil {

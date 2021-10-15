@@ -1,4 +1,4 @@
-package blockchain
+package loading
 
 import (
 	"testing"
@@ -7,12 +7,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/thewizardplusplus/go-blockchain"
 )
 
 func TestLoadStorage(test *testing.T) {
 	type args struct {
-		storage       GroupStorage
-		loader        Loader
+		storage       blockchain.GroupStorage
+		loader        blockchain.Loader
 		initialCursor interface{}
 		chunkSize     int
 	}
@@ -27,7 +28,7 @@ func TestLoadStorage(test *testing.T) {
 			name: "success without blocks",
 			args: args{
 				storage: new(MockGroupStorage),
-				loader: func() Loader {
+				loader: func() blockchain.Loader {
 					loader := new(MockLoader)
 					loader.On("LoadBlocks", "cursor-one", 23).Return(nil, "cursor-two", nil)
 
@@ -42,8 +43,8 @@ func TestLoadStorage(test *testing.T) {
 		{
 			name: "success with blocks",
 			args: args{
-				storage: func() GroupStorage {
-					blocks := BlockGroup{
+				storage: func() blockchain.GroupStorage {
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
 							Data:      new(MockStringer),
@@ -63,8 +64,8 @@ func TestLoadStorage(test *testing.T) {
 
 					return storage
 				}(),
-				loader: func() Loader {
-					blocks := BlockGroup{
+				loader: func() blockchain.Loader {
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
 							Data:      new(MockStringer),
@@ -95,7 +96,7 @@ func TestLoadStorage(test *testing.T) {
 			name: "error with block loading",
 			args: args{
 				storage: new(MockGroupStorage),
-				loader: func() Loader {
+				loader: func() blockchain.Loader {
 					loader := new(MockLoader)
 					loader.
 						On("LoadBlocks", "cursor-one", 23).
@@ -112,8 +113,8 @@ func TestLoadStorage(test *testing.T) {
 		{
 			name: "error with block storing",
 			args: args{
-				storage: func() GroupStorage {
-					blocks := BlockGroup{
+				storage: func() blockchain.GroupStorage {
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
 							Data:      new(MockStringer),
@@ -133,8 +134,8 @@ func TestLoadStorage(test *testing.T) {
 
 					return storage
 				}(),
-				loader: func() Loader {
-					blocks := BlockGroup{
+				loader: func() blockchain.Loader {
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
 							Data:      new(MockStringer),
@@ -174,4 +175,15 @@ func TestLoadStorage(test *testing.T) {
 			data.wantErr(test, gotErr)
 		})
 	}
+}
+
+func clock() time.Time {
+	year, month, day := 2006, time.January, 2
+	hour, minute, second := 15, 4, 5
+	return time.Date(
+		year, month, day,
+		hour, minute, second,
+		0,        // nanosecond
+		time.UTC, // location
+	)
 }

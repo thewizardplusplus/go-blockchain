@@ -1,4 +1,4 @@
-package blockchain
+package loading
 
 import (
 	"testing"
@@ -7,12 +7,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/thewizardplusplus/go-blockchain"
 )
 
 func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 	type fields struct {
-		Loader       Loader
-		Dependencies BlockDependencies
+		Loader       blockchain.Loader
+		Dependencies blockchain.BlockDependencies
 	}
 	type args struct {
 		cursor interface{}
@@ -23,20 +24,20 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 		name           string
 		fields         fields
 		args           args
-		wantBlocks     BlockGroup
+		wantBlocks     blockchain.BlockGroup
 		wantNextCursor interface{}
 		wantErr        assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success without blocks",
 			fields: fields{
-				Loader: func() Loader {
+				Loader: func() blockchain.Loader {
 					loader := new(MockLoader)
 					loader.On("LoadBlocks", "cursor-one", 23).Return(nil, "cursor-two", nil)
 
 					return loader
 				}(),
-				Dependencies: BlockDependencies{
+				Dependencies: blockchain.BlockDependencies{
 					Clock:   clock,
 					Proofer: new(MockProofer),
 				},
@@ -52,8 +53,8 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 		{
 			name: "success with blocks and without next blocks",
 			fields: fields{
-				Loader: func() Loader {
-					blocks := BlockGroup{
+				Loader: func() blockchain.Loader {
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
 							Data:      new(MockStringer),
@@ -74,12 +75,12 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: BlockDependencies{
+				Dependencies: blockchain.BlockDependencies{
 					Clock: clock,
-					Proofer: func() Proofer {
+					Proofer: func() blockchain.Proofer {
 						proofer := new(MockProofer)
 						proofer.
-							On("Validate", Block{
+							On("Validate", blockchain.Block{
 								Timestamp: clock(),
 								Data:      new(MockStringer),
 								Hash:      "hash",
@@ -95,7 +96,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 				cursor: "cursor-one",
 				count:  23,
 			},
-			wantBlocks: BlockGroup{
+			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
 					Data:      new(MockStringer),
@@ -115,8 +116,8 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 		{
 			name: "success with blocks and next blocks",
 			fields: fields{
-				Loader: func() Loader {
-					blocks := BlockGroup{
+				Loader: func() blockchain.Loader {
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(3 * time.Hour),
 							Data:      new(MockStringer),
@@ -130,7 +131,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 							PrevHash:  "hash #2",
 						},
 					}
-					nextBlocks := BlockGroup{
+					nextBlocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
 							Data:      new(MockStringer),
@@ -153,12 +154,12 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: BlockDependencies{
+				Dependencies: blockchain.BlockDependencies{
 					Clock: clock,
-					Proofer: func() Proofer {
+					Proofer: func() blockchain.Proofer {
 						proofer := new(MockProofer)
 						proofer.
-							On("Validate", Block{
+							On("Validate", blockchain.Block{
 								Timestamp: clock().Add(2 * time.Hour),
 								Data:      new(MockStringer),
 								Hash:      "hash #3",
@@ -174,7 +175,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 				cursor: "cursor-one",
 				count:  23,
 			},
-			wantBlocks: BlockGroup{
+			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock().Add(3 * time.Hour),
 					Data:      new(MockStringer),
@@ -194,7 +195,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 		{
 			name: "error with block loading",
 			fields: fields{
-				Loader: func() Loader {
+				Loader: func() blockchain.Loader {
 					loader := new(MockLoader)
 					loader.
 						On("LoadBlocks", "cursor-one", 23).
@@ -202,7 +203,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: BlockDependencies{
+				Dependencies: blockchain.BlockDependencies{
 					Clock:   clock,
 					Proofer: new(MockProofer),
 				},
@@ -218,8 +219,8 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 		{
 			name: "error with next block loading",
 			fields: fields{
-				Loader: func() Loader {
-					blocks := BlockGroup{
+				Loader: func() blockchain.Loader {
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
 							Data:      new(MockStringer),
@@ -242,7 +243,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: BlockDependencies{
+				Dependencies: blockchain.BlockDependencies{
 					Clock:   clock,
 					Proofer: new(MockProofer),
 				},
@@ -258,8 +259,8 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 		{
 			name: "error with block validating and without next blocks",
 			fields: fields{
-				Loader: func() Loader {
-					blocks := BlockGroup{
+				Loader: func() blockchain.Loader {
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
 							Data:      new(MockStringer),
@@ -280,7 +281,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: BlockDependencies{
+				Dependencies: blockchain.BlockDependencies{
 					Clock:   clock,
 					Proofer: new(MockProofer),
 				},
@@ -296,8 +297,8 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 		{
 			name: "error with block validating and next blocks",
 			fields: fields{
-				Loader: func() Loader {
-					blocks := BlockGroup{
+				Loader: func() blockchain.Loader {
+					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(3 * time.Hour),
 							Data:      new(MockStringer),
@@ -311,7 +312,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 							PrevHash:  "hash #2",
 						},
 					}
-					nextBlocks := BlockGroup{
+					nextBlocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
 							Data:      new(MockStringer),
@@ -334,7 +335,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: BlockDependencies{
+				Dependencies: blockchain.BlockDependencies{
 					Clock:   clock,
 					Proofer: new(MockProofer),
 				},

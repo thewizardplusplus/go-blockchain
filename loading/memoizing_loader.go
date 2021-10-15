@@ -1,7 +1,9 @@
-package blockchain
+package loading
 
 import (
 	"sync"
+
+	"github.com/thewizardplusplus/go-blockchain"
 )
 
 type loadingParameters struct {
@@ -10,18 +12,18 @@ type loadingParameters struct {
 }
 
 type loadingResult struct {
-	blocks     BlockGroup
+	blocks     blockchain.BlockGroup
 	nextCursor interface{}
 }
 
 // MemoizingLoader ...
 type MemoizingLoader struct {
-	loader         Loader
+	loader         blockchain.Loader
 	loadingResults *sync.Map
 }
 
 // NewMemoizingLoader ...
-func NewMemoizingLoader(loader Loader) MemoizingLoader {
+func NewMemoizingLoader(loader blockchain.Loader) MemoizingLoader {
 	return MemoizingLoader{
 		loader:         loader,
 		loadingResults: new(sync.Map),
@@ -30,7 +32,7 @@ func NewMemoizingLoader(loader Loader) MemoizingLoader {
 
 // LoadBlocks ...
 func (loader MemoizingLoader) LoadBlocks(cursor interface{}, count int) (
-	blocks BlockGroup,
+	blocks blockchain.BlockGroup,
 	nextCursor interface{},
 	err error,
 ) {

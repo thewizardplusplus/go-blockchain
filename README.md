@@ -416,7 +416,7 @@ func main() {
 }
 ```
 
-`blockchain.LoadStorage`:
+`loading.LoadStorage`:
 
 ```go
 package main
@@ -428,6 +428,7 @@ import (
 	"time"
 
 	"github.com/thewizardplusplus/go-blockchain"
+	"github.com/thewizardplusplus/go-blockchain/loading"
 	"github.com/thewizardplusplus/go-blockchain/proofers"
 	"github.com/thewizardplusplus/go-blockchain/storing"
 	"github.com/thewizardplusplus/go-blockchain/storing/storages"
@@ -532,10 +533,10 @@ func main() {
 	}
 
 	var storage storages.MemoryStorage
-	if _, err := blockchain.LoadStorage(
+	if _, err := loading.LoadStorage(
 		storing.NewGroupStorage(&storage),
-		blockchain.LastBlockValidatingLoader{
-			Loader: blockchain.NewMemoizingLoader(blockchain.ChunkValidatingLoader{
+		loading.LastBlockValidatingLoader{
+			Loader: loading.NewMemoizingLoader(loading.ChunkValidatingLoader{
 				Loader: SliceLoader{
 					Blocks: blocks,
 				},
