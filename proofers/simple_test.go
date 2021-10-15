@@ -31,7 +31,7 @@ func TestSimple_Validate(test *testing.T) {
 	data.On("String").Return("hash")
 
 	var proofer Simple
-	isValid := proofer.Validate(blockchain.Block{
+	err := proofer.Validate(blockchain.Block{
 		Timestamp: clock(),
 		Data:      data,
 		Hash:      "4a4292671f697950d1d1d3ec16967cacf0ca1c5e20a1e21b5e49712cf5e422ae",
@@ -39,7 +39,7 @@ func TestSimple_Validate(test *testing.T) {
 	})
 
 	mock.AssertExpectationsForObjects(test, data)
-	assert.True(test, isValid)
+	assert.NoError(test, err)
 }
 
 func clock() time.Time {

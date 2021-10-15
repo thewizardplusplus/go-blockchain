@@ -42,10 +42,11 @@ func (loader LastBlockValidatingLoader) LoadBlocks(
 		prevBlock = &nextBlocks[0]
 		validationMode = AsBlockchainChunk
 	}
-	if !blocks.IsLastBlockValid(prevBlock, validationMode, loader.Dependencies) {
+	err = blocks.IsLastBlockValid(prevBlock, validationMode, loader.Dependencies)
+	if err != nil {
 		const message = "the last block of the blocks corresponding to cursor %v " +
 			"is not valid"
-		return nil, nil, errors.Errorf(message, cursor)
+		return nil, nil, errors.Wrapf(err, message, cursor)
 	}
 
 	return blocks, nextCursor, nil

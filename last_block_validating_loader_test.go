@@ -85,7 +85,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 								Hash:      "hash",
 								PrevHash:  "",
 							}).
-							Return(true)
+							Return(nil)
 
 						return proofer
 					}(),
@@ -164,7 +164,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 								Hash:      "hash #3",
 								PrevHash:  "hash #2",
 							}).
-							Return(true)
+							Return(nil)
 
 						return proofer
 					}(),

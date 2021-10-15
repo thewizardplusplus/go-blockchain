@@ -3,6 +3,7 @@ package proofers
 import (
 	"encoding/hex"
 
+	"github.com/pkg/errors"
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
@@ -17,6 +18,10 @@ func (proofer Simple) Hash(block blockchain.Block) string {
 }
 
 // Validate ...
-func (proofer Simple) Validate(block blockchain.Block) bool {
-	return block.Hash == proofer.Hash(block)
+func (proofer Simple) Validate(block blockchain.Block) error {
+	if block.Hash != proofer.Hash(block) {
+		return errors.New("the hash is not valid")
+	}
+
+	return nil
 }

@@ -19,7 +19,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 		name   string
 		blocks BlockGroup
 		args   args
-		want   assert.BoolAssertionFunc
+		want   assert.ErrorAssertionFunc
 	}{
 		{
 			name:   "success without blocks",
@@ -32,7 +32,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 					Proofer: new(MockProofer),
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name: "success with blocks as a full blockchain",
@@ -71,14 +71,14 @@ func TestBlockGroup_IsValid(test *testing.T) {
 								PrevHash:  "",
 							},
 						}) {
-							proofer.On("Validate", block).Return(true)
+							proofer.On("Validate", block).Return(nil)
 						}
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name: "success with blocks as a blockchain chunk",
@@ -117,14 +117,14 @@ func TestBlockGroup_IsValid(test *testing.T) {
 								PrevHash:  "previous hash",
 							},
 						}) {
-							proofer.On("Validate", block).Return(true)
+							proofer.On("Validate", block).Return(nil)
 						}
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name: "success with a prepended chunk",
@@ -182,14 +182,14 @@ func TestBlockGroup_IsValid(test *testing.T) {
 								PrevHash:  "",
 							},
 						}) {
-							proofer.On("Validate", block).Return(true)
+							proofer.On("Validate", block).Return(nil)
 						}
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name: "failure due to the block in the middle",
@@ -215,7 +215,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 					Proofer: new(MockProofer),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name: "failure due to the block at the end (as a full blockchain)",
@@ -247,13 +247,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 								Hash:      "next hash",
 								PrevHash:  "hash",
 							}).
-							Return(true)
+							Return(nil)
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name: "failure due to the block at the end (as a blockchain chunk)",
@@ -285,13 +285,13 @@ func TestBlockGroup_IsValid(test *testing.T) {
 								Hash:      "next hash",
 								PrevHash:  "hash",
 							}).
-							Return(true)
+							Return(nil)
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name: "failure due to a prepended chunk",
@@ -330,7 +330,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 					Proofer: new(MockProofer),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
@@ -363,7 +363,7 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 		name   string
 		blocks BlockGroup
 		args   args
-		want   assert.BoolAssertionFunc
+		want   assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success as a full blockchain",
@@ -395,13 +395,13 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 								Hash:      "hash",
 								PrevHash:  "",
 							}).
-							Return(true)
+							Return(nil)
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name: "success as a blockchain chunk without the previous block",
@@ -433,13 +433,13 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 								Hash:      "hash",
 								PrevHash:  "previous hash",
 							}).
-							Return(true)
+							Return(nil)
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name: "success as a blockchain chunk with the previous block",
@@ -476,13 +476,13 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 								Hash:      "hash #3",
 								PrevHash:  "hash #2",
 							}).
-							Return(true)
+							Return(nil)
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name: "failure as a full blockchain",
@@ -508,7 +508,7 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 					Proofer: new(MockProofer),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name: "failure as a blockchain chunk without the previous block",
@@ -534,7 +534,7 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 					Proofer: new(MockProofer),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name: "failure as a blockchain chunk with the previous block",
@@ -565,7 +565,7 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 					Proofer: new(MockProofer),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {

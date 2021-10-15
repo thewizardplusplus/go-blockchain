@@ -3,6 +3,8 @@ package blockchain
 import (
 	"fmt"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // Clock ...
@@ -13,7 +15,7 @@ type Clock func() time.Time
 // Proofer ...
 type Proofer interface {
 	Hash(block Block) string
-	Validate(block Block) bool
+	Validate(block Block) error
 }
 
 // BlockDependencies ...
@@ -60,23 +62,29 @@ func (block Block) MergedData() string {
 func (block Block) IsValid(
 	prevBlock *Block,
 	dependencies BlockDependencies,
-) bool {
+) error {
 	var prevTimestamp time.Time
 	if prevBlock != nil {
 		prevTimestamp = prevBlock.Timestamp
 	}
 	if !block.Timestamp.After(prevTimestamp) {
-		return false
+		return errors.New("the timestamp is not greater than the previous one")
 	}
 
 	if prevBlock != nil && block.PrevHash != prevBlock.Hash {
-		return false
+		return errors.New(
+			"the previous hash is not equal to the hash of the previous block",
+		)
 	}
 
-	return dependencies.Proofer.Validate(block)
+	if err := dependencies.Proofer.Validate(block); err != nil {
+		return errors.Wrap(err, "the validation via the proofer was failed")
+	}
+
+	return nil
 }
 
 // IsValidGenesisBlock ...
-func (block Block) IsValidGenesisBlock(dependencies BlockDependencies) bool {
+func (block Block) IsValidGenesisBlock(dependencies BlockDependencies) error {
 	return block.IsValid(&Block{}, dependencies)
 }

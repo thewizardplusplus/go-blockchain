@@ -38,7 +38,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   assert.BoolAssertionFunc
+		want   assert.ErrorAssertionFunc
 	}{
 		{
 			name:   "success",
@@ -58,7 +58,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 					PrevHash: "previous hash",
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name:   "failure with another block data",
@@ -78,7 +78,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 					PrevHash: "previous hash",
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name:   "failure with another nonce",
@@ -98,7 +98,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 					PrevHash: "previous hash",
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name:   "failure with another target bit",
@@ -118,7 +118,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 					PrevHash: "previous hash",
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name:   "incorrect hash structure",
@@ -131,7 +131,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 					PrevHash:  "previous hash",
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name:   "incorrect target bit",
@@ -146,7 +146,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 					PrevHash: "previous hash",
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {

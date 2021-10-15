@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
@@ -33,16 +34,16 @@ func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 }
 
 // Validate ...
-func (proofer ProofOfWork) Validate(block blockchain.Block) bool {
+func (proofer ProofOfWork) Validate(block blockchain.Block) error {
 	hashParts := strings.SplitN(block.Hash, ":", 3)
 	if len(hashParts) != 3 {
-		return false
+		return errors.New("the hash contains the invalid quantity of the parts")
 	}
 
 	targetBitAsStr := hashParts[0]
 	targetBit, err := strconv.Atoi(targetBitAsStr)
 	if err != nil {
-		return false
+		return errors.Wrap(err, "unable to parse the target bit")
 	}
 
 	target := makeTarget(targetBit)
@@ -50,5 +51,9 @@ func (proofer ProofOfWork) Validate(block blockchain.Block) bool {
 	nonceAsStr := hashParts[1]
 	data := block.MergedData() + nonceAsStr + targetBitAsStr
 	hash := makeHash(data)
-	return isHashFitTarget(hash, target)
+	if !isHashFitTarget(hash, target) {
+		return errors.New("the hash does not fit the target")
+	}
+
+	return nil
 }

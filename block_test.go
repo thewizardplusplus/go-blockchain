@@ -3,6 +3,7 @@ package blockchain
 import (
 	"fmt"
 	"testing"
+	"testing/iotest"
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -95,7 +96,7 @@ func TestBlock_IsValid(test *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   assert.BoolAssertionFunc
+		want   assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success with a previous block",
@@ -121,13 +122,13 @@ func TestBlock_IsValid(test *testing.T) {
 								Hash:      "hash",
 								PrevHash:  "previous hash",
 							}).
-							Return(true)
+							Return(nil)
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name: "success without a previous block (with a previous hash)",
@@ -150,13 +151,13 @@ func TestBlock_IsValid(test *testing.T) {
 								Hash:      "hash",
 								PrevHash:  "previous hash",
 							}).
-							Return(true)
+							Return(nil)
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name: "success without a previous block (without a previous hash)",
@@ -179,13 +180,13 @@ func TestBlock_IsValid(test *testing.T) {
 								Hash:      "hash",
 								PrevHash:  "",
 							}).
-							Return(true)
+							Return(nil)
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name: "failure due to timestamps (with a previous block)",
@@ -205,7 +206,7 @@ func TestBlock_IsValid(test *testing.T) {
 					Proofer: new(MockProofer),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name: "failure due to timestamps (without a previous block)",
@@ -222,7 +223,7 @@ func TestBlock_IsValid(test *testing.T) {
 					Proofer: new(MockProofer),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name: "failure due to hashes",
@@ -242,7 +243,7 @@ func TestBlock_IsValid(test *testing.T) {
 					Proofer: new(MockProofer),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name: "failure due to proofers",
@@ -268,13 +269,13 @@ func TestBlock_IsValid(test *testing.T) {
 								Hash:      "hash",
 								PrevHash:  "previous hash",
 							}).
-							Return(false)
+							Return(iotest.ErrTimeout)
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
@@ -311,7 +312,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   assert.BoolAssertionFunc
+		want   assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -333,13 +334,13 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 								Hash:      "hash",
 								PrevHash:  "",
 							}).
-							Return(true)
+							Return(nil)
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.True,
+			want: assert.NoError,
 		},
 		{
 			name: "failure due to timestamps",
@@ -355,7 +356,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 					Proofer: new(MockProofer),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name: "failure due to hashes",
@@ -371,7 +372,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 					Proofer: new(MockProofer),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 		{
 			name: "failure due to proofers",
@@ -393,13 +394,13 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 								Hash:      "hash",
 								PrevHash:  "",
 							}).
-							Return(false)
+							Return(iotest.ErrTimeout)
 
 						return proofer
 					}(),
 				},
 			},
-			want: assert.False,
+			want: assert.Error,
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {

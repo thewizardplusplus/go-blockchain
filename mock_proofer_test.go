@@ -24,14 +24,14 @@ func (_m *MockProofer) Hash(block Block) string {
 }
 
 // Validate provides a mock function with given fields: block
-func (_m *MockProofer) Validate(block Block) bool {
+func (_m *MockProofer) Validate(block Block) error {
 	ret := _m.Called(block)
 
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(Block) bool); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(Block) error); ok {
 		r0 = rf(block)
 	} else {
-		r0 = ret.Get(0).(bool)
+		r0 = ret.Error(0)
 	}
 
 	return r0

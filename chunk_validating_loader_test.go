@@ -93,7 +93,7 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 
 						proofer := new(MockProofer)
 						for _, block := range blocks {
-							proofer.On("Validate", block).Return(true)
+							proofer.On("Validate", block).Return(nil)
 						}
 
 						return proofer
@@ -180,7 +180,7 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 						}
 
 						proofer := new(MockProofer)
-						proofer.On("Validate", block).Return(false)
+						proofer.On("Validate", block).Return(iotest.ErrTimeout)
 
 						return proofer
 					}(),

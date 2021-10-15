@@ -21,9 +21,10 @@ func (loader ChunkValidatingLoader) LoadBlocks(cursor interface{}, count int) (
 		return nil, nil, err
 	}
 
-	if !blocks.IsValid(nil, AsBlockchainChunk, loader.Dependencies) {
+	err = blocks.IsValid(nil, AsBlockchainChunk, loader.Dependencies)
+	if err != nil {
 		const message = "the blocks corresponding to cursor %v are not valid"
-		return nil, nil, errors.Errorf(message, cursor)
+		return nil, nil, errors.Wrapf(err, message, cursor)
 	}
 
 	return blocks, nextCursor, nil

@@ -395,14 +395,15 @@ func main() {
 			validationMode = blockchain.AsFullBlockchain
 		}
 
-		if !blockChunk.IsValid(
+		err := blockChunk.IsValid(
 			prependedChunk,
 			validationMode,
 			blockchain.BlockDependencies{
 				Proofer: proofers.ProofOfWork{TargetBit: 248},
 			},
-		) {
-			log.Fatalf("chunk #%d is incorrect", index)
+		)
+		if err != nil {
+			log.Fatalf("chunk #%d is incorrect: %v", index, err)
 		}
 
 		prependedChunk = blockChunk
