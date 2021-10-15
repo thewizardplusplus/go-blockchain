@@ -1,6 +1,7 @@
 package proofers
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -27,19 +28,60 @@ func TestSimple_Hash(test *testing.T) {
 }
 
 func TestSimple_Validate(test *testing.T) {
-	data := new(MockStringer)
-	data.On("String").Return("hash")
+	type args struct {
+		block blockchain.Block
+	}
 
-	var proofer Simple
-	err := proofer.Validate(blockchain.Block{
-		Timestamp: clock(),
-		Data:      data,
-		Hash:      "4a4292671f697950d1d1d3ec16967cacf0ca1c5e20a1e21b5e49712cf5e422ae",
-		PrevHash:  "previous hash",
-	})
+	for _, data := range []struct {
+		name string
+		args args
+		want assert.ErrorAssertionFunc
+	}{
+		{
+			name: "success",
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data: func() fmt.Stringer {
+						data := new(MockStringer)
+						data.On("String").Return("hash")
 
-	mock.AssertExpectationsForObjects(test, data)
-	assert.NoError(test, err)
+						return data
+					}(),
+					Hash: "4a4292671f697950d1d1d3ec16967cac" +
+						"f0ca1c5e20a1e21b5e49712cf5e422ae",
+					PrevHash: "previous hash",
+				},
+			},
+			want: assert.NoError,
+		},
+		{
+			name: "error",
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data: func() fmt.Stringer {
+						data := new(MockStringer)
+						data.On("String").Return("hash #2")
+
+						return data
+					}(),
+					Hash: "4a4292671f697950d1d1d3ec16967cac" +
+						"f0ca1c5e20a1e21b5e49712cf5e422ae",
+					PrevHash: "previous hash",
+				},
+			},
+			want: assert.Error,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			var proofer Simple
+			got := proofer.Validate(data.args.block)
+
+			mock.AssertExpectationsForObjects(test, data.args.block.Data)
+			data.want(test, got)
+		})
+	}
 }
 
 func clock() time.Time {
