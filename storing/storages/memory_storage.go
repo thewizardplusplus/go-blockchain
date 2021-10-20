@@ -6,7 +6,8 @@ import (
 
 // MemoryStorage ...
 type MemoryStorage struct {
-	blocks blockchain.BlockGroup
+	blocks    blockchain.BlockGroup
+	lastBlock blockchain.Block
 }
 
 // Blocks ...
@@ -16,16 +17,24 @@ func (storage MemoryStorage) Blocks() blockchain.BlockGroup {
 
 // LoadLastBlock ...
 func (storage MemoryStorage) LoadLastBlock() (blockchain.Block, error) {
-	if len(storage.blocks) == 0 {
+	if storage.isEmpty() {
 		return blockchain.Block{}, blockchain.ErrEmptyStorage
 	}
 
-	lastBlock := storage.blocks[len(storage.blocks)-1]
-	return lastBlock, nil
+	return storage.lastBlock, nil
 }
 
 // StoreBlock ...
 func (storage *MemoryStorage) StoreBlock(block blockchain.Block) error {
+	// this check should follow before appending the new block
+	if storage.isEmpty() || block.Timestamp.After(storage.lastBlock.Timestamp) {
+		storage.lastBlock = block
+	}
+
 	storage.blocks = append(storage.blocks, block)
 	return nil
+}
+
+func (storage MemoryStorage) isEmpty() bool {
+	return len(storage.blocks) == 0
 }
