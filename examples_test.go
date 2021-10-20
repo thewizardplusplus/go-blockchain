@@ -8,6 +8,7 @@ import (
 
 	"github.com/thewizardplusplus/go-blockchain"
 	"github.com/thewizardplusplus/go-blockchain/loading"
+	"github.com/thewizardplusplus/go-blockchain/loading/loaders"
 	"github.com/thewizardplusplus/go-blockchain/proofers"
 	"github.com/thewizardplusplus/go-blockchain/storing"
 	"github.com/thewizardplusplus/go-blockchain/storing/storages"
@@ -17,31 +18,6 @@ type StringData string
 
 func (data StringData) String() string {
 	return string(data)
-}
-
-type SliceLoader struct {
-	Blocks blockchain.BlockGroup
-}
-
-func (loader SliceLoader) LoadBlocks(cursor interface{}, count int) (
-	blocks blockchain.BlockGroup,
-	nextCursor interface{},
-	err error,
-) {
-	if cursor == nil {
-		cursor = 0
-	}
-	if cursor.(int) > len(loader.Blocks)-1 {
-		return nil, nil, nil
-	}
-
-	nextCursor = cursor.(int) + count
-	if nextCursor.(int) > len(loader.Blocks) {
-		nextCursor = len(loader.Blocks)
-	}
-
-	blocks = loader.Blocks[cursor.(int):nextCursor.(int)]
-	return blocks, nextCursor, nil
 }
 
 func ExampleBlockchain() {
@@ -358,9 +334,7 @@ func ExampleLoadStorage() {
 		storing.NewGroupStorage(&storage),
 		loading.LastBlockValidatingLoader{
 			Loader: loading.NewMemoizingLoader(loading.ChunkValidatingLoader{
-				Loader: SliceLoader{
-					Blocks: blocks,
-				},
+				Loader:       loaders.MemoryLoader(blocks),
 				Dependencies: blockDependencies,
 			}),
 			Dependencies: blockDependencies,
