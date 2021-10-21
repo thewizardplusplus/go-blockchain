@@ -1,6 +1,8 @@
 package storages
 
 import (
+	"sort"
+
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
@@ -8,10 +10,20 @@ import (
 type MemoryStorage struct {
 	blocks    blockchain.BlockGroup
 	lastBlock blockchain.Block
+	isSorted  bool
 }
 
 // Blocks ...
 func (storage MemoryStorage) Blocks() blockchain.BlockGroup {
+	if !storage.isSorted {
+		sort.Slice(storage.blocks, func(i int, j int) bool {
+			// descending order
+			return storage.blocks[j].Timestamp.After(storage.blocks[i].Timestamp)
+		})
+
+		storage.isSorted = true
+	}
+
 	return storage.blocks
 }
 
@@ -32,6 +44,8 @@ func (storage *MemoryStorage) StoreBlock(block blockchain.Block) error {
 	}
 
 	storage.blocks = append(storage.blocks, block)
+	storage.isSorted = false
+
 	return nil
 }
 
