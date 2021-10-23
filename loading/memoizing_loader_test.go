@@ -30,8 +30,8 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 		count  int
 	}
 	type memoizedRecord struct {
-		key   loadingParameters
-		value loadingResult
+		key   Parameters
+		value Results
 	}
 
 	for _, data := range []struct {
@@ -75,12 +75,9 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 			},
 			wantLoadingResults: []memoizedRecord{
 				{
-					key: loadingParameters{
-						cursor: "cursor-one",
-						count:  23,
-					},
-					value: loadingResult{
-						blocks: blockchain.BlockGroup{
+					key: Parameters{Cursor: "cursor-one", Count: 23},
+					value: Results{
+						Blocks: blockchain.BlockGroup{
 							{
 								Timestamp: clock().Add(time.Hour),
 								Data:      new(MockStringer),
@@ -94,7 +91,7 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 								PrevHash:  "previous hash",
 							},
 						},
-						nextCursor: "cursor-two",
+						NextCursor: "cursor-two",
 					},
 				},
 			},
@@ -135,8 +132,8 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 						},
 					}
 
-					parameters := loadingParameters{cursor: "cursor-one", count: 23}
-					results := loadingResult{blocks: blocks, nextCursor: "cursor-two"}
+					parameters := Parameters{Cursor: "cursor-one", Count: 23}
+					results := Results{Blocks: blocks, NextCursor: "cursor-two"}
 
 					loadingResults := new(sync.Map)
 					loadingResults.Store(parameters, results)
@@ -150,12 +147,9 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 			},
 			wantLoadingResults: []memoizedRecord{
 				{
-					key: loadingParameters{
-						cursor: "cursor-one",
-						count:  23,
-					},
-					value: loadingResult{
-						blocks: blockchain.BlockGroup{
+					key: Parameters{Cursor: "cursor-one", Count: 23},
+					value: Results{
+						Blocks: blockchain.BlockGroup{
 							{
 								Timestamp: clock().Add(time.Hour),
 								Data:      new(MockStringer),
@@ -169,7 +163,7 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 								PrevHash:  "previous hash",
 							},
 						},
-						nextCursor: "cursor-two",
+						NextCursor: "cursor-two",
 					},
 				},
 			},
@@ -225,8 +219,8 @@ func TestMemoizingLoader_LoadBlocks(test *testing.T) {
 			data.fields.loadingResults.
 				Range(func(key interface{}, value interface{}) bool {
 					gotLoadingResults = append(gotLoadingResults, memoizedRecord{
-						key:   key.(loadingParameters),
-						value: value.(loadingResult),
+						key:   key.(Parameters),
+						value: value.(Results),
 					})
 
 					return true

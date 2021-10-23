@@ -6,16 +6,6 @@ import (
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
-type loadingParameters struct {
-	cursor interface{}
-	count  int
-}
-
-type loadingResult struct {
-	blocks     blockchain.BlockGroup
-	nextCursor interface{}
-}
-
 // MemoizingLoader ...
 type MemoizingLoader struct {
 	loader         blockchain.Loader
@@ -36,10 +26,10 @@ func (loader MemoizingLoader) LoadBlocks(cursor interface{}, count int) (
 	nextCursor interface{},
 	err error,
 ) {
-	parameters := loadingParameters{cursor: cursor, count: count}
+	parameters := Parameters{Cursor: cursor, Count: count}
 	results, ok := loader.loadingResults.Load(parameters)
 	if ok {
-		return results.(loadingResult).blocks, results.(loadingResult).nextCursor, nil
+		return results.(Results).Blocks, results.(Results).NextCursor, nil
 	}
 
 	blocks, nextCursor, err = loader.loader.LoadBlocks(cursor, count)
@@ -47,7 +37,7 @@ func (loader MemoizingLoader) LoadBlocks(cursor interface{}, count int) (
 		return nil, nil, err
 	}
 
-	results = loadingResult{blocks: blocks, nextCursor: nextCursor}
+	results = Results{Blocks: blocks, NextCursor: nextCursor}
 	loader.loadingResults.Store(parameters, results)
 
 	return blocks, nextCursor, nil
