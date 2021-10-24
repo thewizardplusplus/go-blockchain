@@ -47,6 +47,11 @@ The library that implements models and algorithms of blockchain.
         - automatically preloads the next block group to perform the above validation;
       - memoizing loader:
         - remembers loaded block groups;
+        - restricts the quantity of the remembered block groups:
+          - stores the loaded block groups in the LRU cache;
+    - kinds:
+      - memory loader:
+        - loading blocks from the block group;
   - blockchain:
     - storing:
       - storage;
