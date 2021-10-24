@@ -512,7 +512,7 @@ func main() {
 	if _, err := loading.LoadStorage(
 		storing.NewGroupStorage(&storage),
 		loading.LastBlockValidatingLoader{
-			Loader: loading.NewMemoizingLoader(loading.ChunkValidatingLoader{
+			Loader: loading.NewMemoizingLoader(1e6, loading.ChunkValidatingLoader{
 				Loader:       loaders.MemoryLoader(blocks),
 				Dependencies: blockDependencies,
 			}),
