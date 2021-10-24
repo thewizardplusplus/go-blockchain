@@ -441,6 +441,20 @@ func (hasher StringData) Hash() string {
 	return string(hasher)
 }
 
+type LoggingLoader struct {
+	Loader blockchain.Loader
+}
+
+func (loader LoggingLoader) LoadBlocks(cursor interface{}, count int) (
+	blocks blockchain.BlockGroup,
+	nextCursor interface{},
+	err error,
+) {
+	fmt.Printf("[DEBUG] load the blocks corresponding to cursor %v\n", cursor)
+
+	return loader.Loader.LoadBlocks(cursor, count)
+}
+
 func main() {
 	timestamp := time.Date(2006, time.January, 2, 15, 4, 5, 0, time.UTC)
 	blocks := blockchain.BlockGroup{
@@ -512,14 +526,16 @@ func main() {
 	if _, err := loading.LoadStorage(
 		storing.NewGroupStorage(&storage),
 		loading.LastBlockValidatingLoader{
-			Loader: loading.NewMemoizingLoader(1e6, loading.ChunkValidatingLoader{
-				Loader:       loaders.MemoryLoader(blocks),
+			Loader: loading.NewMemoizingLoader(1, loading.ChunkValidatingLoader{
+				Loader: LoggingLoader{
+					Loader: loaders.MemoryLoader(blocks),
+				},
 				Dependencies: blockDependencies,
 			}),
 			Dependencies: blockDependencies,
 		},
 		nil,
-		5,
+		2,
 	); err != nil {
 		log.Fatalf("unable to load the blocks: %v", err)
 	}
@@ -528,6 +544,10 @@ func main() {
 	fmt.Println(string(blocksBytes))
 
 	// Output:
+	// [DEBUG] load the blocks corresponding to cursor <nil>
+	// [DEBUG] load the blocks corresponding to cursor 2
+	// [DEBUG] load the blocks corresponding to cursor 4
+	// [DEBUG] load the blocks corresponding to cursor 6
 	// [
 	//   {
 	//     "Timestamp": "2006-01-02T16:04:05Z",
