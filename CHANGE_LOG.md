@@ -1,5 +1,32 @@
 # Change Log
 
+## [v1.3.1](https://github.com/thewizardplusplus/go-blockchain/tree/v1.3.1) (2021-10-24)
+
+Add the memory loader; restrict the cache size in the memoizing loader; optimize the memory storage; replace the `blockchain.Hasher` interface to the `fmt.Stringer` interface; return the errors from the proofers; split the code to the additional packages.
+
+- models:
+  - block group loaders:
+    - wrappers:
+      - memoizing loader:
+        - restricts the quantity of the remembered block groups:
+          - stores the loaded block groups in the LRU cache;
+    - kinds:
+      - memory loader:
+        - loading blocks from the block group;
+- additionally:
+  - replace the `blockchain.Hasher` interface to the `fmt.Stringer` interface;
+  - return the error instead of a boolean flag from the `blockchain.Proofer.Validate()` method;
+  - add the packages:
+    - `storing`;
+    - `loading`;
+  - optimize the `storages.MemoryStorage` structure:
+    - revert the use of the `container/heap` package;
+    - optimize the detection of the last block;
+    - optimize the sorting of the stored blocks;
+  - examples:
+    - fix the examples in the `README.md` file;
+    - improve the example with the loading of the blocks.
+
 ## [v1.3](https://github.com/thewizardplusplus/go-blockchain/tree/v1.3) (2021-09-21)
 
 Implementing the loading of block groups to a storage via the external interface; supporting the automatical validation of the loaded block groups.
