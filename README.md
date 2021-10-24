@@ -223,13 +223,13 @@ import (
 
 type StringData string
 
-func (hasher StringData) Hash() string {
-	return string(hasher)
+func (data StringData) String() string {
+	return string(data)
 }
 
 func main() {
 	timestamp := time.Date(2006, time.January, 2, 15, 4, 5, 0, time.UTC)
-	dependencies := blockchain.Dependencies{
+	blockDependencies := blockchain.BlockDependencies{
 		// use the custom clock function to get the same blocks
 		Clock: func() time.Time {
 			timestamp = timestamp.Add(time.Hour)
@@ -239,13 +239,13 @@ func main() {
 	}
 
 	blocks := []blockchain.Block{
-		blockchain.NewGenesisBlock(StringData("genesis block"), dependencies),
+		blockchain.NewGenesisBlock(StringData("genesis block"), blockDependencies),
 	}
 	for i := 0; i < 5; i++ {
 		blocks = append(blocks, blockchain.NewBlock(
 			StringData(fmt.Sprintf("block #%d", i)),
 			blocks[len(blocks)-1],
-			dependencies,
+			blockDependencies,
 		))
 	}
 
@@ -310,8 +310,8 @@ import (
 
 type StringData string
 
-func (hasher StringData) Hash() string {
-	return string(hasher)
+func (data StringData) String() string {
+	return string(data)
 }
 
 func main() {
@@ -437,8 +437,8 @@ import (
 
 type StringData string
 
-func (hasher StringData) Hash() string {
-	return string(hasher)
+func (data StringData) String() string {
+	return string(data)
 }
 
 type LoggingLoader struct {
