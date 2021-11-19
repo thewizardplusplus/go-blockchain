@@ -4,6 +4,7 @@ import (
 	"sort"
 
 	"github.com/thewizardplusplus/go-blockchain"
+	"github.com/thewizardplusplus/go-blockchain/loading/loaders"
 )
 
 // MemoryStorage ...
@@ -25,6 +26,25 @@ func (storage MemoryStorage) Blocks() blockchain.BlockGroup {
 	}
 
 	return storage.blocks
+}
+
+// LoadBlocks ...
+func (storage *MemoryStorage) LoadBlocks(cursor interface{}, count int) (
+	blocks blockchain.BlockGroup,
+	nextCursor interface{},
+	err error,
+) {
+	if !storage.isSorted {
+		sort.Slice(storage.blocks, func(i int, j int) bool {
+			// descending order
+			return storage.blocks[j].Timestamp.After(storage.blocks[i].Timestamp)
+		})
+
+		storage.isSorted = true
+	}
+
+	loader := loaders.MemoryLoader(storage.blocks)
+	return loader.LoadBlocks(cursor, count)
 }
 
 // LoadLastBlock ...

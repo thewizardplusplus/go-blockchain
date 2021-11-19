@@ -136,6 +136,181 @@ func TestMemoryStorage_Blocks(test *testing.T) {
 	}
 }
 
+func TestMemoryStorage_LoadBlocks(test *testing.T) {
+	type fields struct {
+		blocks   blockchain.BlockGroup
+		isSorted bool
+	}
+	type args struct {
+		cursor interface{}
+		count  int
+	}
+
+	for _, data := range []struct {
+		name             string
+		fields           fields
+		args             args
+		wantBlocks       blockchain.BlockGroup
+		wantIsSorted     assert.BoolAssertionFunc
+		wantLoadedBlocks blockchain.BlockGroup
+		wantNextCursor   interface{}
+		wantErr          assert.ErrorAssertionFunc
+	}{
+		{
+			name: "with a nonempty storage and the unsorted blocks",
+			fields: fields{
+				blocks: blockchain.BlockGroup{
+					{
+						Timestamp: clock(),
+						Data:      new(MockStringer),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+					{
+						Timestamp: clock().Add(2 * time.Hour),
+						Data:      new(MockStringer),
+						Hash:      "hash #3",
+						PrevHash:  "hash #2",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data:      new(MockStringer),
+						Hash:      "hash #2",
+						PrevHash:  "hash #1",
+					},
+				},
+				isSorted: false,
+			},
+			args: args{
+				cursor: 1,
+				count:  2,
+			},
+			wantBlocks: blockchain.BlockGroup{
+				{
+					Timestamp: clock(),
+					Data:      new(MockStringer),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+			},
+			wantIsSorted: assert.True,
+			wantLoadedBlocks: blockchain.BlockGroup{
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+			},
+			wantNextCursor: 3,
+			wantErr:        assert.NoError,
+		},
+		{
+			name: "with a nonempty storage and the sorted blocks",
+			fields: fields{
+				blocks: blockchain.BlockGroup{
+					{
+						Timestamp: clock(),
+						Data:      new(MockStringer),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+					{
+						Timestamp: clock().Add(2 * time.Hour),
+						Data:      new(MockStringer),
+						Hash:      "hash #3",
+						PrevHash:  "hash #2",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data:      new(MockStringer),
+						Hash:      "hash #2",
+						PrevHash:  "hash #1",
+					},
+				},
+				isSorted: true,
+			},
+			args: args{
+				cursor: 1,
+				count:  2,
+			},
+			wantBlocks: blockchain.BlockGroup{
+				{
+					Timestamp: clock(),
+					Data:      new(MockStringer),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+			},
+			wantIsSorted: assert.True,
+			wantLoadedBlocks: blockchain.BlockGroup{
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+			},
+			wantNextCursor: 3,
+			wantErr:        assert.NoError,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			storage := MemoryStorage{
+				blocks:   data.fields.blocks,
+				isSorted: data.fields.isSorted,
+			}
+			gotLoadedBlocks, gotNextCursor, gotErr :=
+				storage.LoadBlocks(data.args.cursor, data.args.count)
+
+			for _, block := range storage.blocks {
+				mock.AssertExpectationsForObjects(test, block.Data)
+			}
+			assert.Equal(test, data.wantBlocks, storage.blocks)
+			data.wantIsSorted(test, storage.isSorted)
+			assert.Equal(test, data.wantLoadedBlocks, gotLoadedBlocks)
+			assert.Equal(test, data.wantNextCursor, gotNextCursor)
+			data.wantErr(test, gotErr)
+		})
+	}
+}
+
 func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 	type fields struct {
 		blocks    blockchain.BlockGroup
