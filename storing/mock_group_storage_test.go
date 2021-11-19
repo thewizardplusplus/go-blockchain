@@ -12,6 +12,38 @@ type MockGroupStorage struct {
 	mock.Mock
 }
 
+// LoadBlocks provides a mock function with given fields: cursor, count
+func (_m *MockGroupStorage) LoadBlocks(cursor interface{}, count int) (blockchain.BlockGroup, interface{}, error) {
+	ret := _m.Called(cursor, count)
+
+	var r0 blockchain.BlockGroup
+	if rf, ok := ret.Get(0).(func(interface{}, int) blockchain.BlockGroup); ok {
+		r0 = rf(cursor, count)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(blockchain.BlockGroup)
+		}
+	}
+
+	var r1 interface{}
+	if rf, ok := ret.Get(1).(func(interface{}, int) interface{}); ok {
+		r1 = rf(cursor, count)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(interface{})
+		}
+	}
+
+	var r2 error
+	if rf, ok := ret.Get(2).(func(interface{}, int) error); ok {
+		r2 = rf(cursor, count)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // LoadLastBlock provides a mock function with given fields:
 func (_m *MockGroupStorage) LoadLastBlock() (blockchain.Block, error) {
 	ret := _m.Called()
