@@ -23,6 +23,20 @@ func (_m *MockGroupStorage) DeleteBlock(block Block) error {
 	return r0
 }
 
+// DeleteBlockGroup provides a mock function with given fields: blocks
+func (_m *MockGroupStorage) DeleteBlockGroup(blocks BlockGroup) error {
+	ret := _m.Called(blocks)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(BlockGroup) error); ok {
+		r0 = rf(blocks)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // LoadBlocks provides a mock function with given fields: cursor, count
 func (_m *MockGroupStorage) LoadBlocks(cursor interface{}, count int) (BlockGroup, interface{}, error) {
 	ret := _m.Called(cursor, count)
