@@ -22,3 +22,16 @@ func (wrapper GroupStorageWrapper) StoreBlockGroup(
 
 	return nil
 }
+
+// DeleteBlockGroup ...
+func (wrapper GroupStorageWrapper) DeleteBlockGroup(
+	blocks blockchain.BlockGroup,
+) error {
+	for index, block := range blocks {
+		if err := wrapper.DeleteBlock(block); err != nil {
+			return errors.Wrapf(err, "unable to delete block #%d", index)
+		}
+	}
+
+	return nil
+}
