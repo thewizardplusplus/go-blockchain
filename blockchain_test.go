@@ -31,8 +31,8 @@ func TestNewBlockchain(test *testing.T) {
 						Clock:   clock,
 						Proofer: new(MockProofer),
 					},
-					Storage: func() Storage {
-						storage := new(MockStorage)
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
 						storage.
 							On("LoadLastBlock").
 							Return(
@@ -77,8 +77,8 @@ func TestNewBlockchain(test *testing.T) {
 							return proofer
 						}(),
 					},
-					Storage: func() Storage {
-						storage := new(MockStorage)
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
 						storage.On("LoadLastBlock").Return(Block{}, ErrEmptyStorage)
 						storage.
 							On("StoreBlock", Block{
@@ -110,8 +110,8 @@ func TestNewBlockchain(test *testing.T) {
 						Clock:   clock,
 						Proofer: new(MockProofer),
 					},
-					Storage: func() Storage {
-						storage := new(MockStorage)
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
 						storage.On("LoadLastBlock").Return(Block{}, iotest.ErrTimeout)
 
 						return storage
@@ -130,8 +130,8 @@ func TestNewBlockchain(test *testing.T) {
 						Clock:   clock,
 						Proofer: new(MockProofer),
 					},
-					Storage: func() Storage {
-						storage := new(MockStorage)
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
 						storage.On("LoadLastBlock").Return(Block{}, ErrEmptyStorage)
 
 						return storage
@@ -161,8 +161,8 @@ func TestNewBlockchain(test *testing.T) {
 							return proofer
 						}(),
 					},
-					Storage: func() Storage {
-						storage := new(MockStorage)
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
 						storage.On("LoadLastBlock").Return(Block{}, ErrEmptyStorage)
 						storage.
 							On("StoreBlock", Block{
@@ -224,8 +224,8 @@ func TestBlockchain_LoadBlocks(test *testing.T) {
 			name: "success",
 			fields: fields{
 				dependencies: Dependencies{
-					Storage: func() Storage {
-						storage := new(MockStorage)
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
 						storage.
 							On("LoadBlocks", 1, 2).
 							Return(
@@ -276,8 +276,8 @@ func TestBlockchain_LoadBlocks(test *testing.T) {
 			name: "error",
 			fields: fields{
 				dependencies: Dependencies{
-					Storage: func() Storage {
-						storage := new(MockStorage)
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
 						storage.On("LoadBlocks", 1, 2).Return(nil, nil, iotest.ErrTimeout)
 
 						return storage
@@ -342,8 +342,8 @@ func TestBlockchain_AddBlock(test *testing.T) {
 							return proofer
 						}(),
 					},
-					Storage: func() Storage {
-						storage := new(MockStorage)
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
 						storage.
 							On("StoreBlock", Block{
 								Timestamp: clock(),
@@ -393,8 +393,8 @@ func TestBlockchain_AddBlock(test *testing.T) {
 							return proofer
 						}(),
 					},
-					Storage: func() Storage {
-						storage := new(MockStorage)
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
 						storage.
 							On("StoreBlock", Block{
 								Timestamp: clock(),

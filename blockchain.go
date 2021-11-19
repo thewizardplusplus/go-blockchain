@@ -10,7 +10,7 @@ import (
 type Dependencies struct {
 	BlockDependencies
 
-	Storage Storage
+	Storage GroupStorage
 }
 
 // Blockchain ...

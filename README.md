@@ -125,6 +125,7 @@ import (
 
 	"github.com/thewizardplusplus/go-blockchain"
 	"github.com/thewizardplusplus/go-blockchain/proofers"
+	"github.com/thewizardplusplus/go-blockchain/storing"
 	"github.com/thewizardplusplus/go-blockchain/storing/storages"
 )
 
@@ -149,7 +150,7 @@ func main() {
 		StringData("genesis block"),
 		blockchain.Dependencies{
 			BlockDependencies: blockDependencies,
-			Storage:           &storages.MemoryStorage{},
+			Storage:           storing.NewGroupStorage(&storages.MemoryStorage{}),
 		},
 	)
 	if err != nil {
