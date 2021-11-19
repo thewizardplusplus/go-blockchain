@@ -25,4 +25,5 @@ type GroupStorage interface {
 	Storage
 
 	StoreBlockGroup(blocks BlockGroup) error
+	DeleteBlockGroup(blocks BlockGroup) error
 }
