@@ -14,20 +14,6 @@ type MemoryStorage struct {
 	isSorted  bool
 }
 
-// Blocks ...
-func (storage MemoryStorage) Blocks() blockchain.BlockGroup {
-	if !storage.isSorted {
-		sort.Slice(storage.blocks, func(i int, j int) bool {
-			// descending order
-			return storage.blocks[j].Timestamp.After(storage.blocks[i].Timestamp)
-		})
-
-		storage.isSorted = true
-	}
-
-	return storage.blocks
-}
-
 // LoadBlocks ...
 func (storage *MemoryStorage) LoadBlocks(cursor interface{}, count int) (
 	blocks blockchain.BlockGroup,
