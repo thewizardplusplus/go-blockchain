@@ -15,6 +15,7 @@ type Storage interface {
 
 	LoadLastBlock() (Block, error)
 	StoreBlock(block Block) error
+	DeleteBlock(block Block) error
 }
 
 //go:generate mockery --name=GroupStorage --inpackage --case=underscore --testonly
