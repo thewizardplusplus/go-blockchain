@@ -43,6 +43,15 @@ func NewBlockchain(
 	return blockchain, nil
 }
 
+// LoadBlocks ...
+func (blockchain Blockchain) LoadBlocks(cursor interface{}, count int) (
+	blocks BlockGroup,
+	nextCursor interface{},
+	err error,
+) {
+	return blockchain.dependencies.Storage.LoadBlocks(cursor, count)
+}
+
 // AddBlock ...
 func (blockchain *Blockchain) AddBlock(data fmt.Stringer) error {
 	block := NewBlock(

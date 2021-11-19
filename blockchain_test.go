@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 	"testing/iotest"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -176,6 +177,110 @@ func TestNewBlockchain(test *testing.T) {
 				mock.AssertExpectationsForObjects(test, gotBlockchain.lastBlock.Data)
 				assert.Equal(test, data.wantLastBlock, gotBlockchain.lastBlock)
 			}
+		})
+	}
+}
+
+func TestBlockchain_LoadBlocks(test *testing.T) {
+	type fields struct {
+		dependencies Dependencies
+	}
+	type args struct {
+		cursor interface{}
+		count  int
+	}
+
+	for _, data := range []struct {
+		name           string
+		fields         fields
+		args           args
+		wantBlocks     BlockGroup
+		wantNextCursor interface{}
+		wantErr        assert.ErrorAssertionFunc
+	}{
+		{
+			name: "success",
+			fields: fields{
+				dependencies: Dependencies{
+					Storage: func() Storage {
+						storage := new(MockStorage)
+						storage.
+							On("LoadBlocks", 1, 2).
+							Return(
+								BlockGroup{
+									{
+										Timestamp: clock().Add(time.Hour),
+										Data:      new(MockStringer),
+										Hash:      "next hash",
+										PrevHash:  "hash",
+									},
+									{
+										Timestamp: clock(),
+										Data:      new(MockStringer),
+										Hash:      "hash",
+										PrevHash:  "previous hash",
+									},
+								},
+								3,
+								nil,
+							)
+
+						return storage
+					}(),
+				},
+			},
+			args: args{
+				cursor: 1,
+				count:  2,
+			},
+			wantBlocks: BlockGroup{
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "next hash",
+					PrevHash:  "hash",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockStringer),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			wantNextCursor: 3,
+			wantErr:        assert.NoError,
+		},
+		{
+			name: "error",
+			fields: fields{
+				dependencies: Dependencies{
+					Storage: func() Storage {
+						storage := new(MockStorage)
+						storage.On("LoadBlocks", 1, 2).Return(nil, nil, iotest.ErrTimeout)
+
+						return storage
+					}(),
+				},
+			},
+			args: args{
+				cursor: 1,
+				count:  2,
+			},
+			wantBlocks:     nil,
+			wantNextCursor: nil,
+			wantErr:        assert.Error,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			blockchain := Blockchain{
+				dependencies: data.fields.dependencies,
+			}
+			gotBlocks, gotNextCursor, gotErr :=
+				blockchain.LoadBlocks(data.args.cursor, data.args.count)
+
+			assert.Equal(test, data.wantBlocks, gotBlocks)
+			assert.Equal(test, data.wantNextCursor, gotNextCursor)
+			data.wantErr(test, gotErr)
 		})
 	}
 }

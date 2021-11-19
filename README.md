@@ -147,12 +147,11 @@ func main() {
 		Proofer: proofers.ProofOfWork{TargetBit: 248},
 	}
 
-	var storage storages.MemoryStorage
 	blockchain, err := blockchain.NewBlockchain(
 		StringData("genesis block"),
 		blockchain.Dependencies{
 			BlockDependencies: blockDependencies,
-			Storage:           &storage,
+			Storage:           &storages.MemoryStorage{},
 		},
 	)
 	if err != nil {
@@ -168,7 +167,7 @@ func main() {
 		}
 	}
 
-	addedBlocks, _, _ := storage.LoadBlocks(nil, blockCount+1)
+	addedBlocks, _, _ := blockchain.LoadBlocks(nil, blockCount+1)
 	blocksBytes, _ := json.MarshalIndent(addedBlocks, "", "  ")
 	fmt.Println(string(blocksBytes))
 
