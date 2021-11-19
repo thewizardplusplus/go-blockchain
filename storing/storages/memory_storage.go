@@ -20,14 +20,7 @@ func (storage *MemoryStorage) LoadBlocks(cursor interface{}, count int) (
 	nextCursor interface{},
 	err error,
 ) {
-	if !storage.isSorted {
-		sort.Slice(storage.blocks, func(i int, j int) bool {
-			// descending order
-			return storage.blocks[j].Timestamp.After(storage.blocks[i].Timestamp)
-		})
-
-		storage.isSorted = true
-	}
+	storage.sortIfNeed()
 
 	loader := loaders.MemoryLoader(storage.blocks)
 	return loader.LoadBlocks(cursor, count)
@@ -57,14 +50,7 @@ func (storage *MemoryStorage) StoreBlock(block blockchain.Block) error {
 
 // DeleteBlock ...
 func (storage *MemoryStorage) DeleteBlock(block blockchain.Block) error {
-	if !storage.isSorted {
-		sort.Slice(storage.blocks, func(i int, j int) bool {
-			// descending order
-			return storage.blocks[j].Timestamp.After(storage.blocks[i].Timestamp)
-		})
-
-		storage.isSorted = true
-	}
+	storage.sortIfNeed()
 
 	index := sort.Search(len(storage.blocks), func(index int) bool {
 		// after or equal
@@ -84,4 +70,16 @@ func (storage *MemoryStorage) DeleteBlock(block blockchain.Block) error {
 
 func (storage MemoryStorage) isEmpty() bool {
 	return len(storage.blocks) == 0
+}
+
+func (storage *MemoryStorage) sortIfNeed() {
+	if storage.isSorted {
+		return
+	}
+
+	sort.Slice(storage.blocks, func(i int, j int) bool {
+		// descending order
+		return storage.blocks[j].Timestamp.After(storage.blocks[i].Timestamp)
+	})
+	storage.isSorted = true
 }
