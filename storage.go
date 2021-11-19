@@ -11,6 +11,8 @@ var ErrEmptyStorage = errors.New("empty storage")
 
 // Storage ...
 type Storage interface {
+	Loader
+
 	LoadLastBlock() (Block, error)
 	StoreBlock(block Block) error
 }
