@@ -119,7 +119,8 @@ func ExampleLoadStorage() {
 		log.Fatalf("unable to load the blocks: %v", err)
 	}
 
-	blocksBytes, _ := json.MarshalIndent(storage.Blocks(), "", "  ")
+	loadedBlocks, _, _ := storage.LoadBlocks(nil, len(blocks))
+	blocksBytes, _ := json.MarshalIndent(loadedBlocks, "", "  ")
 	fmt.Println(string(blocksBytes))
 
 	// Output:

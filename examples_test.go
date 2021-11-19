@@ -40,7 +40,8 @@ func ExampleBlockchain() {
 		log.Fatalf("unable to create the blockchain: %v", err)
 	}
 
-	for i := 0; i < 5; i++ {
+	const blockCount = 5
+	for i := 0; i < blockCount; i++ {
 		if err := blockchain.AddBlock(
 			StringData(fmt.Sprintf("block #%d", i)),
 		); err != nil {
@@ -48,7 +49,8 @@ func ExampleBlockchain() {
 		}
 	}
 
-	blocksBytes, _ := json.MarshalIndent(storage.Blocks(), "", "  ")
+	addedBlocks, _, _ := storage.LoadBlocks(nil, blockCount+1)
+	blocksBytes, _ := json.MarshalIndent(addedBlocks, "", "  ")
 	fmt.Println(string(blocksBytes))
 
 	// Output:
