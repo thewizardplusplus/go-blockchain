@@ -447,9 +447,9 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 		name          string
 		fields        fields
 		args          args
+		wantBlocks    blockchain.BlockGroup
 		wantLastBlock blockchain.Block
 		wantIsSorted  assert.BoolAssertionFunc
-		wantBlocks    blockchain.BlockGroup
 		wantErr       assert.ErrorAssertionFunc
 	}{
 		{
@@ -491,13 +491,6 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 					PrevHash:  "hash #3",
 				},
 			},
-			wantLastBlock: blockchain.Block{
-				Timestamp: clock().Add(3 * time.Hour),
-				Data:      new(MockStringer),
-				Hash:      "hash #4",
-				PrevHash:  "hash #3",
-			},
-			wantIsSorted: assert.False,
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
@@ -524,7 +517,14 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 					PrevHash:  "hash #3",
 				},
 			},
-			wantErr: assert.NoError,
+			wantLastBlock: blockchain.Block{
+				Timestamp: clock().Add(3 * time.Hour),
+				Data:      new(MockStringer),
+				Hash:      "hash #4",
+				PrevHash:  "hash #3",
+			},
+			wantIsSorted: assert.False,
+			wantErr:      assert.NoError,
 		},
 		{
 			name: "success with a nonempty storage " +
@@ -566,13 +566,6 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 					PrevHash:  "hash #2",
 				},
 			},
-			wantLastBlock: blockchain.Block{
-				Timestamp: clock().Add(3 * time.Hour),
-				Data:      new(MockStringer),
-				Hash:      "hash #4",
-				PrevHash:  "hash #3",
-			},
-			wantIsSorted: assert.False,
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
@@ -599,7 +592,14 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 					PrevHash:  "hash #2",
 				},
 			},
-			wantErr: assert.NoError,
+			wantLastBlock: blockchain.Block{
+				Timestamp: clock().Add(3 * time.Hour),
+				Data:      new(MockStringer),
+				Hash:      "hash #4",
+				PrevHash:  "hash #3",
+			},
+			wantIsSorted: assert.False,
+			wantErr:      assert.NoError,
 		},
 		{
 			name: "success with an empty storage",
@@ -616,13 +616,6 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 					PrevHash:  "",
 				},
 			},
-			wantLastBlock: blockchain.Block{
-				Timestamp: clock(),
-				Data:      new(MockStringer),
-				Hash:      "hash #1",
-				PrevHash:  "",
-			},
-			wantIsSorted: assert.False,
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
@@ -631,7 +624,14 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 					PrevHash:  "",
 				},
 			},
-			wantErr: assert.NoError,
+			wantLastBlock: blockchain.Block{
+				Timestamp: clock(),
+				Data:      new(MockStringer),
+				Hash:      "hash #1",
+				PrevHash:  "",
+			},
+			wantIsSorted: assert.False,
+			wantErr:      assert.NoError,
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
@@ -649,9 +649,9 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 				mock.AssertExpectationsForObjects(test, data.fields.lastBlock.Data)
 			}
 			mock.AssertExpectationsForObjects(test, data.args.block.Data)
+			assert.Equal(test, data.wantBlocks, storage.blocks)
 			assert.Equal(test, data.wantLastBlock, storage.lastBlock)
 			data.wantIsSorted(test, storage.isSorted)
-			assert.Equal(test, data.wantBlocks, storage.blocks)
 			data.wantErr(test, gotErr)
 		})
 	}
