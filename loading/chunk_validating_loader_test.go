@@ -12,8 +12,8 @@ import (
 
 func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 	type fields struct {
-		Loader       blockchain.Loader
-		Dependencies blockchain.BlockDependencies
+		Loader  blockchain.Loader
+		Proofer blockchain.Proofer
 	}
 	type args struct {
 		cursor interface{}
@@ -37,10 +37,7 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: blockchain.BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				Proofer: new(MockProofer),
 			},
 			args: args{
 				cursor: "cursor-one",
@@ -74,32 +71,29 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: blockchain.BlockDependencies{
-					Clock: clock,
-					Proofer: func() blockchain.Proofer {
-						blocks := blockchain.BlockGroup{
-							{
-								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockStringer),
-								Hash:      "next hash",
-								PrevHash:  "hash",
-							},
-							{
-								Timestamp: clock(),
-								Data:      new(MockStringer),
-								Hash:      "hash",
-								PrevHash:  "previous hash",
-							},
-						}
+				Proofer: func() blockchain.Proofer {
+					blocks := blockchain.BlockGroup{
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data:      new(MockStringer),
+							Hash:      "next hash",
+							PrevHash:  "hash",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockStringer),
+							Hash:      "hash",
+							PrevHash:  "previous hash",
+						},
+					}
 
-						proofer := new(MockProofer)
-						for _, block := range blocks {
-							proofer.On("Validate", block).Return(nil)
-						}
+					proofer := new(MockProofer)
+					for _, block := range blocks {
+						proofer.On("Validate", block).Return(nil)
+					}
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			args: args{
 				cursor: "cursor-one",
@@ -133,10 +127,7 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: blockchain.BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				Proofer: new(MockProofer),
 			},
 			args: args{
 				cursor: "cursor-one",
@@ -170,22 +161,19 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: blockchain.BlockDependencies{
-					Clock: clock,
-					Proofer: func() blockchain.Proofer {
-						block := blockchain.Block{
-							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockStringer),
-							Hash:      "next hash",
-							PrevHash:  "hash",
-						}
+				Proofer: func() blockchain.Proofer {
+					block := blockchain.Block{
+						Timestamp: clock().Add(time.Hour),
+						Data:      new(MockStringer),
+						Hash:      "next hash",
+						PrevHash:  "hash",
+					}
 
-						proofer := new(MockProofer)
-						proofer.On("Validate", block).Return(iotest.ErrTimeout)
+					proofer := new(MockProofer)
+					proofer.On("Validate", block).Return(iotest.ErrTimeout)
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			args: args{
 				cursor: "cursor-one",
@@ -198,8 +186,8 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			loader := ChunkValidatingLoader{
-				Loader:       data.fields.Loader,
-				Dependencies: data.fields.Dependencies,
+				Loader:  data.fields.Loader,
+				Proofer: data.fields.Proofer,
 			}
 			gotBlocks, gotNextCursor, gotErr :=
 				loader.LoadBlocks(data.args.cursor, data.args.count)
@@ -207,7 +195,7 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 			mock.AssertExpectationsForObjects(
 				test,
 				data.fields.Loader,
-				data.fields.Dependencies.Proofer,
+				data.fields.Proofer,
 			)
 			assert.Equal(test, data.wantBlocks, gotBlocks)
 			assert.Equal(test, data.wantNextCursor, gotNextCursor)

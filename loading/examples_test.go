@@ -109,7 +109,7 @@ func ExampleLoadStorage() {
 				Loader: LoggingLoader{
 					Loader: loaders.MemoryLoader(blocks),
 				},
-				Dependencies: blockDependencies,
+				Proofer: blockDependencies.Proofer,
 			}),
 			Dependencies: blockDependencies,
 		},
