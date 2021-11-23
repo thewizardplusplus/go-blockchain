@@ -40,7 +40,7 @@ func (blocks BlockGroup) IsValid(
 
 	for index, block := range blocks[:len(blocks)-1] {
 		prevBlock := &blocks[index+1]
-		if err := block.IsValid(prevBlock, dependencies); err != nil {
+		if err := block.IsValid(prevBlock, dependencies.Proofer); err != nil {
 			return errors.Wrapf(err, "block #%d is not valid", index)
 		}
 	}
@@ -68,7 +68,7 @@ func (blocks BlockGroup) IsLastBlockValid(
 			err = errors.Wrap(err, "the last block was validated as a genesis block")
 		}
 	case AsBlockchainChunk:
-		err = lastBlock.IsValid(prevBlock, dependencies)
+		err = lastBlock.IsValid(prevBlock, dependencies.Proofer)
 	}
 
 	return err

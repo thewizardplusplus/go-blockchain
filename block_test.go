@@ -88,8 +88,8 @@ func TestBlock_IsValid(test *testing.T) {
 		PrevHash  string
 	}
 	type args struct {
-		prevBlock    *Block
-		dependencies BlockDependencies
+		prevBlock *Block
+		proofer   Proofer
 	}
 
 	for _, data := range []struct {
@@ -111,22 +111,19 @@ func TestBlock_IsValid(test *testing.T) {
 					Timestamp: clock().Add(-time.Hour),
 					Hash:      "previous hash",
 				},
-				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", Block{
-								Timestamp: clock(),
-								Data:      new(MockStringer),
-								Hash:      "hash",
-								PrevHash:  "previous hash",
-							}).
-							Return(nil)
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					proofer.
+						On("Validate", Block{
+							Timestamp: clock(),
+							Data:      new(MockStringer),
+							Hash:      "hash",
+							PrevHash:  "previous hash",
+						}).
+						Return(nil)
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			want: assert.NoError,
 		},
@@ -140,22 +137,19 @@ func TestBlock_IsValid(test *testing.T) {
 			},
 			args: args{
 				prevBlock: nil,
-				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", Block{
-								Timestamp: clock(),
-								Data:      new(MockStringer),
-								Hash:      "hash",
-								PrevHash:  "previous hash",
-							}).
-							Return(nil)
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					proofer.
+						On("Validate", Block{
+							Timestamp: clock(),
+							Data:      new(MockStringer),
+							Hash:      "hash",
+							PrevHash:  "previous hash",
+						}).
+						Return(nil)
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			want: assert.NoError,
 		},
@@ -169,22 +163,19 @@ func TestBlock_IsValid(test *testing.T) {
 			},
 			args: args{
 				prevBlock: nil,
-				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", Block{
-								Timestamp: clock(),
-								Data:      new(MockStringer),
-								Hash:      "hash",
-								PrevHash:  "",
-							}).
-							Return(nil)
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					proofer.
+						On("Validate", Block{
+							Timestamp: clock(),
+							Data:      new(MockStringer),
+							Hash:      "hash",
+							PrevHash:  "",
+						}).
+						Return(nil)
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			want: assert.NoError,
 		},
@@ -201,10 +192,7 @@ func TestBlock_IsValid(test *testing.T) {
 					Timestamp: clock().Add(time.Hour),
 					Hash:      "previous hash",
 				},
-				dependencies: BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				proofer: new(MockProofer),
 			},
 			want: assert.Error,
 		},
@@ -218,10 +206,7 @@ func TestBlock_IsValid(test *testing.T) {
 			},
 			args: args{
 				prevBlock: nil,
-				dependencies: BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				proofer:   new(MockProofer),
 			},
 			want: assert.Error,
 		},
@@ -238,10 +223,7 @@ func TestBlock_IsValid(test *testing.T) {
 					Timestamp: clock().Add(-time.Hour),
 					Hash:      "incorrect hash",
 				},
-				dependencies: BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				proofer: new(MockProofer),
 			},
 			want: assert.Error,
 		},
@@ -258,22 +240,19 @@ func TestBlock_IsValid(test *testing.T) {
 					Timestamp: clock().Add(-time.Hour),
 					Hash:      "previous hash",
 				},
-				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", Block{
-								Timestamp: clock(),
-								Data:      new(MockStringer),
-								Hash:      "hash",
-								PrevHash:  "previous hash",
-							}).
-							Return(iotest.ErrTimeout)
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					proofer.
+						On("Validate", Block{
+							Timestamp: clock(),
+							Data:      new(MockStringer),
+							Hash:      "hash",
+							PrevHash:  "previous hash",
+						}).
+						Return(iotest.ErrTimeout)
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			want: assert.Error,
 		},
@@ -285,13 +264,9 @@ func TestBlock_IsValid(test *testing.T) {
 				Hash:      data.fields.Hash,
 				PrevHash:  data.fields.PrevHash,
 			}
-			got := block.IsValid(data.args.prevBlock, data.args.dependencies)
+			got := block.IsValid(data.args.prevBlock, data.args.proofer)
 
-			mock.AssertExpectationsForObjects(
-				test,
-				data.fields.Data,
-				data.args.dependencies.Proofer,
-			)
+			mock.AssertExpectationsForObjects(test, data.fields.Data, data.args.proofer)
 			data.want(test, got)
 		})
 	}

@@ -59,10 +59,7 @@ func (block Block) MergedData() string {
 }
 
 // IsValid ...
-func (block Block) IsValid(
-	prevBlock *Block,
-	dependencies BlockDependencies,
-) error {
+func (block Block) IsValid(prevBlock *Block, proofer Proofer) error {
 	var prevTimestamp time.Time
 	if prevBlock != nil {
 		prevTimestamp = prevBlock.Timestamp
@@ -77,7 +74,7 @@ func (block Block) IsValid(
 		)
 	}
 
-	if err := dependencies.Proofer.Validate(block); err != nil {
+	if err := proofer.Validate(block); err != nil {
 		return errors.Wrap(err, "the validation via the proofer was failed")
 	}
 
@@ -86,5 +83,5 @@ func (block Block) IsValid(
 
 // IsValidGenesisBlock ...
 func (block Block) IsValidGenesisBlock(dependencies BlockDependencies) error {
-	return block.IsValid(&Block{}, dependencies)
+	return block.IsValid(&Block{}, dependencies.Proofer)
 }
