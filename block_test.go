@@ -280,7 +280,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 		PrevHash  string
 	}
 	type args struct {
-		dependencies BlockDependencies
+		proofer Proofer
 	}
 
 	for _, data := range []struct {
@@ -298,22 +298,19 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 				PrevHash:  "",
 			},
 			args: args{
-				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", Block{
-								Timestamp: clock(),
-								Data:      new(MockStringer),
-								Hash:      "hash",
-								PrevHash:  "",
-							}).
-							Return(nil)
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					proofer.
+						On("Validate", Block{
+							Timestamp: clock(),
+							Data:      new(MockStringer),
+							Hash:      "hash",
+							PrevHash:  "",
+						}).
+						Return(nil)
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			want: assert.NoError,
 		},
@@ -326,10 +323,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 				PrevHash:  "",
 			},
 			args: args{
-				dependencies: BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				proofer: new(MockProofer),
 			},
 			want: assert.Error,
 		},
@@ -342,10 +336,7 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 				PrevHash:  "previous hash",
 			},
 			args: args{
-				dependencies: BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				proofer: new(MockProofer),
 			},
 			want: assert.Error,
 		},
@@ -358,22 +349,19 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 				PrevHash:  "",
 			},
 			args: args{
-				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", Block{
-								Timestamp: clock(),
-								Data:      new(MockStringer),
-								Hash:      "hash",
-								PrevHash:  "",
-							}).
-							Return(iotest.ErrTimeout)
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					proofer.
+						On("Validate", Block{
+							Timestamp: clock(),
+							Data:      new(MockStringer),
+							Hash:      "hash",
+							PrevHash:  "",
+						}).
+						Return(iotest.ErrTimeout)
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			want: assert.Error,
 		},
@@ -385,13 +373,9 @@ func TestBlock_IsValidGenesisBlock(test *testing.T) {
 				Hash:      data.fields.Hash,
 				PrevHash:  data.fields.PrevHash,
 			}
-			got := block.IsValidGenesisBlock(data.args.dependencies)
+			got := block.IsValidGenesisBlock(data.args.proofer)
 
-			mock.AssertExpectationsForObjects(
-				test,
-				data.fields.Data,
-				data.args.dependencies.Proofer,
-			)
+			mock.AssertExpectationsForObjects(test, data.fields.Data, data.args.proofer)
 			data.want(test, got)
 		})
 	}

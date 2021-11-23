@@ -63,7 +63,7 @@ func (blocks BlockGroup) IsLastBlockValid(
 	lastBlock := blocks[len(blocks)-1]
 	switch validationMode {
 	case AsFullBlockchain:
-		err = lastBlock.IsValidGenesisBlock(dependencies)
+		err = lastBlock.IsValidGenesisBlock(dependencies.Proofer)
 		if err != nil {
 			err = errors.Wrap(err, "the last block was validated as a genesis block")
 		}

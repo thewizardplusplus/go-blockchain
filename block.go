@@ -82,6 +82,6 @@ func (block Block) IsValid(prevBlock *Block, proofer Proofer) error {
 }
 
 // IsValidGenesisBlock ...
-func (block Block) IsValidGenesisBlock(dependencies BlockDependencies) error {
-	return block.IsValid(&Block{}, dependencies.Proofer)
+func (block Block) IsValidGenesisBlock(proofer Proofer) error {
+	return block.IsValid(&Block{}, proofer)
 }
