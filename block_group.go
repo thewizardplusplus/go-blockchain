@@ -31,7 +31,7 @@ func (blocks BlockGroup) IsValid(
 		err := prependedChunk.IsLastBlockValid(
 			prevBlock,
 			AsBlockchainChunk,
-			dependencies,
+			dependencies.Proofer,
 		)
 		if err != nil {
 			return errors.Wrap(err, "the prepended chunk is not valid")
@@ -45,7 +45,7 @@ func (blocks BlockGroup) IsValid(
 		}
 	}
 
-	err := blocks.IsLastBlockValid(nil, validationMode, dependencies)
+	err := blocks.IsLastBlockValid(nil, validationMode, dependencies.Proofer)
 	if err != nil {
 		return errors.Wrap(err, "the last block is not valid")
 	}
@@ -57,18 +57,16 @@ func (blocks BlockGroup) IsValid(
 func (blocks BlockGroup) IsLastBlockValid(
 	prevBlock *Block,
 	validationMode ValidationMode,
-	dependencies BlockDependencies,
+	proofer Proofer,
 ) error {
 	var err error
-	lastBlock := blocks[len(blocks)-1]
-	switch validationMode {
+	switch lastBlock := blocks[len(blocks)-1]; validationMode {
 	case AsFullBlockchain:
-		err = lastBlock.IsValidGenesisBlock(dependencies.Proofer)
-		if err != nil {
+		if err = lastBlock.IsValidGenesisBlock(proofer); err != nil {
 			err = errors.Wrap(err, "the last block was validated as a genesis block")
 		}
 	case AsBlockchainChunk:
-		err = lastBlock.IsValid(prevBlock, dependencies.Proofer)
+		err = lastBlock.IsValid(prevBlock, proofer)
 	}
 
 	return err
