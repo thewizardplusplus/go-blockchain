@@ -20,7 +20,7 @@ type BlockGroup []Block
 func (blocks BlockGroup) IsValid(
 	prependedChunk BlockGroup,
 	validationMode ValidationMode,
-	dependencies BlockDependencies,
+	proofer Proofer,
 ) error {
 	if len(blocks) == 0 {
 		return nil
@@ -28,11 +28,7 @@ func (blocks BlockGroup) IsValid(
 
 	if len(prependedChunk) != 0 {
 		prevBlock := &blocks[0]
-		err := prependedChunk.IsLastBlockValid(
-			prevBlock,
-			AsBlockchainChunk,
-			dependencies.Proofer,
-		)
+		err := prependedChunk.IsLastBlockValid(prevBlock, AsBlockchainChunk, proofer)
 		if err != nil {
 			return errors.Wrap(err, "the prepended chunk is not valid")
 		}
@@ -40,13 +36,12 @@ func (blocks BlockGroup) IsValid(
 
 	for index, block := range blocks[:len(blocks)-1] {
 		prevBlock := &blocks[index+1]
-		if err := block.IsValid(prevBlock, dependencies.Proofer); err != nil {
+		if err := block.IsValid(prevBlock, proofer); err != nil {
 			return errors.Wrapf(err, "block #%d is not valid", index)
 		}
 	}
 
-	err := blocks.IsLastBlockValid(nil, validationMode, dependencies.Proofer)
-	if err != nil {
+	if err := blocks.IsLastBlockValid(nil, validationMode, proofer); err != nil {
 		return errors.Wrap(err, "the last block is not valid")
 	}
 

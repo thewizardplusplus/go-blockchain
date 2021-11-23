@@ -395,19 +395,14 @@ func main() {
 	}
 
 	var prependedChunk blockchain.BlockGroup
+	proofer := proofers.ProofOfWork{TargetBit: 248}
 	for index, blockChunk := range blockChunks {
 		validationMode := blockchain.AsBlockchainChunk
 		if index == len(blockChunks)-1 {
 			validationMode = blockchain.AsFullBlockchain
 		}
 
-		err := blockChunk.IsValid(
-			prependedChunk,
-			validationMode,
-			blockchain.BlockDependencies{
-				Proofer: proofers.ProofOfWork{TargetBit: 248},
-			},
-		)
+		err := blockChunk.IsValid(prependedChunk, validationMode, proofer)
 		if err != nil {
 			log.Fatalf("chunk #%d is incorrect: %v", index, err)
 		}

@@ -12,7 +12,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 	type args struct {
 		prependedChunk BlockGroup
 		validationMode ValidationMode
-		dependencies   BlockDependencies
+		proofer        Proofer
 	}
 
 	for _, data := range []struct {
@@ -27,10 +27,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			args: args{
 				prependedChunk: nil,
 				validationMode: AsFullBlockchain,
-				dependencies: BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				proofer:        new(MockProofer),
 			},
 			want: assert.NoError,
 		},
@@ -53,30 +50,27 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			args: args{
 				prependedChunk: nil,
 				validationMode: AsFullBlockchain,
-				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						for _, block := range (BlockGroup{
-							{
-								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockStringer),
-								Hash:      "next hash",
-								PrevHash:  "hash",
-							},
-							{
-								Timestamp: clock(),
-								Data:      new(MockStringer),
-								Hash:      "hash",
-								PrevHash:  "",
-							},
-						}) {
-							proofer.On("Validate", block).Return(nil)
-						}
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					for _, block := range (BlockGroup{
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data:      new(MockStringer),
+							Hash:      "next hash",
+							PrevHash:  "hash",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockStringer),
+							Hash:      "hash",
+							PrevHash:  "",
+						},
+					}) {
+						proofer.On("Validate", block).Return(nil)
+					}
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			want: assert.NoError,
 		},
@@ -99,30 +93,27 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			args: args{
 				prependedChunk: nil,
 				validationMode: AsBlockchainChunk,
-				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						for _, block := range (BlockGroup{
-							{
-								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockStringer),
-								Hash:      "next hash",
-								PrevHash:  "hash",
-							},
-							{
-								Timestamp: clock(),
-								Data:      new(MockStringer),
-								Hash:      "hash",
-								PrevHash:  "previous hash",
-							},
-						}) {
-							proofer.On("Validate", block).Return(nil)
-						}
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					for _, block := range (BlockGroup{
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data:      new(MockStringer),
+							Hash:      "next hash",
+							PrevHash:  "hash",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockStringer),
+							Hash:      "hash",
+							PrevHash:  "previous hash",
+						},
+					}) {
+						proofer.On("Validate", block).Return(nil)
+					}
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			want: assert.NoError,
 		},
@@ -158,36 +149,33 @@ func TestBlockGroup_IsValid(test *testing.T) {
 					},
 				},
 				validationMode: AsFullBlockchain,
-				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						for _, block := range (BlockGroup{
-							{
-								Timestamp: clock().Add(2 * time.Hour),
-								Data:      new(MockStringer),
-								Hash:      "hash #3",
-								PrevHash:  "hash #2",
-							},
-							{
-								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockStringer),
-								Hash:      "hash #2",
-								PrevHash:  "hash #1",
-							},
-							{
-								Timestamp: clock(),
-								Data:      new(MockStringer),
-								Hash:      "hash #1",
-								PrevHash:  "",
-							},
-						}) {
-							proofer.On("Validate", block).Return(nil)
-						}
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					for _, block := range (BlockGroup{
+						{
+							Timestamp: clock().Add(2 * time.Hour),
+							Data:      new(MockStringer),
+							Hash:      "hash #3",
+							PrevHash:  "hash #2",
+						},
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data:      new(MockStringer),
+							Hash:      "hash #2",
+							PrevHash:  "hash #1",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockStringer),
+							Hash:      "hash #1",
+							PrevHash:  "",
+						},
+					}) {
+						proofer.On("Validate", block).Return(nil)
+					}
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			want: assert.NoError,
 		},
@@ -210,10 +198,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			args: args{
 				prependedChunk: nil,
 				validationMode: AsFullBlockchain,
-				dependencies: BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				proofer:        new(MockProofer),
 			},
 			want: assert.Error,
 		},
@@ -236,22 +221,19 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			args: args{
 				prependedChunk: nil,
 				validationMode: AsFullBlockchain,
-				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", Block{
-								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockStringer),
-								Hash:      "next hash",
-								PrevHash:  "hash",
-							}).
-							Return(nil)
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					proofer.
+						On("Validate", Block{
+							Timestamp: clock().Add(time.Hour),
+							Data:      new(MockStringer),
+							Hash:      "next hash",
+							PrevHash:  "hash",
+						}).
+						Return(nil)
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			want: assert.Error,
 		},
@@ -274,22 +256,19 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			args: args{
 				prependedChunk: nil,
 				validationMode: AsBlockchainChunk,
-				dependencies: BlockDependencies{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", Block{
-								Timestamp: clock().Add(time.Hour),
-								Data:      new(MockStringer),
-								Hash:      "next hash",
-								PrevHash:  "hash",
-							}).
-							Return(nil)
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					proofer.
+						On("Validate", Block{
+							Timestamp: clock().Add(time.Hour),
+							Data:      new(MockStringer),
+							Hash:      "next hash",
+							PrevHash:  "hash",
+						}).
+						Return(nil)
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			want: assert.Error,
 		},
@@ -325,10 +304,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 					},
 				},
 				validationMode: AsFullBlockchain,
-				dependencies: BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				proofer:        new(MockProofer),
 			},
 			want: assert.Error,
 		},
@@ -337,7 +313,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			got := data.blocks.IsValid(
 				data.args.prependedChunk,
 				data.args.validationMode,
-				data.args.dependencies,
+				data.args.proofer,
 			)
 
 			for _, block := range data.args.prependedChunk {
@@ -346,7 +322,7 @@ func TestBlockGroup_IsValid(test *testing.T) {
 			for _, block := range data.blocks {
 				mock.AssertExpectationsForObjects(test, block.Data)
 			}
-			mock.AssertExpectationsForObjects(test, data.args.dependencies.Proofer)
+			mock.AssertExpectationsForObjects(test, data.args.proofer)
 			data.want(test, got)
 		})
 	}
