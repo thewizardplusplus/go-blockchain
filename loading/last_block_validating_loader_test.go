@@ -12,8 +12,8 @@ import (
 
 func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 	type fields struct {
-		Loader       blockchain.Loader
-		Dependencies blockchain.BlockDependencies
+		Loader  blockchain.Loader
+		Proofer blockchain.Proofer
 	}
 	type args struct {
 		cursor interface{}
@@ -37,10 +37,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: blockchain.BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				Proofer: new(MockProofer),
 			},
 			args: args{
 				cursor: "cursor-one",
@@ -75,22 +72,19 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: blockchain.BlockDependencies{
-					Clock: clock,
-					Proofer: func() blockchain.Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", blockchain.Block{
-								Timestamp: clock(),
-								Data:      new(MockStringer),
-								Hash:      "hash",
-								PrevHash:  "",
-							}).
-							Return(nil)
+				Proofer: func() blockchain.Proofer {
+					proofer := new(MockProofer)
+					proofer.
+						On("Validate", blockchain.Block{
+							Timestamp: clock(),
+							Data:      new(MockStringer),
+							Hash:      "hash",
+							PrevHash:  "",
+						}).
+						Return(nil)
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			args: args{
 				cursor: "cursor-one",
@@ -154,22 +148,19 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: blockchain.BlockDependencies{
-					Clock: clock,
-					Proofer: func() blockchain.Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On("Validate", blockchain.Block{
-								Timestamp: clock().Add(2 * time.Hour),
-								Data:      new(MockStringer),
-								Hash:      "hash #3",
-								PrevHash:  "hash #2",
-							}).
-							Return(nil)
+				Proofer: func() blockchain.Proofer {
+					proofer := new(MockProofer)
+					proofer.
+						On("Validate", blockchain.Block{
+							Timestamp: clock().Add(2 * time.Hour),
+							Data:      new(MockStringer),
+							Hash:      "hash #3",
+							PrevHash:  "hash #2",
+						}).
+						Return(nil)
 
-						return proofer
-					}(),
-				},
+					return proofer
+				}(),
 			},
 			args: args{
 				cursor: "cursor-one",
@@ -203,10 +194,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: blockchain.BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				Proofer: new(MockProofer),
 			},
 			args: args{
 				cursor: "cursor-one",
@@ -243,10 +231,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: blockchain.BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				Proofer: new(MockProofer),
 			},
 			args: args{
 				cursor: "cursor-one",
@@ -281,10 +266,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: blockchain.BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				Proofer: new(MockProofer),
 			},
 			args: args{
 				cursor: "cursor-one",
@@ -335,10 +317,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 
 					return loader
 				}(),
-				Dependencies: blockchain.BlockDependencies{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-				},
+				Proofer: new(MockProofer),
 			},
 			args: args{
 				cursor: "cursor-one",
@@ -351,8 +330,8 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			loader := LastBlockValidatingLoader{
-				Loader:       data.fields.Loader,
-				Dependencies: data.fields.Dependencies,
+				Loader:  data.fields.Loader,
+				Proofer: data.fields.Proofer,
 			}
 			gotBlocks, gotNextCursor, gotErr :=
 				loader.LoadBlocks(data.args.cursor, data.args.count)
@@ -360,7 +339,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 			mock.AssertExpectationsForObjects(
 				test,
 				data.fields.Loader,
-				data.fields.Dependencies.Proofer,
+				data.fields.Proofer,
 			)
 			assert.Equal(test, data.wantBlocks, gotBlocks)
 			assert.Equal(test, data.wantNextCursor, gotNextCursor)

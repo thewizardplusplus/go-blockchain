@@ -519,11 +519,8 @@ func main() {
 		},
 	}
 
-	blockDependencies := blockchain.BlockDependencies{
-		Proofer: proofers.ProofOfWork{TargetBit: 248},
-	}
-
 	var storage storages.MemoryStorage
+	proofer := proofers.ProofOfWork{TargetBit: 248}
 	if _, err := loading.LoadStorage(
 		storing.NewGroupStorage(&storage),
 		loading.LastBlockValidatingLoader{
@@ -531,9 +528,9 @@ func main() {
 				Loader: LoggingLoader{
 					Loader: loaders.MemoryLoader(blocks),
 				},
-				Proofer: blockDependencies.Proofer,
+				Proofer: proofer,
 			}),
-			Dependencies: blockDependencies,
+			Proofer: proofer,
 		},
 		nil,
 		2,
