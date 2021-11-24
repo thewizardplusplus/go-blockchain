@@ -1,5 +1,38 @@
 # Change Log
 
+## [v1.3.2](https://github.com/thewizardplusplus/go-blockchain/tree/v1.3.2) (2021-11-24)
+
+Add the loading of block groups to the storages (including the memory storage) and the blockchain model; simplify the passing of the proofer to the validators; make optional the creation of a genesis block on the blockchain creation; remove the redundant features.
+
+- models:
+  - blockchain:
+    - operations:
+      - creation:
+        - make optional:
+          - when the storage is empty:
+            - creation a genesis block using a proofer;
+            - storing the genesis block to the storage;
+      - loading block groups from the storage;
+- proofers:
+  - kinds:
+    - remove the `proofers.Simple` structure;
+- storages:
+  - operations:
+    - loading block groups;
+  - kinds:
+    - memory storage:
+      - remove the `storages.MemoryStorage.Blocks()` method;
+- additionally:
+  - replace the `blockchain.BlockDependencies` structure to the `blockchain.Proofer` interface:
+    - in the `blockchain.Block` structure:
+      - in the `blockchain.Block.IsValid()` method;
+      - in the `blockchain.Block.IsValidGenesisBlock()` method;
+    - in the `blockchain.BlockGroup` structure:
+      - in the `blockchain.BlockGroup.IsValid()` method;
+      - in the `blockchain.BlockGroup.IsLastBlockValid()` method;
+    - in the `loading.ChunkValidatingLoader` structure;
+    - in the `loading.LastBlockValidatingLoader` structure.
+
 ## [v1.3.1](https://github.com/thewizardplusplus/go-blockchain/tree/v1.3.1) (2021-10-24)
 
 Add the memory loader; restrict the cache size in the memoizing loader; optimize the memory storage; replace the `blockchain.Hasher` interface to the `fmt.Stringer` interface; return the errors from the proofers; split the code to the additional packages.
