@@ -122,6 +122,26 @@ func TestNewBlockchain(test *testing.T) {
 			wantErr:       assert.Error,
 		},
 		{
+			name: "error with an empty storage",
+			args: args{
+				genesisBlockData: nil,
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Clock:   clock,
+						Proofer: new(MockProofer),
+					},
+					Storage: func() Storage {
+						storage := new(MockStorage)
+						storage.On("LoadLastBlock").Return(Block{}, ErrEmptyStorage)
+
+						return storage
+					}(),
+				},
+			},
+			wantLastBlock: Block{},
+			wantErr:       assert.Error,
+		},
+		{
 			name: "error on genesis block storing",
 			args: args{
 				genesisBlockData: new(MockStringer),
@@ -165,9 +185,11 @@ func TestNewBlockchain(test *testing.T) {
 			gotBlockchain, gotErr :=
 				NewBlockchain(data.args.genesisBlockData, data.args.dependencies)
 
+			if data.args.genesisBlockData != nil {
+				mock.AssertExpectationsForObjects(test, data.args.genesisBlockData)
+			}
 			mock.AssertExpectationsForObjects(
 				test,
-				data.args.genesisBlockData,
 				data.args.dependencies.Proofer,
 				data.args.dependencies.Storage,
 			)

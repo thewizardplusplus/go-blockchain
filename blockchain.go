@@ -27,7 +27,7 @@ func NewBlockchain(
 	lastBlock, err := dependencies.Storage.LoadLastBlock()
 	switch {
 	case err == nil:
-	case errors.Cause(err) == ErrEmptyStorage:
+	case errors.Cause(err) == ErrEmptyStorage && genesisBlockData != nil:
 		genesisBlock :=
 			NewGenesisBlock(genesisBlockData, dependencies.BlockDependencies)
 		if err = dependencies.Storage.StoreBlock(genesisBlock); err != nil {
