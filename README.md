@@ -59,9 +59,10 @@ The library that implements models and algorithms of blockchain.
     - operations:
       - creation:
         - loading the last block from the storage;
-        - when the storage is empty:
+        - when the storage is empty (optional):
           - creation a genesis block using a proofer;
           - storing the genesis block to the storage;
+      - loading block groups from the storage;
       - adding a block:
         - creation a block using a proofer;
         - storing the block to the storage;
@@ -70,8 +71,6 @@ The library that implements models and algorithms of blockchain.
     - block hashing;
     - block validation;
   - kinds:
-    - simple:
-      - based on once hashing by the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) algorithm;
     - [proof of work](https://en.wikipedia.org/wiki/Proof_of_work):
       - based on the [Hashcash](https://en.wikipedia.org/wiki/Hashcash) algorithm;
       - additional storing in a block (in a hash actually):
@@ -79,6 +78,7 @@ The library that implements models and algorithms of blockchain.
         - target bit;
 - storages:
   - operations:
+    - loading block groups;
     - loading the last block;
     - storing a block;
     - storing a block group (optional);
@@ -86,9 +86,7 @@ The library that implements models and algorithms of blockchain.
     - wrapper that adds support for saving a block group to those storages that cannot do this;
   - kinds:
     - memory storage:
-      - storing blocks in memory;
-      - additional operations:
-        - getting the stored blocks.
+      - storing blocks in memory.
 
 ## Installation
 
