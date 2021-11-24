@@ -3,6 +3,7 @@ package proofers
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -157,4 +158,15 @@ func TestProofOfWork_Validate(test *testing.T) {
 			data.want(test, got)
 		})
 	}
+}
+
+func clock() time.Time {
+	year, month, day := 2006, time.January, 2
+	hour, minute, second := 15, 4, 5
+	return time.Date(
+		year, month, day,
+		hour, minute, second,
+		0,        // nanosecond
+		time.UTC, // location
+	)
 }
