@@ -849,6 +849,43 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			wantErr:      assert.NoError,
 		},
 		{
+			name: "with a nonempty storage and the deleting of the last remaining block",
+			fields: fields{
+				blocks: blockchain.BlockGroup{
+					{
+						Timestamp: clock(),
+						Data:      new(MockStringer),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+				},
+				lastBlock: blockchain.Block{
+					Timestamp: clock(),
+					Data:      new(MockStringer),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+				isSorted: true,
+			},
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data:      new(MockStringer),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+			},
+			wantBlocks: blockchain.BlockGroup{},
+			wantLastBlock: blockchain.Block{
+				Timestamp: clock(),
+				Data:      new(MockStringer),
+				Hash:      "hash #1",
+				PrevHash:  "",
+			},
+			wantIsSorted: assert.True,
+			wantErr:      assert.NoError,
+		},
+		{
 			name: "with an empty storage",
 			fields: fields{
 				blocks:    nil,

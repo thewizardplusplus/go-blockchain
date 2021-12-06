@@ -62,7 +62,9 @@ func (storage *MemoryStorage) DeleteBlock(block blockchain.Block) error {
 		copiedCount := copy(storage.blocks[index:], storage.blocks[index+1:])
 		storage.blocks = storage.blocks[:index+copiedCount]
 
-		storage.lastBlock = storage.blocks[len(storage.blocks)-1]
+		if !storage.isEmpty() {
+			storage.lastBlock = storage.blocks[len(storage.blocks)-1]
+		}
 	}
 
 	return nil
