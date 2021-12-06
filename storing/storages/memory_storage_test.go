@@ -326,7 +326,7 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 		wantErr       assert.ErrorAssertionFunc
 	}{
 		{
-			name: "success with a nonempty storage (with the adding of the last block)",
+			name: "with a nonempty storage and the adding of the last block",
 			fields: fields{
 				blocks: blockchain.BlockGroup{
 					{
@@ -400,8 +400,7 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 			wantErr:      assert.NoError,
 		},
 		{
-			name: "success with a nonempty storage " +
-				"(with the adding of the middle block)",
+			name: "with a nonempty storage and the adding of the middle block",
 			fields: fields{
 				blocks: blockchain.BlockGroup{
 					{
@@ -475,7 +474,7 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 			wantErr:      assert.NoError,
 		},
 		{
-			name: "success with an empty storage",
+			name: "with an empty storage",
 			fields: fields{
 				blocks:    nil,
 				lastBlock: blockchain.Block{},
