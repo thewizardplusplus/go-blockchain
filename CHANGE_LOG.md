@@ -1,5 +1,20 @@
 # Change Log
 
+## [v1.4-alpha](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4-alpha) (2021-12-21)
+
+Add to the block model the comparison for equality with another block; add to the storage the deleting of a block.
+
+- models:
+  - block:
+    - operations:
+      - comparison for equality with another block;
+- storages:
+  - operations:
+    - deleting a block;
+    - deleting a block group (optional);
+  - wrappers:
+    - wrapper that adds support for deleting a block group to those storages that cannot do this.
+
 ## [v1.3.2](https://github.com/thewizardplusplus/go-blockchain/tree/v1.3.2) (2021-11-24)
 
 Add the loading of block groups to the storages (including the memory storage) and the blockchain model; simplify the passing of the proofer to the validators; make optional the creation of a genesis block on the blockchain creation; remove the redundant features.
