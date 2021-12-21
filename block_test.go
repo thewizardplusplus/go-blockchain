@@ -10,6 +10,12 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+type MarkedMockStringer struct {
+	MockStringer
+
+	ID int
+}
+
 func TestNewBlock(test *testing.T) {
 	data := new(MockStringer)
 	proofer := new(MockProofer)
@@ -78,6 +84,133 @@ func TestBlock_MergedData(test *testing.T) {
 	wantedMergedData := "2006-01-02 15:04:05 +0000 UTChashprevious hash"
 	mock.AssertExpectationsForObjects(test, data)
 	assert.Equal(test, wantedMergedData, mergedData)
+}
+
+func TestBlock_IsEqual(test *testing.T) {
+	type fields struct {
+		Timestamp time.Time
+		Data      fmt.Stringer
+		Hash      string
+		PrevHash  string
+	}
+	type args struct {
+		anotherBlock Block
+	}
+
+	for _, data := range []struct {
+		name   string
+		fields fields
+		args   args
+		want   assert.ErrorAssertionFunc
+	}{
+		{
+			name: "equal",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      new(MockStringer),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			args: args{
+				anotherBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockStringer),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			want: assert.NoError,
+		},
+		{
+			name: "not equal due to timestamps",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      new(MockStringer),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			args: args{
+				anotherBlock: Block{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			want: assert.Error,
+		},
+		{
+			name: "not equal due to data",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      &MarkedMockStringer{ID: 23},
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			args: args{
+				anotherBlock: Block{
+					Timestamp: clock(),
+					Data:      &MarkedMockStringer{ID: 42},
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			want: assert.Error,
+		},
+		{
+			name: "not equal due to hashes",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      new(MockStringer),
+				Hash:      "hash #1",
+				PrevHash:  "previous hash",
+			},
+			args: args{
+				anotherBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockStringer),
+					Hash:      "hash #2",
+					PrevHash:  "previous hash",
+				},
+			},
+			want: assert.Error,
+		},
+		{
+			name: "not equal due to previous hashes",
+			fields: fields{
+				Timestamp: clock(),
+				Data:      new(MockStringer),
+				Hash:      "hash",
+				PrevHash:  "previous hash #1",
+			},
+			args: args{
+				anotherBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockStringer),
+					Hash:      "hash",
+					PrevHash:  "previous hash #2",
+				},
+			},
+			want: assert.Error,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			block := Block{
+				Timestamp: data.fields.Timestamp,
+				Data:      data.fields.Data,
+				Hash:      data.fields.Hash,
+				PrevHash:  data.fields.PrevHash,
+			}
+			got := block.IsEqual(data.args.anotherBlock)
+
+			mock.AssertExpectationsForObjects(
+				test,
+				data.fields.Data,
+				data.args.anotherBlock.Data,
+			)
+			data.want(test, got)
+		})
+	}
 }
 
 func TestBlock_IsValid(test *testing.T) {

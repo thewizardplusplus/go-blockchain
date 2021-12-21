@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/pkg/errors"
@@ -56,6 +57,23 @@ func NewGenesisBlock(data fmt.Stringer, dependencies BlockDependencies) Block {
 // MergedData ...
 func (block Block) MergedData() string {
 	return block.Timestamp.String() + block.Data.String() + block.PrevHash
+}
+
+// IsEqual ...
+func (block Block) IsEqual(anotherBlock Block) error {
+	if !block.Timestamp.Equal(anotherBlock.Timestamp) {
+		return errors.New("timestamps are not equal")
+	}
+	if !reflect.DeepEqual(block.Data, anotherBlock.Data) {
+		return errors.New("data are not equal")
+	}
+	if block.Hash != anotherBlock.Hash {
+		return errors.New("hashes are not equal")
+	}
+	if block.PrevHash != anotherBlock.PrevHash {
+		return errors.New("previous hashes are not equal")
+	}
+	return nil
 }
 
 // IsValid ...
