@@ -19,6 +19,7 @@ The library that implements models and algorithms of blockchain.
     - operations:
       - creation (using a proofer);
       - getting merged data;
+      - comparison for equality with another block;
       - self-validation (using a proofer);
   - genesis block:
     - based on a usual block without a previous hash;
@@ -82,8 +83,12 @@ The library that implements models and algorithms of blockchain.
     - loading the last block;
     - storing a block;
     - storing a block group (optional);
+    - deleting a block;
+    - deleting a block group (optional);
   - wrappers:
-    - wrapper that adds support for saving a block group to those storages that cannot do this;
+    - wrapper that adds support for the following operations to those storages that cannot do them:
+      - storing a block group;
+      - deleting a block group;
   - kinds:
     - memory storage:
       - storing blocks in memory.
