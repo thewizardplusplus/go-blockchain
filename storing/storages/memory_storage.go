@@ -56,15 +56,19 @@ func (storage *MemoryStorage) DeleteBlock(block blockchain.Block) error {
 		// after or equal
 		return !storage.blocks[index].Timestamp.Before(block.Timestamp)
 	})
-	if index < storage.size() &&
-		storage.blocks[index].Timestamp.Equal(block.Timestamp) {
-		// https://github.com/golang/go/wiki/SliceTricks#delete
-		copiedCount := copy(storage.blocks[index:], storage.blocks[index+1:])
-		storage.blocks = storage.blocks[:index+copiedCount]
+	if index == storage.size() {
+		return nil
+	}
+	if err := storage.blocks[index].IsEqual(block); err != nil {
+		return nil
+	}
 
-		if !storage.isEmpty() {
-			storage.lastBlock = storage.blocks[storage.size()-1]
-		}
+	// https://github.com/golang/go/wiki/SliceTricks#delete
+	copiedCount := copy(storage.blocks[index:], storage.blocks[index+1:])
+	storage.blocks = storage.blocks[:index+copiedCount]
+
+	if !storage.isEmpty() {
+		storage.lastBlock = storage.blocks[storage.size()-1]
 	}
 
 	return nil

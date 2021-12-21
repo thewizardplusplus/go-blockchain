@@ -886,6 +886,168 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			wantErr:      assert.NoError,
 		},
 		{
+			name: "with a nonempty storage, the deleting of a nonexistent block " +
+				"from the end, and the sorted blocks",
+			fields: fields{
+				blocks: blockchain.BlockGroup{
+					{
+						Timestamp: clock(),
+						Data:      new(MockStringer),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data:      new(MockStringer),
+						Hash:      "hash #2",
+						PrevHash:  "hash #1",
+					},
+					{
+						Timestamp: clock().Add(2 * time.Hour),
+						Data:      new(MockStringer),
+						Hash:      "hash #3",
+						PrevHash:  "hash #2",
+					},
+					{
+						Timestamp: clock().Add(3 * time.Hour),
+						Data:      new(MockStringer),
+						Hash:      "hash #4",
+						PrevHash:  "hash #3",
+					},
+				},
+				lastBlock: blockchain.Block{
+					Timestamp: clock().Add(3 * time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #4",
+					PrevHash:  "hash #3",
+				},
+				isSorted: true,
+			},
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock().Add(4 * time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #5",
+					PrevHash:  "hash #4",
+				},
+			},
+			wantBlocks: blockchain.BlockGroup{
+				{
+					Timestamp: clock(),
+					Data:      new(MockStringer),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+				{
+					Timestamp: clock().Add(3 * time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #4",
+					PrevHash:  "hash #3",
+				},
+			},
+			wantLastBlock: blockchain.Block{
+				Timestamp: clock().Add(3 * time.Hour),
+				Data:      new(MockStringer),
+				Hash:      "hash #4",
+				PrevHash:  "hash #3",
+			},
+			wantIsSorted: assert.True,
+			wantErr:      assert.NoError,
+		},
+		{
+			name: "with a nonempty storage, the deleting of a nonexistent block " +
+				"from the middle, and the sorted blocks",
+			fields: fields{
+				blocks: blockchain.BlockGroup{
+					{
+						Timestamp: clock(),
+						Data:      new(MockStringer),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data:      new(MockStringer),
+						Hash:      "hash #2",
+						PrevHash:  "hash #1",
+					},
+					{
+						Timestamp: clock().Add(2 * time.Hour),
+						Data:      new(MockStringer),
+						Hash:      "hash #3",
+						PrevHash:  "hash #2",
+					},
+					{
+						Timestamp: clock().Add(3 * time.Hour),
+						Data:      new(MockStringer),
+						Hash:      "hash #4",
+						PrevHash:  "hash #3",
+					},
+				},
+				lastBlock: blockchain.Block{
+					Timestamp: clock().Add(3 * time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #4",
+					PrevHash:  "hash #3",
+				},
+				isSorted: true,
+			},
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock().Add(2*time.Hour + 30*time.Minute),
+					Data:      new(MockStringer),
+					Hash:      "hash #3.1",
+					PrevHash:  "hash #2",
+				},
+			},
+			wantBlocks: blockchain.BlockGroup{
+				{
+					Timestamp: clock(),
+					Data:      new(MockStringer),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+				{
+					Timestamp: clock().Add(3 * time.Hour),
+					Data:      new(MockStringer),
+					Hash:      "hash #4",
+					PrevHash:  "hash #3",
+				},
+			},
+			wantLastBlock: blockchain.Block{
+				Timestamp: clock().Add(3 * time.Hour),
+				Data:      new(MockStringer),
+				Hash:      "hash #4",
+				PrevHash:  "hash #3",
+			},
+			wantIsSorted: assert.True,
+			wantErr:      assert.NoError,
+		},
+		{
 			name: "with an empty storage",
 			fields: fields{
 				blocks:    nil,
