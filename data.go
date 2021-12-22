@@ -24,6 +24,11 @@ type universalDataWrapper struct {
 	innerData interface{}
 }
 
+// NewData ...
+func NewData(data interface{}) Data {
+	return universalDataWrapper{innerData: data}
+}
+
 func (wrapper universalDataWrapper) String() string {
 	// explicitly check this interface to prioritize its use
 	if stringer, ok := wrapper.innerData.(fmt.Stringer); ok {
