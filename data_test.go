@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -65,4 +66,14 @@ func Test_universalDataWrapper_String(test *testing.T) {
 			assert.Equal(test, data.want, got)
 		})
 	}
+}
+
+func Test_universalDataWrapper_MarshalText(test *testing.T) {
+	wrapper := universalDataWrapper{
+		innerData: "test",
+	}
+	gotBytes, gotErr := json.Marshal(wrapper)
+
+	assert.Equal(test, []byte(`"test"`), gotBytes)
+	assert.NoError(test, gotErr)
 }
