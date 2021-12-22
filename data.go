@@ -5,6 +5,8 @@ import (
 	"reflect"
 )
 
+//go:generate mockery --name=DataComparer --inpackage --case=underscore --testonly
+
 // DataComparer ...
 type DataComparer interface {
 	Equal(data Data) bool
