@@ -5,13 +5,17 @@ import (
 	"reflect"
 )
 
+// DataComparer ...
+type DataComparer interface {
+	Equal(data Data) bool
+}
+
 //go:generate mockery --name=Data --inpackage --case=underscore --testonly
 
 // Data ...
 type Data interface {
 	fmt.Stringer
-
-	Equal(data Data) bool
+	DataComparer
 }
 
 type universalDataWrapper struct {
@@ -33,7 +37,7 @@ func (wrapper universalDataWrapper) MarshalText() ([]byte, error) {
 }
 
 func (wrapper universalDataWrapper) Equal(data Data) bool {
-	if comparer, ok := wrapper.innerData.(interface{ Equal(data Data) bool }); ok {
+	if comparer, ok := wrapper.innerData.(DataComparer); ok {
 		return comparer.Equal(data)
 	}
 
