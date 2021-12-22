@@ -12,12 +12,6 @@ import (
 	"github.com/thewizardplusplus/go-blockchain/storing/storages"
 )
 
-type StringData string
-
-func (data StringData) String() string {
-	return string(data)
-}
-
 func ExampleBlockchain() {
 	timestamp := time.Date(2006, time.January, 2, 15, 4, 5, 0, time.UTC)
 	blockDependencies := blockchain.BlockDependencies{
@@ -29,8 +23,8 @@ func ExampleBlockchain() {
 		Proofer: proofers.ProofOfWork{TargetBit: 248},
 	}
 
-	blockchain, err := blockchain.NewBlockchain(
-		StringData("genesis block"),
+	blockchainInstance, err := blockchain.NewBlockchain(
+		blockchain.NewData("genesis block"),
 		blockchain.Dependencies{
 			BlockDependencies: blockDependencies,
 			Storage:           storing.NewGroupStorage(&storages.MemoryStorage{}),
@@ -42,14 +36,14 @@ func ExampleBlockchain() {
 
 	const blockCount = 5
 	for i := 0; i < blockCount; i++ {
-		if err := blockchain.AddBlock(
-			StringData(fmt.Sprintf("block #%d", i)),
+		if err := blockchainInstance.AddBlock(
+			blockchain.NewData(fmt.Sprintf("block #%d", i)),
 		); err != nil {
 			log.Fatalf("unable to add the block: %v", err)
 		}
 	}
 
-	addedBlocks, _, _ := blockchain.LoadBlocks(nil, blockCount+1)
+	addedBlocks, _, _ := blockchainInstance.LoadBlocks(nil, blockCount+1)
 	blocksBytes, _ := json.MarshalIndent(addedBlocks, "", "  ")
 	fmt.Println(string(blocksBytes))
 
@@ -106,11 +100,14 @@ func ExampleBlock() {
 	}
 
 	blocks := []blockchain.Block{
-		blockchain.NewGenesisBlock(StringData("genesis block"), blockDependencies),
+		blockchain.NewGenesisBlock(
+			blockchain.NewData("genesis block"),
+			blockDependencies,
+		),
 	}
 	for i := 0; i < 5; i++ {
 		blocks = append(blocks, blockchain.NewBlock(
-			StringData(fmt.Sprintf("block #%d", i)),
+			blockchain.NewData(fmt.Sprintf("block #%d", i)),
 			blocks[len(blocks)-1],
 			blockDependencies,
 		))
@@ -167,7 +164,7 @@ func ExampleBlockGroup() {
 		{
 			{
 				Timestamp: timestamp.Add(6 * time.Hour),
-				Data:      StringData("block #4"),
+				Data:      blockchain.NewData("block #4"),
 				Hash: "248:" +
 					"173:" +
 					"00b6863763acd6ec77ca3521589d8e68c118efe855657d702783e8e6aee169a9",
@@ -177,7 +174,7 @@ func ExampleBlockGroup() {
 			},
 			{
 				Timestamp: timestamp.Add(5 * time.Hour),
-				Data:      StringData("block #3"),
+				Data:      blockchain.NewData("block #3"),
 				Hash: "248:" +
 					"65:" +
 					"00d5800e119abe44d89469c2161be7f9645d7237697c6d14b4a72717893582fa",
@@ -191,7 +188,7 @@ func ExampleBlockGroup() {
 		{
 			{
 				Timestamp: timestamp.Add(4 * time.Hour),
-				Data:      StringData("block #2"),
+				Data:      blockchain.NewData("block #2"),
 				Hash: "248:" +
 					"136:" +
 					"003c7def3d467a759fad481c03cadbd62e62b2c5dbc10e4bbb6e1944c158a8be",
@@ -201,7 +198,7 @@ func ExampleBlockGroup() {
 			},
 			{
 				Timestamp: timestamp.Add(3 * time.Hour),
-				Data:      StringData("block #1"),
+				Data:      blockchain.NewData("block #1"),
 				Hash: "248:" +
 					"15:" +
 					"002fc891ad012c4a89f7b267a2ec1767415c627ff69b88b90a93be938b026efa",
@@ -215,7 +212,7 @@ func ExampleBlockGroup() {
 		{
 			{
 				Timestamp: timestamp.Add(2 * time.Hour),
-				Data:      StringData("block #0"),
+				Data:      blockchain.NewData("block #0"),
 				Hash: "248:" +
 					"198:" +
 					"0058f5dae6ca3451801a276c94862c7cce085e6f9371e50d80ddbb87c1438faf",
@@ -225,7 +222,7 @@ func ExampleBlockGroup() {
 			},
 			{
 				Timestamp: timestamp.Add(time.Hour),
-				Data:      StringData("genesis block"),
+				Data:      blockchain.NewData("genesis block"),
 				Hash: "248:" +
 					"225:" +
 					"00e26abd9974fcdea4b32eca43c9dc5c67fffa8efd53cebffa9b049fd6c2bb36",

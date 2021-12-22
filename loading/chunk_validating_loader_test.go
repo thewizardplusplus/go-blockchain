@@ -54,13 +54,13 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "next hash",
 							PrevHash:  "hash",
 						},
 						{
 							Timestamp: clock(),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash",
 							PrevHash:  "previous hash",
 						},
@@ -75,13 +75,13 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "next hash",
 							PrevHash:  "hash",
 						},
 						{
 							Timestamp: clock(),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash",
 							PrevHash:  "previous hash",
 						},
@@ -102,13 +102,13 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "next hash",
 					PrevHash:  "hash",
 				},
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash",
 					PrevHash:  "previous hash",
 				},
@@ -144,13 +144,13 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "next hash",
 							PrevHash:  "hash",
 						},
 						{
 							Timestamp: clock(),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash",
 							PrevHash:  "previous hash",
 						},
@@ -164,7 +164,7 @@ func TestChunkValidatingLoader_LoadBlocks(test *testing.T) {
 				Proofer: func() blockchain.Proofer {
 					block := blockchain.Block{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "next hash",
 						PrevHash:  "hash",
 					}

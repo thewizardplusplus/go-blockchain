@@ -41,19 +41,19 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock(),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #1",
 							PrevHash:  "",
 						},
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #2",
 							PrevHash:  "hash #1",
 						},
 						{
 							Timestamp: clock().Add(2 * time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #3",
 							PrevHash:  "hash #2",
 						},
@@ -71,19 +71,19 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
@@ -97,7 +97,7 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 				Storage: func() blockchain.Storage {
 					block := blockchain.Block{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					}
@@ -112,19 +112,19 @@ func TestGroupStorageWrapper_StoreBlockGroup(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
@@ -179,19 +179,19 @@ func TestGroupStorageWrapper_DeleteBlockGroup(test *testing.T) {
 					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock(),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #1",
 							PrevHash:  "",
 						},
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #2",
 							PrevHash:  "hash #1",
 						},
 						{
 							Timestamp: clock().Add(2 * time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #3",
 							PrevHash:  "hash #2",
 						},
@@ -209,19 +209,19 @@ func TestGroupStorageWrapper_DeleteBlockGroup(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
@@ -235,7 +235,7 @@ func TestGroupStorageWrapper_DeleteBlockGroup(test *testing.T) {
 				Storage: func() blockchain.Storage {
 					block := blockchain.Block{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					}
@@ -250,19 +250,19 @@ func TestGroupStorageWrapper_DeleteBlockGroup(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},

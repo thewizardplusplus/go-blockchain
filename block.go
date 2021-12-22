@@ -1,7 +1,6 @@
 package blockchain
 
 import (
-	"fmt"
 	"reflect"
 	"time"
 
@@ -28,14 +27,14 @@ type BlockDependencies struct {
 // Block ...
 type Block struct {
 	Timestamp time.Time
-	Data      fmt.Stringer
+	Data      Data
 	Hash      string
 	PrevHash  string
 }
 
 // NewBlock ...
 func NewBlock(
-	data fmt.Stringer,
+	data Data,
 	prevBlock Block,
 	dependencies BlockDependencies,
 ) Block {
@@ -50,7 +49,7 @@ func NewBlock(
 }
 
 // NewGenesisBlock ...
-func NewGenesisBlock(data fmt.Stringer, dependencies BlockDependencies) Block {
+func NewGenesisBlock(data Data, dependencies BlockDependencies) Block {
 	return NewBlock(data, Block{}, dependencies)
 }
 

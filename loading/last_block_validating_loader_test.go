@@ -54,13 +54,13 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "next hash",
 							PrevHash:  "hash",
 						},
 						{
 							Timestamp: clock(),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash",
 							PrevHash:  "",
 						},
@@ -77,7 +77,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 					proofer.
 						On("Validate", blockchain.Block{
 							Timestamp: clock(),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash",
 							PrevHash:  "",
 						}).
@@ -93,13 +93,13 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "next hash",
 					PrevHash:  "hash",
 				},
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash",
 					PrevHash:  "",
 				},
@@ -114,13 +114,13 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(3 * time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #4",
 							PrevHash:  "hash #3",
 						},
 						{
 							Timestamp: clock().Add(2 * time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #3",
 							PrevHash:  "hash #2",
 						},
@@ -128,13 +128,13 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 					nextBlocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #2",
 							PrevHash:  "hash #1",
 						},
 						{
 							Timestamp: clock(),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #1",
 							PrevHash:  "",
 						},
@@ -153,7 +153,7 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 					proofer.
 						On("Validate", blockchain.Block{
 							Timestamp: clock().Add(2 * time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #3",
 							PrevHash:  "hash #2",
 						}).
@@ -169,13 +169,13 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -211,13 +211,13 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "next hash",
 							PrevHash:  "hash",
 						},
 						{
 							Timestamp: clock(),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash",
 							PrevHash:  "previous hash",
 						},
@@ -248,13 +248,13 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "next hash",
 							PrevHash:  "hash",
 						},
 						{
 							Timestamp: time.Time{},
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash",
 							PrevHash:  "",
 						},
@@ -283,13 +283,13 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 					blocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(3 * time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #4",
 							PrevHash:  "hash #3",
 						},
 						{
 							Timestamp: clock().Add(2 * time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #3",
 							PrevHash:  "hash #2",
 						},
@@ -297,13 +297,13 @@ func TestLastBlockValidatingLoader_LoadBlocks(test *testing.T) {
 					nextBlocks := blockchain.BlockGroup{
 						{
 							Timestamp: clock().Add(time.Hour),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "incorrect hash #2",
 							PrevHash:  "incorrect hash #1",
 						},
 						{
 							Timestamp: clock(),
-							Data:      new(MockStringer),
+							Data:      new(MockData),
 							Hash:      "hash #1",
 							PrevHash:  "",
 						},

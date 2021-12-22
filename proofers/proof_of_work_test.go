@@ -1,7 +1,6 @@
 package proofers
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -11,7 +10,7 @@ import (
 )
 
 func TestProofOfWork_Hash(test *testing.T) {
-	data := new(MockStringer)
+	data := new(MockData)
 	data.On("String").Return("hash")
 
 	proofer := ProofOfWork{TargetBit: 248}
@@ -47,8 +46,8 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data: func() fmt.Stringer {
-						data := new(MockStringer)
+					Data: func() blockchain.Data {
+						data := new(MockData)
 						data.On("String").Return("hash")
 
 						return data
@@ -67,8 +66,8 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data: func() fmt.Stringer {
-						data := new(MockStringer)
+					Data: func() blockchain.Data {
+						data := new(MockData)
 						data.On("String").Return("hash #2")
 
 						return data
@@ -87,8 +86,8 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data: func() fmt.Stringer {
-						data := new(MockStringer)
+					Data: func() blockchain.Data {
+						data := new(MockData)
 						data.On("String").Return("hash")
 
 						return data
@@ -107,8 +106,8 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data: func() fmt.Stringer {
-						data := new(MockStringer)
+					Data: func() blockchain.Data {
+						data := new(MockData)
 						data.On("String").Return("hash")
 
 						return data
@@ -127,7 +126,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "incorrect",
 					PrevHash:  "previous hash",
 				},
@@ -140,7 +139,7 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash: "incorrect:" +
 						"26:" +
 						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",

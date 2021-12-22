@@ -35,19 +35,19 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
@@ -61,19 +61,19 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -82,13 +82,13 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 			wantLoadedBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -102,19 +102,19 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
@@ -128,19 +128,19 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
@@ -149,13 +149,13 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 			wantLoadedBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
@@ -202,33 +202,33 @@ func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
 				},
 				lastBlock: blockchain.Block{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
 			},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock().Add(2 * time.Hour),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #3",
 				PrevHash:  "hash #2",
 			},
@@ -240,33 +240,33 @@ func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 				},
 				lastBlock: blockchain.Block{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
 			},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock().Add(2 * time.Hour),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #3",
 				PrevHash:  "hash #2",
 			},
@@ -331,26 +331,26 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
 				},
 				lastBlock: blockchain.Block{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -359,7 +359,7 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
@@ -367,32 +367,32 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
 				{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
 			},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock().Add(3 * time.Hour),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #4",
 				PrevHash:  "hash #3",
 			},
@@ -405,26 +405,26 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(3 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #4",
 						PrevHash:  "hash #3",
 					},
 				},
 				lastBlock: blockchain.Block{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
@@ -433,7 +433,7 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -441,32 +441,32 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
 			},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock().Add(3 * time.Hour),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #4",
 				PrevHash:  "hash #3",
 			},
@@ -483,7 +483,7 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
@@ -491,14 +491,14 @@ func TestMemoryStorage_StoreBlock(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 			},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock(),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #1",
 				PrevHash:  "",
 			},
@@ -555,32 +555,32 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
 					{
 						Timestamp: clock().Add(3 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #4",
 						PrevHash:  "hash #3",
 					},
 				},
 				lastBlock: blockchain.Block{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
@@ -589,7 +589,7 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
@@ -597,26 +597,26 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
 				{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
 			},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock().Add(3 * time.Hour),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #4",
 				PrevHash:  "hash #3",
 			},
@@ -630,32 +630,32 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
 					{
 						Timestamp: clock().Add(3 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #4",
 						PrevHash:  "hash #3",
 					},
 				},
 				lastBlock: blockchain.Block{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
@@ -664,7 +664,7 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -672,26 +672,26 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
 			},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock().Add(3 * time.Hour),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #4",
 				PrevHash:  "hash #3",
 			},
@@ -705,32 +705,32 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(3 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #4",
 						PrevHash:  "hash #3",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 				},
 				lastBlock: blockchain.Block{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
@@ -739,7 +739,7 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
@@ -747,26 +747,26 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
 			},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock().Add(3 * time.Hour),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #4",
 				PrevHash:  "hash #3",
 			},
@@ -780,32 +780,32 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
 					{
 						Timestamp: clock().Add(3 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #4",
 						PrevHash:  "hash #3",
 					},
 				},
 				lastBlock: blockchain.Block{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
@@ -814,7 +814,7 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
@@ -822,26 +822,26 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
 			},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock().Add(2 * time.Hour),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #3",
 				PrevHash:  "hash #2",
 			},
@@ -854,14 +854,14 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 				},
 				lastBlock: blockchain.Block{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
@@ -870,7 +870,7 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
@@ -878,7 +878,7 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock(),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #1",
 				PrevHash:  "",
 			},
@@ -892,32 +892,32 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
 					{
 						Timestamp: clock().Add(3 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #4",
 						PrevHash:  "hash #3",
 					},
 				},
 				lastBlock: blockchain.Block{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
@@ -926,7 +926,7 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock().Add(4 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #5",
 					PrevHash:  "hash #4",
 				},
@@ -934,32 +934,32 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
 				{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
 			},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock().Add(3 * time.Hour),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #4",
 				PrevHash:  "hash #3",
 			},
@@ -973,32 +973,32 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #1",
 						PrevHash:  "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #2",
 						PrevHash:  "hash #1",
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #3",
 						PrevHash:  "hash #2",
 					},
 					{
 						Timestamp: clock().Add(3 * time.Hour),
-						Data:      new(MockStringer),
+						Data:      new(MockData),
 						Hash:      "hash #4",
 						PrevHash:  "hash #3",
 					},
 				},
 				lastBlock: blockchain.Block{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
@@ -1007,7 +1007,7 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock().Add(2*time.Hour + 30*time.Minute),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3.1",
 					PrevHash:  "hash #2",
 				},
@@ -1015,32 +1015,32 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			wantBlocks: blockchain.BlockGroup{
 				{
 					Timestamp: clock(),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #1",
 					PrevHash:  "",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #3",
 					PrevHash:  "hash #2",
 				},
 				{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},
 			},
 			wantLastBlock: blockchain.Block{
 				Timestamp: clock().Add(3 * time.Hour),
-				Data:      new(MockStringer),
+				Data:      new(MockData),
 				Hash:      "hash #4",
 				PrevHash:  "hash #3",
 			},
@@ -1057,7 +1057,7 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock().Add(3 * time.Hour),
-					Data:      new(MockStringer),
+					Data:      new(MockData),
 					Hash:      "hash #4",
 					PrevHash:  "hash #3",
 				},

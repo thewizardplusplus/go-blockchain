@@ -1,19 +1,17 @@
 package storing
 
 import (
-	"fmt"
-
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
-//go:generate mockery --name=Stringer --inpackage --case=underscore --testonly
+//go:generate mockery --name=Data --inpackage --case=underscore --testonly
 
-// Stringer ...
+// Data ...
 //
 // It's used only for mock generating.
 //
-type Stringer interface {
-	fmt.Stringer
+type Data interface {
+	blockchain.Data
 }
 
 //go:generate mockery --name=Storage --inpackage --case=underscore --testonly
