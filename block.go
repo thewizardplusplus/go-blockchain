@@ -1,7 +1,6 @@
 package blockchain
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/pkg/errors"
@@ -63,7 +62,7 @@ func (block Block) IsEqual(anotherBlock Block) error {
 	if !block.Timestamp.Equal(anotherBlock.Timestamp) {
 		return errors.New("timestamps are not equal")
 	}
-	if !reflect.DeepEqual(block.Data, anotherBlock.Data) {
+	if !block.Data.Equal(anotherBlock.Data) {
 		return errors.New("data are not equal")
 	}
 	if block.Hash != anotherBlock.Hash {

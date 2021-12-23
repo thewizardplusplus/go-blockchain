@@ -555,9 +555,14 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockData),
-						Hash:      "hash #1",
-						PrevHash:  "",
+						Data: func() Data {
+							data := new(MockData)
+							data.On("Equal", mock.AnythingOfType("*storages.MockData")).Return(true)
+
+							return data
+						}(),
+						Hash:     "hash #1",
+						PrevHash: "",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
@@ -642,9 +647,14 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockData),
-						Hash:      "hash #3",
-						PrevHash:  "hash #2",
+						Data: func() Data {
+							data := new(MockData)
+							data.On("Equal", mock.AnythingOfType("*storages.MockData")).Return(true)
+
+							return data
+						}(),
+						Hash:     "hash #3",
+						PrevHash: "hash #2",
 					},
 					{
 						Timestamp: clock().Add(3 * time.Hour),
@@ -717,9 +727,14 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 					},
 					{
 						Timestamp: clock().Add(2 * time.Hour),
-						Data:      new(MockData),
-						Hash:      "hash #3",
-						PrevHash:  "hash #2",
+						Data: func() Data {
+							data := new(MockData)
+							data.On("Equal", mock.AnythingOfType("*storages.MockData")).Return(true)
+
+							return data
+						}(),
+						Hash:     "hash #3",
+						PrevHash: "hash #2",
 					},
 					{
 						Timestamp: clock().Add(time.Hour),
@@ -798,9 +813,14 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 					},
 					{
 						Timestamp: clock().Add(3 * time.Hour),
-						Data:      new(MockData),
-						Hash:      "hash #4",
-						PrevHash:  "hash #3",
+						Data: func() Data {
+							data := new(MockData)
+							data.On("Equal", mock.AnythingOfType("*storages.MockData")).Return(true)
+
+							return data
+						}(),
+						Hash:     "hash #4",
+						PrevHash: "hash #3",
 					},
 				},
 				lastBlock: blockchain.Block{
@@ -854,9 +874,14 @@ func TestMemoryStorage_DeleteBlock(test *testing.T) {
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
-						Data:      new(MockData),
-						Hash:      "hash #1",
-						PrevHash:  "",
+						Data: func() Data {
+							data := new(MockData)
+							data.On("Equal", mock.AnythingOfType("*storages.MockData")).Return(true)
+
+							return data
+						}(),
+						Hash:     "hash #1",
+						PrevHash: "",
 					},
 				},
 				lastBlock: blockchain.Block{

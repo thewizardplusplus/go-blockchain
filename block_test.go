@@ -9,12 +9,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MarkedMockData struct {
-	MockData
-
-	ID int
-}
-
 func TestNewBlock(test *testing.T) {
 	data := new(MockData)
 	proofer := new(MockProofer)
@@ -106,9 +100,14 @@ func TestBlock_IsEqual(test *testing.T) {
 			name: "equal",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockData),
-				Hash:      "hash",
-				PrevHash:  "previous hash",
+				Data: func() Data {
+					data := new(MockData)
+					data.On("Equal", mock.AnythingOfType("*blockchain.MockData")).Return(true)
+
+					return data
+				}(),
+				Hash:     "hash",
+				PrevHash: "previous hash",
 			},
 			args: args{
 				anotherBlock: Block{
@@ -142,14 +141,19 @@ func TestBlock_IsEqual(test *testing.T) {
 			name: "not equal due to data",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      &MarkedMockData{ID: 23},
-				Hash:      "hash",
-				PrevHash:  "previous hash",
+				Data: func() Data {
+					data := new(MockData)
+					data.On("Equal", mock.AnythingOfType("*blockchain.MockData")).Return(false)
+
+					return data
+				}(),
+				Hash:     "hash",
+				PrevHash: "previous hash",
 			},
 			args: args{
 				anotherBlock: Block{
 					Timestamp: clock(),
-					Data:      &MarkedMockData{ID: 42},
+					Data:      new(MockData),
 					Hash:      "hash",
 					PrevHash:  "previous hash",
 				},
@@ -160,9 +164,14 @@ func TestBlock_IsEqual(test *testing.T) {
 			name: "not equal due to hashes",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockData),
-				Hash:      "hash #1",
-				PrevHash:  "previous hash",
+				Data: func() Data {
+					data := new(MockData)
+					data.On("Equal", mock.AnythingOfType("*blockchain.MockData")).Return(true)
+
+					return data
+				}(),
+				Hash:     "hash #1",
+				PrevHash: "previous hash",
 			},
 			args: args{
 				anotherBlock: Block{
@@ -178,9 +187,14 @@ func TestBlock_IsEqual(test *testing.T) {
 			name: "not equal due to previous hashes",
 			fields: fields{
 				Timestamp: clock(),
-				Data:      new(MockData),
-				Hash:      "hash",
-				PrevHash:  "previous hash #1",
+				Data: func() Data {
+					data := new(MockData)
+					data.On("Equal", mock.AnythingOfType("*blockchain.MockData")).Return(true)
+
+					return data
+				}(),
+				Hash:     "hash",
+				PrevHash: "previous hash #1",
 			},
 			args: args{
 				anotherBlock: Block{
