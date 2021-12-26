@@ -1,8 +1,8 @@
 package blockchain
 
 import (
-	"encoding/json"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -69,11 +69,85 @@ func Test_universalDataWrapper_String(test *testing.T) {
 }
 
 func Test_universalDataWrapper_MarshalText(test *testing.T) {
-	wrapper := universalDataWrapper{
-		innerData: "test",
+	type fields struct {
+		innerData interface{}
 	}
-	gotBytes, gotErr := json.Marshal(wrapper)
 
-	assert.Equal(test, []byte(`"test"`), gotBytes)
-	assert.NoError(test, gotErr)
+	for _, data := range []struct {
+		name     string
+		fields   fields
+		wantText []byte
+		wantErr  assert.ErrorAssertionFunc
+	}{
+		{
+			name: "integer",
+			fields: fields{
+				innerData: 23,
+			},
+			wantText: []byte("23"),
+			wantErr:  assert.NoError,
+		},
+		{
+			name: "string",
+			fields: fields{
+				innerData: "test",
+			},
+			wantText: []byte("test"),
+			wantErr:  assert.NoError,
+		},
+		{
+			name: "fmt.Stringer",
+			fields: fields{
+				innerData: func() interface{} {
+					stringer := new(MockStringer)
+					stringer.On("String").Return("test")
+
+					return stringer
+				}(),
+			},
+			wantText: []byte("test"),
+			wantErr:  assert.NoError,
+		},
+		{
+			name: "encoding.TextMarshaler/success",
+			fields: fields{
+				innerData: func() interface{} {
+					stringer := new(MockTextMarshaler)
+					stringer.On("MarshalText").Return([]byte("test"), nil)
+
+					return stringer
+				}(),
+			},
+			wantText: []byte("test"),
+			wantErr:  assert.NoError,
+		},
+		{
+			name: "encoding.TextMarshaler/error",
+			fields: fields{
+				innerData: func() interface{} {
+					stringer := new(MockTextMarshaler)
+					stringer.On("MarshalText").Return(nil, iotest.ErrTimeout)
+
+					return stringer
+				}(),
+			},
+			wantText: nil,
+			wantErr:  assert.Error,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			wrapper := universalDataWrapper{
+				innerData: data.fields.innerData,
+			}
+			gotText, gotErr := wrapper.MarshalText()
+
+			if _, ok := data.fields.innerData.(interface {
+				AssertExpectations(mock.TestingT) bool
+			}); ok {
+				mock.AssertExpectationsForObjects(test, data.fields.innerData)
+			}
+			assert.Equal(test, data.wantText, gotText)
+			data.wantErr(test, gotErr)
+		})
+	}
 }

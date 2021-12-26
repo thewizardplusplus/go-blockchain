@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"encoding"
 	"fmt"
 	"reflect"
 )
@@ -39,6 +40,10 @@ func (wrapper universalDataWrapper) String() string {
 }
 
 func (wrapper universalDataWrapper) MarshalText() ([]byte, error) {
+	if marshaler, ok := wrapper.innerData.(encoding.TextMarshaler); ok {
+		return marshaler.MarshalText()
+	}
+
 	text := wrapper.String()
 	return []byte(text), nil
 }

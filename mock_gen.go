@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"encoding"
 	"fmt"
 )
 
@@ -12,4 +13,14 @@ import (
 //
 type Stringer interface {
 	fmt.Stringer
+}
+
+//go:generate mockery --name=TextMarshaler --inpackage --case=underscore --testonly
+
+// TextMarshaler ...
+//
+// It's used only for mock generating.
+//
+type TextMarshaler interface {
+	encoding.TextMarshaler
 }
