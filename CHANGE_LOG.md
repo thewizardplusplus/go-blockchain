@@ -1,5 +1,21 @@
 # Change Log
 
+## [v1.4-alpha.1](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4-alpha.1) (2021-12-26)
+
+Add the model of block data.
+
+- models:
+  - block data:
+    - operations:
+      - conversion to a string;
+      - comparison for equality with another block data;
+    - wrappers:
+      - wrapper that adds support for the following operations to those block data that cannot do them:
+        - conversion to a string:
+          - implementation of the `fmt.Stringer` interface;
+          - implementation of the `encoding.TextMarshaler` interface;
+        - comparison for equality with another block data.
+
 ## [v1.4-alpha](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4-alpha) (2021-12-21)
 
 Add to the block model the comparison for equality with another block; add to the storage the deleting of a block.
