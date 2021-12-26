@@ -58,6 +58,7 @@ func Test_universalDataWrapper_String(test *testing.T) {
 			}
 			got := wrapper.String()
 
+			// nolint: staticcheck
 			if _, ok := data.fields.innerData.(interface {
 				AssertExpectations(mock.TestingT) bool
 			}); ok {
@@ -141,6 +142,7 @@ func Test_universalDataWrapper_MarshalText(test *testing.T) {
 			}
 			gotText, gotErr := wrapper.MarshalText()
 
+			// nolint: staticcheck
 			if _, ok := data.fields.innerData.(interface {
 				AssertExpectations(mock.TestingT) bool
 			}); ok {
@@ -245,6 +247,7 @@ func Test_universalDataWrapper_Equal(test *testing.T) {
 				data.fields.innerData,
 				data.args.data,
 			} {
+				// nolint: staticcheck
 				if _, ok := mockInstance.(interface {
 					AssertExpectations(mock.TestingT) bool
 				}); ok {
