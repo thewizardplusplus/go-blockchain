@@ -10,10 +10,20 @@ The library that implements models and algorithms of blockchain.
 ## Features
 
 - models:
+  - block data:
+    - operations:
+      - conversion to a string;
+      - comparison for equality with another block data;
+    - wrappers:
+      - wrapper that adds support for the following operations to those block data that cannot do them:
+        - conversion to a string:
+          - implementation of the `fmt.Stringer` interface;
+          - implementation of the `encoding.TextMarshaler` interface;
+        - comparison for equality with another block data;
   - block:
     - storing:
       - timestamp;
-      - custom data;
+      - block data;
       - hash;
       - previous hash;
     - operations:
