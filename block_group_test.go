@@ -544,3 +544,142 @@ func TestBlockGroup_IsLastBlockValid(test *testing.T) {
 		})
 	}
 }
+
+func TestBlockGroup_FindBlock(test *testing.T) {
+	type args struct {
+		block Block
+	}
+
+	for _, data := range []struct {
+		name           string
+		blocks         BlockGroup
+		args           args
+		wantBlockIndex int
+		wantIsFound    assert.BoolAssertionFunc
+	}{
+		{
+			name: "is found",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data: func() Data {
+						data := new(MockData)
+						data.
+							On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+							Return(true)
+
+						return data
+					}(),
+					Hash:     "hash #3",
+					PrevHash: "hash #2",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+			},
+			args: args{
+				block: Block{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+			},
+			wantBlockIndex: 1,
+			wantIsFound:    assert.True,
+		},
+		{
+			name: "is not found due to timestamp",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+			},
+			args: args{
+				block: Block{
+					Timestamp: clock().Add(3 * time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #4",
+					PrevHash:  "hash #3",
+				},
+			},
+			wantBlockIndex: 0,
+			wantIsFound:    assert.False,
+		},
+		{
+			name: "is not found due to data",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data: func() Data {
+						data := new(MockData)
+						data.
+							On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+							Return(false)
+
+						return data
+					}(),
+					Hash:     "hash #3",
+					PrevHash: "hash #2",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+			},
+			args: args{
+				block: Block{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+			},
+			wantBlockIndex: 0,
+			wantIsFound:    assert.False,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			gotBlockIndex, gotIsFound := data.blocks.FindBlock(data.args.block)
+
+			for _, block := range data.blocks {
+				mock.AssertExpectationsForObjects(test, block.Data)
+			}
+			mock.AssertExpectationsForObjects(test, data.args.block.Data)
+			assert.Equal(test, data.wantBlockIndex, gotBlockIndex)
+			data.wantIsFound(test, gotIsFound)
+		})
+	}
+}
