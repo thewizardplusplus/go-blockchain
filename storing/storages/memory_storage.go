@@ -28,7 +28,7 @@ func (storage *MemoryStorage) LoadBlocks(cursor interface{}, count int) (
 
 // LoadLastBlock ...
 func (storage MemoryStorage) LoadLastBlock() (blockchain.Block, error) {
-	if storage.isEmpty() {
+	if len(storage.blocks) == 0 {
 		return blockchain.Block{}, blockchain.ErrEmptyStorage
 	}
 
@@ -38,7 +38,8 @@ func (storage MemoryStorage) LoadLastBlock() (blockchain.Block, error) {
 // StoreBlock ...
 func (storage *MemoryStorage) StoreBlock(block blockchain.Block) error {
 	// this check should follow before appending the new block
-	if storage.isEmpty() || block.Timestamp.After(storage.lastBlock.Timestamp) {
+	if len(storage.blocks) == 0 ||
+		block.Timestamp.After(storage.lastBlock.Timestamp) {
 		storage.lastBlock = block
 	}
 
@@ -61,19 +62,11 @@ func (storage *MemoryStorage) DeleteBlock(block blockchain.Block) error {
 	copiedCount := copy(storage.blocks[index:], storage.blocks[index+1:])
 	storage.blocks = storage.blocks[:index+copiedCount]
 
-	if !storage.isEmpty() {
-		storage.lastBlock = storage.blocks[storage.size()-1]
+	if len(storage.blocks) != 0 {
+		storage.lastBlock = storage.blocks[len(storage.blocks)-1]
 	}
 
 	return nil
-}
-
-func (storage MemoryStorage) size() int {
-	return len(storage.blocks)
-}
-
-func (storage MemoryStorage) isEmpty() bool {
-	return storage.size() == 0
 }
 
 func (storage *MemoryStorage) sortIfNeed() {
