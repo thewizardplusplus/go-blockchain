@@ -47,6 +47,8 @@ The library that implements models and algorithms of blockchain.
         - modes:
           - as a full blockchain;
           - as a blockchain chunk;
+      - search of a block index:
+        - based on the [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) algorithm;
   - block group loaders:
     - loading block groups via the external interface;
     - automatically saving the loaded block groups to a storage;
