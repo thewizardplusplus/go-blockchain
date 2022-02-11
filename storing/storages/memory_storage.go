@@ -75,8 +75,8 @@ func (storage *MemoryStorage) sortIfNeed() {
 	}
 
 	sort.Slice(storage.blocks, func(i int, j int) bool {
-		// descending order
-		return storage.blocks[j].Timestamp.After(storage.blocks[i].Timestamp)
+		return storage.blocks[i].Timestamp.
+			After(storage.blocks[j].Timestamp) // descending order
 	})
 	storage.isSorted = true
 }
