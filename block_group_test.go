@@ -559,15 +559,16 @@ func TestBlockGroup_FindBlock(test *testing.T) {
 	}{
 		{
 			name: "is found",
+			// the blocks should be sorted in descending order of their timestamps
 			blocks: BlockGroup{
 				{
-					Timestamp: clock(),
+					Timestamp: clock().Add(2 * time.Hour),
 					Data:      new(MockData),
-					Hash:      "hash #1",
-					PrevHash:  "",
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
 				},
 				{
-					Timestamp: clock().Add(2 * time.Hour),
+					Timestamp: clock().Add(time.Hour),
 					Data: func() Data {
 						data := new(MockData)
 						data.
@@ -576,22 +577,22 @@ func TestBlockGroup_FindBlock(test *testing.T) {
 
 						return data
 					}(),
-					Hash:     "hash #3",
-					PrevHash: "hash #2",
+					Hash:     "hash #2",
+					PrevHash: "hash #1",
 				},
 				{
-					Timestamp: clock().Add(time.Hour),
+					Timestamp: clock(),
 					Data:      new(MockData),
-					Hash:      "hash #2",
-					PrevHash:  "hash #1",
+					Hash:      "hash #1",
+					PrevHash:  "",
 				},
 			},
 			args: args{
 				block: Block{
-					Timestamp: clock().Add(2 * time.Hour),
+					Timestamp: clock().Add(time.Hour),
 					Data:      new(MockData),
-					Hash:      "hash #3",
-					PrevHash:  "hash #2",
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
 				},
 			},
 			wantBlockIndex: 1,
@@ -599,13 +600,8 @@ func TestBlockGroup_FindBlock(test *testing.T) {
 		},
 		{
 			name: "is not found due to timestamp",
+			// the blocks should be sorted in descending order of their timestamps
 			blocks: BlockGroup{
-				{
-					Timestamp: clock(),
-					Data:      new(MockData),
-					Hash:      "hash #1",
-					PrevHash:  "",
-				},
 				{
 					Timestamp: clock().Add(2 * time.Hour),
 					Data:      new(MockData),
@@ -618,13 +614,19 @@ func TestBlockGroup_FindBlock(test *testing.T) {
 					Hash:      "hash #2",
 					PrevHash:  "hash #1",
 				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
 			},
 			args: args{
 				block: Block{
-					Timestamp: clock().Add(3 * time.Hour),
+					Timestamp: clock().Add(-time.Hour),
 					Data:      new(MockData),
-					Hash:      "hash #4",
-					PrevHash:  "hash #3",
+					Hash:      "hash",
+					PrevHash:  "previous hash",
 				},
 			},
 			wantBlockIndex: 0,
@@ -632,15 +634,16 @@ func TestBlockGroup_FindBlock(test *testing.T) {
 		},
 		{
 			name: "is not found due to data",
+			// the blocks should be sorted in descending order of their timestamps
 			blocks: BlockGroup{
 				{
-					Timestamp: clock(),
+					Timestamp: clock().Add(2 * time.Hour),
 					Data:      new(MockData),
-					Hash:      "hash #1",
-					PrevHash:  "",
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
 				},
 				{
-					Timestamp: clock().Add(2 * time.Hour),
+					Timestamp: clock().Add(time.Hour),
 					Data: func() Data {
 						data := new(MockData)
 						data.
@@ -649,22 +652,22 @@ func TestBlockGroup_FindBlock(test *testing.T) {
 
 						return data
 					}(),
-					Hash:     "hash #3",
-					PrevHash: "hash #2",
+					Hash:     "hash #2",
+					PrevHash: "hash #1",
 				},
 				{
-					Timestamp: clock().Add(time.Hour),
+					Timestamp: clock(),
 					Data:      new(MockData),
-					Hash:      "hash #2",
-					PrevHash:  "hash #1",
+					Hash:      "hash #1",
+					PrevHash:  "",
 				},
 			},
 			args: args{
 				block: Block{
-					Timestamp: clock().Add(2 * time.Hour),
+					Timestamp: clock().Add(time.Hour),
 					Data:      new(MockData),
-					Hash:      "hash #3",
-					PrevHash:  "hash #2",
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
 				},
 			},
 			wantBlockIndex: 0,
