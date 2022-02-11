@@ -1,5 +1,23 @@
 # Change Log
 
+## [v1.4-alpha.2](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4-alpha.2) (2022-02-11)
+
+Add a search of a block index and fix the bug with sorting in the `storages.MemoryStorage` structure.
+
+- models:
+  - block group:
+    - operations:
+      - search of a block index:
+        - based on the [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) algorithm;
+- fix the bug with sorting in the `storages.MemoryStorage` structure:
+  - fix the `storages.MemoryStorage.sortIfNeed()` method;
+  - fix the `storages.MemoryStorage.DeleteBlock()` method;
+  - fix the unit tests:
+    - of the `storages.MemoryStorage.LoadBlocks()` method;
+    - of the `storages.MemoryStorage.LoadLastBlock()` method;
+    - of the `storages.MemoryStorage.StoreBlock()` method;
+    - of the `storages.MemoryStorage.DeleteBlock()` method.
+
 ## [v1.4-alpha.1](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4-alpha.1) (2021-12-26)
 
 Add the model of block data.
