@@ -30,7 +30,7 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 		wantErr          assert.ErrorAssertionFunc
 	}{
 		{
-			name: "with a nonempty storage and the unsorted blocks",
+			name: "with the unsorted blocks",
 			fields: fields{
 				blocks: blockchain.BlockGroup{
 					{
@@ -60,10 +60,10 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 			},
 			wantBlocks: blockchain.BlockGroup{
 				{
-					Timestamp: clock(),
+					Timestamp: clock().Add(2 * time.Hour),
 					Data:      new(MockData),
-					Hash:      "hash #1",
-					PrevHash:  "",
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
 				},
 				{
 					Timestamp: clock().Add(time.Hour),
@@ -72,10 +72,10 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 					PrevHash:  "hash #1",
 				},
 				{
-					Timestamp: clock().Add(2 * time.Hour),
+					Timestamp: clock(),
 					Data:      new(MockData),
-					Hash:      "hash #3",
-					PrevHash:  "hash #2",
+					Hash:      "hash #1",
+					PrevHash:  "",
 				},
 			},
 			wantIsSorted: assert.True,
@@ -87,18 +87,20 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 					PrevHash:  "hash #1",
 				},
 				{
-					Timestamp: clock().Add(2 * time.Hour),
+					Timestamp: clock(),
 					Data:      new(MockData),
-					Hash:      "hash #3",
-					PrevHash:  "hash #2",
+					Hash:      "hash #1",
+					PrevHash:  "",
 				},
 			},
 			wantNextCursor: 3,
 			wantErr:        assert.NoError,
 		},
 		{
-			name: "with a nonempty storage and the sorted blocks",
+			name: "with the sorted blocks",
 			fields: fields{
+				// I purposely leave the blocks unsorted to see that there is no side effect
+				// of the `sortIfNeed()` method
 				blocks: blockchain.BlockGroup{
 					{
 						Timestamp: clock(),
