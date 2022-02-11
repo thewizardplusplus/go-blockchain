@@ -86,3 +86,21 @@ func (blocks BlockGroup) FindBlock(block Block) (blockIndex int, isFound bool) {
 
 	return index, true
 }
+
+// FindDifferences ...
+func (blocks BlockGroup) FindDifferences(anotherBlocks BlockGroup) (
+	leftIndex int,
+	rightIndex int,
+	hasMatch bool,
+) {
+	for index, block := range blocks {
+		if anotherIndex, isFound := anotherBlocks.FindBlock(block); isFound {
+			leftIndex, rightIndex = index, anotherIndex
+			hasMatch = true
+
+			break
+		}
+	}
+
+	return leftIndex, rightIndex, hasMatch
+}
