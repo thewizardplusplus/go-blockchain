@@ -88,6 +88,9 @@ func (blocks BlockGroup) FindBlock(block Block) (blockIndex int, isFound bool) {
 }
 
 // FindDifferences ...
+//
+// The another blocks should be sorted in descending order of their timestamps.
+//
 func (blocks BlockGroup) FindDifferences(anotherBlocks BlockGroup) (
 	leftIndex int,
 	rightIndex int,
@@ -95,12 +98,9 @@ func (blocks BlockGroup) FindDifferences(anotherBlocks BlockGroup) (
 ) {
 	for index, block := range blocks {
 		if anotherIndex, isFound := anotherBlocks.FindBlock(block); isFound {
-			leftIndex, rightIndex = index, anotherIndex
-			hasMatch = true
-
-			break
+			return index, anotherIndex, true
 		}
 	}
 
-	return leftIndex, rightIndex, hasMatch
+	return 0, 0, false
 }
