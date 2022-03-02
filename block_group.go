@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"sort"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -88,19 +89,29 @@ func (blocks BlockGroup) FindBlock(block Block) (blockIndex int, isFound bool) {
 }
 
 // FindDifferences ...
-//
-// The another blocks should be sorted in descending order of their timestamps.
-//
 func (blocks BlockGroup) FindDifferences(anotherBlocks BlockGroup) (
 	leftIndex int,
 	rightIndex int,
 	hasMatch bool,
 ) {
+	timestampIndexMap := make(map[time.Time]int)
+	for index, block := range anotherBlocks {
+		timestampIndexMap[normalizeTimestamp(block.Timestamp)] = index
+	}
+
 	for index, block := range blocks {
-		if anotherIndex, isFound := anotherBlocks.FindBlock(block); isFound {
+		anotherIndex, isTimestampFound :=
+			timestampIndexMap[normalizeTimestamp(block.Timestamp)]
+		if isTimestampFound && anotherBlocks[anotherIndex].IsEqual(block) == nil {
 			return index, anotherIndex, true
 		}
 	}
 
 	return 0, 0, false
+}
+
+func normalizeTimestamp(timestamp time.Time) time.Time {
+	return timestamp.
+		In(time.UTC). // set the same location for all timestamps
+		Truncate(0)   // strip monotonic clock reading
 }
