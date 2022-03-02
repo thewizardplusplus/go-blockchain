@@ -686,3 +686,259 @@ func TestBlockGroup_FindBlock(test *testing.T) {
 		})
 	}
 }
+
+func TestBlockGroup_FindDifferences(test *testing.T) {
+	type args struct {
+		anotherBlocks BlockGroup
+	}
+
+	for _, data := range []struct {
+		name           string
+		blocks         BlockGroup
+		args           args
+		wantLeftIndex  int
+		wantRightIndex int
+		wantHasMatch   assert.BoolAssertionFunc
+	}{
+		{
+			name: "same block groups",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+			},
+			args: args{
+				anotherBlocks: BlockGroup{
+					{
+						Timestamp: clock().Add(2 * time.Hour),
+						Data: func() Data {
+							data := new(MockData)
+							data.
+								On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+								Return(true)
+
+							return data
+						}(),
+						Hash:     "hash #3",
+						PrevHash: "hash #2",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data:      new(MockData),
+						Hash:      "hash #2",
+						PrevHash:  "hash #1",
+					},
+					{
+						Timestamp: clock(),
+						Data:      new(MockData),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+				},
+			},
+			wantLeftIndex:  0,
+			wantRightIndex: 0,
+			wantHasMatch:   assert.True,
+		},
+		{
+			name: "left block group is longer",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+					Data:      new(MockData),
+					Hash:      "hash #3.2",
+					PrevHash:  "hash #3.1",
+				},
+				{
+					Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+					Data:      new(MockData),
+					Hash:      "hash #3.1",
+					PrevHash:  "hash #2",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+			},
+			args: args{
+				anotherBlocks: BlockGroup{
+					{
+						Timestamp: clock().Add(2 * time.Hour),
+						Data:      new(MockData),
+						Hash:      "hash #3",
+						PrevHash:  "hash #2",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data: func() Data {
+							data := new(MockData)
+							data.
+								On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+								Return(true)
+
+							return data
+						}(),
+						Hash:     "hash #2",
+						PrevHash: "hash #1",
+					},
+					{
+						Timestamp: clock(),
+						Data:      new(MockData),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+				},
+			},
+			wantLeftIndex:  2,
+			wantRightIndex: 1,
+			wantHasMatch:   assert.True,
+		},
+		{
+			name: "right block group is longer",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+			},
+			args: args{
+				anotherBlocks: BlockGroup{
+					{
+						Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+						Data:      new(MockData),
+						Hash:      "hash #3.2",
+						PrevHash:  "hash #3.1",
+					},
+					{
+						Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+						Data:      new(MockData),
+						Hash:      "hash #3.1",
+						PrevHash:  "hash #2",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data: func() Data {
+							data := new(MockData)
+							data.
+								On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+								Return(true)
+
+							return data
+						}(),
+						Hash:     "hash #2",
+						PrevHash: "hash #1",
+					},
+					{
+						Timestamp: clock(),
+						Data:      new(MockData),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+				},
+			},
+			wantLeftIndex:  1,
+			wantRightIndex: 2,
+			wantHasMatch:   assert.True,
+		},
+		{
+			name: "different block groups",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+			},
+			args: args{
+				anotherBlocks: BlockGroup{
+					{
+						Timestamp: clock().Add(2*time.Hour + 30*time.Minute),
+						Data:      new(MockData),
+						Hash:      "hash #3.1",
+						PrevHash:  "hash #2.1",
+					},
+					{
+						Timestamp: clock().Add(time.Hour + 30*time.Minute),
+						Data:      new(MockData),
+						Hash:      "hash #2.1",
+						PrevHash:  "hash #1.1",
+					},
+					{
+						Timestamp: clock().Add(30 * time.Minute),
+						Data:      new(MockData),
+						Hash:      "hash #1.1",
+						PrevHash:  "",
+					},
+				},
+			},
+			wantLeftIndex:  0,
+			wantRightIndex: 0,
+			wantHasMatch:   assert.False,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			gotLeftIndex, gotRightIndex, gotHasMatch :=
+				data.blocks.FindDifferences(data.args.anotherBlocks)
+
+			for _, block := range data.blocks {
+				mock.AssertExpectationsForObjects(test, block.Data)
+			}
+			for _, block := range data.args.anotherBlocks {
+				mock.AssertExpectationsForObjects(test, block.Data)
+			}
+			assert.Equal(test, data.wantLeftIndex, gotLeftIndex)
+			assert.Equal(test, data.wantRightIndex, gotRightIndex)
+			data.wantHasMatch(test, gotHasMatch)
+		})
+	}
+}
