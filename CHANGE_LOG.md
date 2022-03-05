@@ -1,5 +1,20 @@
 # Change Log
 
+## [v1.4-beta](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4-beta) (2022-03-05)
+
+Add a search of differences between two block groups.
+
+- models:
+  - block group:
+    - operations:
+      - search of differences between two block groups:
+        - returns lengths of different prefixes of the compared block groups;
+        - based on a hash table index;
+  - block group loaders:
+    - search of differences between two block group loaders:
+      - loads and compares only one block chunk from every block group loader;
+- remove the `blockchain.BlockGroup.FindBlock()` method.
+
 ## [v1.4-alpha.2](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4-alpha.2) (2022-02-11)
 
 Add a search of a block index and fix the bug with sorting in the `storages.MemoryStorage` structure.
