@@ -15,6 +15,7 @@ type Clock func() time.Time
 type Proofer interface {
 	Hash(block Block) string
 	Validate(block Block) error
+	Difficulty(hash string) (int, error)
 }
 
 // BlockDependencies ...
