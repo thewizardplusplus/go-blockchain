@@ -53,8 +53,12 @@ func (storage *MemoryStorage) StoreBlock(block blockchain.Block) error {
 func (storage *MemoryStorage) DeleteBlock(block blockchain.Block) error {
 	storage.sortIfNeed()
 
-	index, isFound := storage.blocks.FindBlock(block)
-	if !isFound {
+	index := sort.Search(len(storage.blocks), func(index int) bool {
+		return !storage.blocks[index].Timestamp.
+			After(block.Timestamp) // before or equal
+	})
+	if index == len(storage.blocks) ||
+		storage.blocks[index].IsEqual(block) != nil {
 		return nil
 	}
 

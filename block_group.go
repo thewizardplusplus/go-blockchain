@@ -1,7 +1,6 @@
 package blockchain
 
 import (
-	"sort"
 	"time"
 
 	"github.com/pkg/errors"
@@ -68,24 +67,6 @@ func (blocks BlockGroup) IsLastBlockValid(
 	}
 
 	return err
-}
-
-// FindBlock ...
-//
-// The blocks should be sorted in descending order of their timestamps.
-//
-func (blocks BlockGroup) FindBlock(block Block) (blockIndex int, isFound bool) {
-	index := sort.Search(len(blocks), func(index int) bool {
-		return !blocks[index].Timestamp.After(block.Timestamp) // before or equal
-	})
-	if index == len(blocks) {
-		return 0, false
-	}
-	if err := blocks[index].IsEqual(block); err != nil {
-		return 0, false
-	}
-
-	return index, true
 }
 
 // FindDifferences ...
