@@ -11,6 +11,8 @@ import (
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
+const maximalTargetBit = sha256.Size*8 - 1
+
 // ProofOfWork ...
 type ProofOfWork struct {
 	TargetBit int
@@ -57,6 +59,23 @@ func (proofer ProofOfWork) Validate(block blockchain.Block) error {
 	}
 
 	return nil
+}
+
+// Difficulty ...
+func (proofer ProofOfWork) Difficulty(hash string) (int, error) {
+	hashParts := strings.SplitN(hash, ":", 3)
+	if len(hashParts) != 3 {
+		return 0, errors.New("the hash contains the invalid quantity of the parts")
+	}
+
+	targetBitAsStr := hashParts[0]
+	targetBit, err := strconv.Atoi(targetBitAsStr)
+	if err != nil {
+		return 0, errors.Wrap(err, "unable to parse the target bit")
+	}
+
+	difficulty := maximalTargetBit - targetBit
+	return difficulty, nil
 }
 
 func makeHash(data string) []byte {
