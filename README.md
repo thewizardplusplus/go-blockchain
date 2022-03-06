@@ -2,7 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/thewizardplusplus/go-blockchain?status.svg)](https://godoc.org/github.com/thewizardplusplus/go-blockchain)
 [![Go Report Card](https://goreportcard.com/badge/github.com/thewizardplusplus/go-blockchain)](https://goreportcard.com/report/github.com/thewizardplusplus/go-blockchain)
-[![Build Status](https://travis-ci.org/thewizardplusplus/go-blockchain.svg?branch=master)](https://travis-ci.org/thewizardplusplus/go-blockchain)
+[![Build Status](https://app.travis-ci.com/thewizardplusplus/go-blockchain.svg?branch=master)](https://app.travis-ci.com/thewizardplusplus/go-blockchain)
 [![codecov](https://codecov.io/gh/thewizardplusplus/go-blockchain/branch/master/graph/badge.svg)](https://codecov.io/gh/thewizardplusplus/go-blockchain)
 
 The library that implements models and algorithms of blockchain.
