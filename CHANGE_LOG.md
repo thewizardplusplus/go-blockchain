@@ -1,5 +1,20 @@
 # Change Log
 
+## [v1.4-beta.1](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4-beta.1) (2022-03-06)
+
+Add calculating a difficulty of blocks.
+
+- models:
+  - block group:
+    - operations:
+      - calculating a difficulty of blocks;
+- proofers:
+  - operations:
+    - block difficulty calculating;
+  - kinds:
+    - [proof of work](https://en.wikipedia.org/wiki/Proof_of_work):
+      - difficulty is defined as an inverse target bit.
+
 ## [v1.4-beta](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4-beta) (2022-03-05)
 
 Add a search of differences between two block groups.
