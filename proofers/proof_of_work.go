@@ -2,7 +2,7 @@ package proofers
 
 import (
 	"crypto/sha256"
-	"fmt"
+	"encoding/hex"
 	"math/big"
 	"strconv"
 	"strings"
@@ -11,7 +11,11 @@ import (
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
-const maximalTargetBit = sha256.Size*8 - 1
+const (
+	hashPartSeparator = ":"
+	hashPartCount     = 3
+	maximalTargetBit  = sha256.Size*8 - 1
+)
 
 // ProofOfWork ...
 type ProofOfWork struct {
@@ -22,9 +26,10 @@ type ProofOfWork struct {
 func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 	var nonce big.Int
 	var hash []byte
+	targetBitAsStr := strconv.Itoa(proofer.TargetBit)
 	target := makeTarget(proofer.TargetBit)
 	for {
-		data := block.MergedData() + nonce.String() + strconv.Itoa(proofer.TargetBit)
+		data := block.MergedData() + nonce.String() + targetBitAsStr
 		hash = makeHash(data)
 		if isHashFitTarget(hash, target) {
 			break
@@ -33,7 +38,8 @@ func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 		nonce.Add(&nonce, big.NewInt(1)) // nonce += 1
 	}
 
-	return fmt.Sprintf("%d:%s:%x", proofer.TargetBit, &nonce, hash)
+	hashParts := []string{targetBitAsStr, nonce.String(), hex.EncodeToString(hash)}
+	return strings.Join(hashParts, hashPartSeparator)
 }
 
 // Validate ...
@@ -85,8 +91,8 @@ func isHashFitTarget(hash []byte, target *big.Int) bool {
 }
 
 func parseHash(hash string) (hashParts []string, targetBit int, err error) {
-	hashParts = strings.SplitN(hash, ":", 3)
-	if len(hashParts) != 3 {
+	hashParts = strings.SplitN(hash, hashPartSeparator, hashPartCount)
+	if len(hashParts) != hashPartCount {
 		return nil, 0,
 			errors.New("the hash contains the invalid quantity of the parts")
 	}
