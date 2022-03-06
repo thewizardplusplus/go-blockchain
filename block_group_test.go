@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"testing"
+	"testing/iotest"
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -797,6 +798,96 @@ func TestBlockGroup_FindDifferences(test *testing.T) {
 			assert.Equal(test, data.wantLeftIndex, gotLeftIndex)
 			assert.Equal(test, data.wantRightIndex, gotRightIndex)
 			data.wantHasMatch(test, gotHasMatch)
+		})
+	}
+}
+
+func TestBlockGroup_Difficulty(test *testing.T) {
+	type args struct {
+		proofer Proofer
+	}
+
+	for _, data := range []struct {
+		name           string
+		blocks         BlockGroup
+		args           args
+		wantDifficulty int
+		wantErr        assert.ErrorAssertionFunc
+	}{
+		{
+			name:   "success without blocks",
+			blocks: nil,
+			args: args{
+				proofer: new(MockProofer),
+			},
+			wantDifficulty: 0,
+			wantErr:        assert.NoError,
+		},
+		{
+			name: "success with blocks",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockData),
+					Hash:      "next hash",
+					PrevHash:  "hash",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "",
+				},
+			},
+			args: args{
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					proofer.On("Difficulty", "next hash").Return(42, nil)
+					proofer.On("Difficulty", "hash").Return(23, nil)
+
+					return proofer
+				}(),
+			},
+			wantDifficulty: 65,
+			wantErr:        assert.NoError,
+		},
+		{
+			name: "error",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockData),
+					Hash:      "next hash",
+					PrevHash:  "hash",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "",
+				},
+			},
+			args: args{
+				proofer: func() Proofer {
+					proofer := new(MockProofer)
+					proofer.On("Difficulty", "next hash").Return(0, iotest.ErrTimeout)
+
+					return proofer
+				}(),
+			},
+			wantDifficulty: 0,
+			wantErr:        assert.Error,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			gotDifficulty, gotErr := data.blocks.Difficulty(data.args.proofer)
+
+			for _, block := range data.blocks {
+				mock.AssertExpectationsForObjects(test, block.Data)
+			}
+			mock.AssertExpectationsForObjects(test, data.args.proofer)
+			assert.Equal(test, data.wantDifficulty, gotDifficulty)
+			data.wantErr(test, gotErr)
 		})
 	}
 }

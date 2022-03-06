@@ -91,6 +91,25 @@ func (blocks BlockGroup) FindDifferences(anotherBlocks BlockGroup) (
 	return 0, 0, false
 }
 
+// Difficulty ...
+func (blocks BlockGroup) Difficulty(proofer Proofer) (int, error) {
+	var totalDifficulty int
+	for index, block := range blocks {
+		difficulty, err := proofer.Difficulty(block.Hash)
+		if err != nil {
+			return 0, errors.Wrapf(
+				err,
+				"unable to calculate the difficulty of the block #%d",
+				index,
+			)
+		}
+
+		totalDifficulty += difficulty
+	}
+
+	return totalDifficulty, nil
+}
+
 func normalizeTimestamp(timestamp time.Time) time.Time {
 	return timestamp.
 		In(time.UTC). // set the same location for all timestamps
