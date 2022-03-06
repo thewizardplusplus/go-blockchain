@@ -50,6 +50,7 @@ The library that implements models and algorithms of blockchain.
       - search of differences between two block groups:
         - returns lengths of different prefixes of the compared block groups;
         - based on a hash table index;
+      - calculating a difficulty of blocks;
   - block group loaders:
     - loading block groups via the external interface;
     - automatically saving the loaded block groups to a storage;
@@ -85,6 +86,7 @@ The library that implements models and algorithms of blockchain.
 - proofers:
   - operations:
     - block hashing;
+    - block difficulty calculating;
     - block validation;
   - kinds:
     - [proof of work](https://en.wikipedia.org/wiki/Proof_of_work):
@@ -92,6 +94,7 @@ The library that implements models and algorithms of blockchain.
       - additional storing in a block (in a hash actually):
         - nonce;
         - target bit;
+      - difficulty is defined as an inverse target bit;
 - storages:
   - operations:
     - loading block groups;
