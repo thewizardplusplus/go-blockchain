@@ -38,22 +38,15 @@ func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 
 // Validate ...
 func (proofer ProofOfWork) Validate(block blockchain.Block) error {
-	hashParts := strings.SplitN(block.Hash, ":", 3)
-	if len(hashParts) != 3 {
-		return errors.New("the hash contains the invalid quantity of the parts")
-	}
-
-	targetBitAsStr := hashParts[0]
-	targetBit, err := strconv.Atoi(targetBitAsStr)
+	hashParts, targetBit, err := parseHash(block.Hash)
 	if err != nil {
-		return errors.Wrap(err, "unable to parse the target bit")
+		return errors.Wrap(err, "unable to parse the hash")
 	}
 
-	target := makeTarget(targetBit)
-
-	nonceAsStr := hashParts[1]
+	targetBitAsStr, nonceAsStr := hashParts[0], hashParts[1]
 	data := block.MergedData() + nonceAsStr + targetBitAsStr
 	hash := makeHash(data)
+	target := makeTarget(targetBit)
 	if !isHashFitTarget(hash, target) {
 		return errors.New("the hash does not fit the target")
 	}
@@ -63,15 +56,9 @@ func (proofer ProofOfWork) Validate(block blockchain.Block) error {
 
 // Difficulty ...
 func (proofer ProofOfWork) Difficulty(hash string) (int, error) {
-	hashParts := strings.SplitN(hash, ":", 3)
-	if len(hashParts) != 3 {
-		return 0, errors.New("the hash contains the invalid quantity of the parts")
-	}
-
-	targetBitAsStr := hashParts[0]
-	targetBit, err := strconv.Atoi(targetBitAsStr)
+	_, targetBit, err := parseHash(hash)
 	if err != nil {
-		return 0, errors.Wrap(err, "unable to parse the target bit")
+		return 0, errors.Wrap(err, "unable to parse the hash")
 	}
 
 	difficulty := maximalTargetBit - targetBit
@@ -95,4 +82,20 @@ func isHashFitTarget(hash []byte, target *big.Int) bool {
 	hashAsInt.SetBytes(hash)
 
 	return hashAsInt.Cmp(target) == -1 // is less
+}
+
+func parseHash(hash string) (hashParts []string, targetBit int, err error) {
+	hashParts = strings.SplitN(hash, ":", 3)
+	if len(hashParts) != 3 {
+		return nil, 0,
+			errors.New("the hash contains the invalid quantity of the parts")
+	}
+
+	targetBitAsStr := hashParts[0]
+	targetBit, err = strconv.Atoi(targetBitAsStr)
+	if err != nil {
+		return nil, 0, errors.Wrap(err, "unable to parse the target bit")
+	}
+
+	return hashParts, targetBit, nil
 }
