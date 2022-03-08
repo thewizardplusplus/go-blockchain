@@ -560,7 +560,17 @@ func TestBlockGroup_FindDifferences(test *testing.T) {
 		wantHasMatch   assert.BoolAssertionFunc
 	}{
 		{
-			name: "same block groups",
+			name:   "same block groups (empty)",
+			blocks: nil,
+			args: args{
+				anotherBlocks: nil,
+			},
+			wantLeftIndex:  0,
+			wantRightIndex: 0,
+			wantHasMatch:   assert.False,
+		},
+		{
+			name: "same block groups (nonempty)",
 			blocks: BlockGroup{
 				{
 					Timestamp: clock().Add(2 * time.Hour),
@@ -613,6 +623,35 @@ func TestBlockGroup_FindDifferences(test *testing.T) {
 			wantLeftIndex:  0,
 			wantRightIndex: 0,
 			wantHasMatch:   assert.True,
+		},
+		{
+			name:   "left block group is empty",
+			blocks: nil,
+			args: args{
+				anotherBlocks: BlockGroup{
+					{
+						Timestamp: clock().Add(2 * time.Hour),
+						Data:      new(MockData),
+						Hash:      "hash #3",
+						PrevHash:  "hash #2",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data:      new(MockData),
+						Hash:      "hash #2",
+						PrevHash:  "hash #1",
+					},
+					{
+						Timestamp: clock(),
+						Data:      new(MockData),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+				},
+			},
+			wantLeftIndex:  0,
+			wantRightIndex: 0,
+			wantHasMatch:   assert.False,
 		},
 		{
 			name: "left block group is longer",
@@ -674,6 +713,35 @@ func TestBlockGroup_FindDifferences(test *testing.T) {
 			wantLeftIndex:  2,
 			wantRightIndex: 1,
 			wantHasMatch:   assert.True,
+		},
+		{
+			name: "right block group is empty",
+			blocks: BlockGroup{
+				{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+				{
+					Timestamp: clock().Add(time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #2",
+					PrevHash:  "hash #1",
+				},
+				{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash #1",
+					PrevHash:  "",
+				},
+			},
+			args: args{
+				anotherBlocks: nil,
+			},
+			wantLeftIndex:  0,
+			wantRightIndex: 0,
+			wantHasMatch:   assert.False,
 		},
 		{
 			name: "right block group is longer",

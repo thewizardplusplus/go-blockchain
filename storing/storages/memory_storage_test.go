@@ -30,6 +30,22 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 		wantErr          assert.ErrorAssertionFunc
 	}{
 		{
+			name: "without blocks",
+			fields: fields{
+				blocks:   nil,
+				isSorted: false,
+			},
+			args: args{
+				cursor: 1,
+				count:  2,
+			},
+			wantBlocks:       nil,
+			wantIsSorted:     assert.True,
+			wantLoadedBlocks: nil,
+			wantNextCursor:   0,
+			wantErr:          assert.NoError,
+		},
+		{
 			name: "with the unsorted blocks",
 			fields: fields{
 				blocks: blockchain.BlockGroup{

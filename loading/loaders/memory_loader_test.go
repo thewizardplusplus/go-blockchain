@@ -24,6 +24,17 @@ func TestMemoryLoader_LoadBlocks(test *testing.T) {
 		wantErr        assert.ErrorAssertionFunc
 	}{
 		{
+			name:   "without blocks",
+			loader: nil,
+			args: args{
+				cursor: nil,
+				count:  2,
+			},
+			wantBlocks:     nil,
+			wantNextCursor: 0,
+			wantErr:        assert.NoError,
+		},
+		{
 			name: "with the loading of the chunk from the start",
 			loader: MemoryLoader(blockchain.BlockGroup{
 				{
