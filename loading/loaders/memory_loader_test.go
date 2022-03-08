@@ -196,7 +196,7 @@ func TestMemoryLoader_LoadBlocks(test *testing.T) {
 				cursor: 10,
 				count:  2,
 			},
-			wantBlocks:     blockchain.BlockGroup{},
+			wantBlocks:     nil,
 			wantNextCursor: 4,
 			wantErr:        assert.NoError,
 		},

@@ -26,7 +26,7 @@ func (loader MemoryLoader) LoadBlocks(cursor interface{}, count int) (
 	}
 
 	if maximalStartIndex := len(blocks) - 1; startIndex > maximalStartIndex {
-		return blockchain.BlockGroup{}, endIndex, nil
+		return nil, endIndex, nil
 	}
 
 	blocks = blocks[startIndex:endIndex]
