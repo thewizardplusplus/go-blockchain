@@ -445,3 +445,976 @@ func TestBlockchain_AddBlock(test *testing.T) {
 		})
 	}
 }
+
+func TestBlockchain_Merge(test *testing.T) {
+	type fields struct {
+		dependencies Dependencies
+		lastBlock    Block
+	}
+	type args struct {
+		loader    Loader
+		chunkSize int
+	}
+
+	for _, data := range []struct {
+		name          string
+		fields        fields
+		args          args
+		wantLastBlock Block
+		wantErr       assert.ErrorAssertionFunc
+	}{
+		{
+			name: "success with leftDifficulty > rightDifficulty",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.On("Difficulty", "hash #3.2").Return(23, nil)
+							proofer.On("Difficulty", "hash #3.1").Return(42, nil)
+							proofer.On("Difficulty", "hash #3").Return(12, nil)
+
+							return proofer
+						}(),
+					},
+					Storage: func() GroupStorage {
+						blocks := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+							{
+								Timestamp: clock().Add(time.Hour),
+								Data:      new(MockData),
+								Hash:      "hash #2",
+								PrevHash:  "hash #1",
+							},
+							{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "hash #1",
+								PrevHash:  "",
+							},
+						}
+
+						storage := new(MockGroupStorage)
+						storage.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				loader: func() Loader {
+					blocks := BlockGroup{
+						{
+							Timestamp: clock().Add(2 * time.Hour),
+							Data:      new(MockData),
+							Hash:      "hash #3",
+							PrevHash:  "hash #2",
+						},
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data: func() Data {
+								data := new(MockData)
+								data.
+									On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+									Return(true)
+
+								return data
+							}(),
+							Hash:     "hash #2",
+							PrevHash: "hash #1",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockData),
+							Hash:      "hash #1",
+							PrevHash:  "",
+						},
+					}
+
+					loader := new(MockLoader)
+					loader.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+					return loader
+				}(),
+				chunkSize: 23,
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "success with leftDifficulty < rightDifficulty",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.On("Difficulty", "hash #3.2").Return(23, nil)
+							proofer.On("Difficulty", "hash #3.1").Return(42, nil)
+							proofer.On("Difficulty", "hash #3").Return(100, nil)
+
+							return proofer
+						}(),
+					},
+					Storage: func() GroupStorage {
+						blocks := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+							{
+								Timestamp: clock().Add(time.Hour),
+								Data:      new(MockData),
+								Hash:      "hash #2",
+								PrevHash:  "hash #1",
+							},
+							{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "hash #1",
+								PrevHash:  "",
+							},
+						}
+						blocksForDeleting := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+						}
+						blocksForStoring := BlockGroup{
+							{
+								Timestamp: clock().Add(2 * time.Hour),
+								Data:      new(MockData),
+								Hash:      "hash #3",
+								PrevHash:  "hash #2",
+							},
+						}
+						newLastBlock := Block{
+							Timestamp: clock().Add(2 * time.Hour),
+							Data:      new(MockData),
+							Hash:      "hash #3",
+							PrevHash:  "hash #2",
+						}
+
+						storage := new(MockGroupStorage)
+						storage.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+						storage.On("DeleteBlockGroup", blocksForDeleting).Return(nil)
+						storage.On("StoreBlockGroup", blocksForStoring).Return(nil)
+						storage.On("LoadLastBlock").Return(newLastBlock, nil)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				loader: func() Loader {
+					blocks := BlockGroup{
+						{
+							Timestamp: clock().Add(2 * time.Hour),
+							Data:      new(MockData),
+							Hash:      "hash #3",
+							PrevHash:  "hash #2",
+						},
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data: func() Data {
+								data := new(MockData)
+								data.
+									On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+									Return(true)
+
+								return data
+							}(),
+							Hash:     "hash #2",
+							PrevHash: "hash #1",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockData),
+							Hash:      "hash #1",
+							PrevHash:  "",
+						},
+					}
+
+					loader := new(MockLoader)
+					loader.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+					return loader
+				}(),
+				chunkSize: 23,
+			},
+			wantLastBlock: Block{
+				Timestamp: clock().Add(2 * time.Hour),
+				Data:      new(MockData),
+				Hash:      "hash #3",
+				PrevHash:  "hash #2",
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error with searching differences",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Proofer: new(MockProofer),
+					},
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
+						storage.On("LoadBlocks", nil, 23).Return(nil, nil, iotest.ErrTimeout)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				loader:    new(MockLoader),
+				chunkSize: 23,
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.Error,
+		},
+		{
+			name: "error with calculating the difficulty of the left differences",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.On("Difficulty", "hash #3.2").Return(0, iotest.ErrTimeout)
+
+							return proofer
+						}(),
+					},
+					Storage: func() GroupStorage {
+						blocks := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+							{
+								Timestamp: clock().Add(time.Hour),
+								Data:      new(MockData),
+								Hash:      "hash #2",
+								PrevHash:  "hash #1",
+							},
+							{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "hash #1",
+								PrevHash:  "",
+							},
+						}
+
+						storage := new(MockGroupStorage)
+						storage.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				loader: func() Loader {
+					blocks := BlockGroup{
+						{
+							Timestamp: clock().Add(2 * time.Hour),
+							Data:      new(MockData),
+							Hash:      "hash #3",
+							PrevHash:  "hash #2",
+						},
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data: func() Data {
+								data := new(MockData)
+								data.
+									On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+									Return(true)
+
+								return data
+							}(),
+							Hash:     "hash #2",
+							PrevHash: "hash #1",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockData),
+							Hash:      "hash #1",
+							PrevHash:  "",
+						},
+					}
+
+					loader := new(MockLoader)
+					loader.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+					return loader
+				}(),
+				chunkSize: 23,
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.Error,
+		},
+		{
+			name: "error with calculating the difficulty of the right differences",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.On("Difficulty", "hash #3.2").Return(23, nil)
+							proofer.On("Difficulty", "hash #3.1").Return(42, nil)
+							proofer.On("Difficulty", "hash #3").Return(0, iotest.ErrTimeout)
+
+							return proofer
+						}(),
+					},
+					Storage: func() GroupStorage {
+						blocks := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+							{
+								Timestamp: clock().Add(time.Hour),
+								Data:      new(MockData),
+								Hash:      "hash #2",
+								PrevHash:  "hash #1",
+							},
+							{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "hash #1",
+								PrevHash:  "",
+							},
+						}
+
+						storage := new(MockGroupStorage)
+						storage.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				loader: func() Loader {
+					blocks := BlockGroup{
+						{
+							Timestamp: clock().Add(2 * time.Hour),
+							Data:      new(MockData),
+							Hash:      "hash #3",
+							PrevHash:  "hash #2",
+						},
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data: func() Data {
+								data := new(MockData)
+								data.
+									On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+									Return(true)
+
+								return data
+							}(),
+							Hash:     "hash #2",
+							PrevHash: "hash #1",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockData),
+							Hash:      "hash #1",
+							PrevHash:  "",
+						},
+					}
+
+					loader := new(MockLoader)
+					loader.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+					return loader
+				}(),
+				chunkSize: 23,
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.Error,
+		},
+		{
+			name: "error with leftDifficulty == rightDifficulty",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.On("Difficulty", "hash #3.2").Return(23, nil)
+							proofer.On("Difficulty", "hash #3.1").Return(42, nil)
+							proofer.On("Difficulty", "hash #3").Return(65, nil)
+
+							return proofer
+						}(),
+					},
+					Storage: func() GroupStorage {
+						blocks := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+							{
+								Timestamp: clock().Add(time.Hour),
+								Data:      new(MockData),
+								Hash:      "hash #2",
+								PrevHash:  "hash #1",
+							},
+							{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "hash #1",
+								PrevHash:  "",
+							},
+						}
+
+						storage := new(MockGroupStorage)
+						storage.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				loader: func() Loader {
+					blocks := BlockGroup{
+						{
+							Timestamp: clock().Add(2 * time.Hour),
+							Data:      new(MockData),
+							Hash:      "hash #3",
+							PrevHash:  "hash #2",
+						},
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data: func() Data {
+								data := new(MockData)
+								data.
+									On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+									Return(true)
+
+								return data
+							}(),
+							Hash:     "hash #2",
+							PrevHash: "hash #1",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockData),
+							Hash:      "hash #1",
+							PrevHash:  "",
+						},
+					}
+
+					loader := new(MockLoader)
+					loader.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+					return loader
+				}(),
+				chunkSize: 23,
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: func(
+				test assert.TestingT,
+				err error,
+				msgAndArgs ...interface{},
+			) bool {
+				return assert.Equal(test, ErrEqualDifficulties, err, msgAndArgs...)
+			},
+		},
+		{
+			name: "error with deleting the left differences",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.On("Difficulty", "hash #3.2").Return(23, nil)
+							proofer.On("Difficulty", "hash #3.1").Return(42, nil)
+							proofer.On("Difficulty", "hash #3").Return(100, nil)
+
+							return proofer
+						}(),
+					},
+					Storage: func() GroupStorage {
+						blocks := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+							{
+								Timestamp: clock().Add(time.Hour),
+								Data:      new(MockData),
+								Hash:      "hash #2",
+								PrevHash:  "hash #1",
+							},
+							{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "hash #1",
+								PrevHash:  "",
+							},
+						}
+						blocksForDeleting := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+						}
+
+						storage := new(MockGroupStorage)
+						storage.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+						storage.
+							On("DeleteBlockGroup", blocksForDeleting).
+							Return(iotest.ErrTimeout)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				loader: func() Loader {
+					blocks := BlockGroup{
+						{
+							Timestamp: clock().Add(2 * time.Hour),
+							Data:      new(MockData),
+							Hash:      "hash #3",
+							PrevHash:  "hash #2",
+						},
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data: func() Data {
+								data := new(MockData)
+								data.
+									On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+									Return(true)
+
+								return data
+							}(),
+							Hash:     "hash #2",
+							PrevHash: "hash #1",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockData),
+							Hash:      "hash #1",
+							PrevHash:  "",
+						},
+					}
+
+					loader := new(MockLoader)
+					loader.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+					return loader
+				}(),
+				chunkSize: 23,
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.Error,
+		},
+		{
+			name: "error with storing the right differences",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.On("Difficulty", "hash #3.2").Return(23, nil)
+							proofer.On("Difficulty", "hash #3.1").Return(42, nil)
+							proofer.On("Difficulty", "hash #3").Return(100, nil)
+
+							return proofer
+						}(),
+					},
+					Storage: func() GroupStorage {
+						blocks := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+							{
+								Timestamp: clock().Add(time.Hour),
+								Data:      new(MockData),
+								Hash:      "hash #2",
+								PrevHash:  "hash #1",
+							},
+							{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "hash #1",
+								PrevHash:  "",
+							},
+						}
+						blocksForDeleting := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+						}
+						blocksForStoring := BlockGroup{
+							{
+								Timestamp: clock().Add(2 * time.Hour),
+								Data:      new(MockData),
+								Hash:      "hash #3",
+								PrevHash:  "hash #2",
+							},
+						}
+
+						storage := new(MockGroupStorage)
+						storage.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+						storage.On("DeleteBlockGroup", blocksForDeleting).Return(nil)
+						storage.On("StoreBlockGroup", blocksForStoring).Return(iotest.ErrTimeout)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				loader: func() Loader {
+					blocks := BlockGroup{
+						{
+							Timestamp: clock().Add(2 * time.Hour),
+							Data:      new(MockData),
+							Hash:      "hash #3",
+							PrevHash:  "hash #2",
+						},
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data: func() Data {
+								data := new(MockData)
+								data.
+									On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+									Return(true)
+
+								return data
+							}(),
+							Hash:     "hash #2",
+							PrevHash: "hash #1",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockData),
+							Hash:      "hash #1",
+							PrevHash:  "",
+						},
+					}
+
+					loader := new(MockLoader)
+					loader.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+					return loader
+				}(),
+				chunkSize: 23,
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.Error,
+		},
+		{
+			name: "error with loading the last block",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.On("Difficulty", "hash #3.2").Return(23, nil)
+							proofer.On("Difficulty", "hash #3.1").Return(42, nil)
+							proofer.On("Difficulty", "hash #3").Return(100, nil)
+
+							return proofer
+						}(),
+					},
+					Storage: func() GroupStorage {
+						blocks := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+							{
+								Timestamp: clock().Add(time.Hour),
+								Data:      new(MockData),
+								Hash:      "hash #2",
+								PrevHash:  "hash #1",
+							},
+							{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "hash #1",
+								PrevHash:  "",
+							},
+						}
+						blocksForDeleting := BlockGroup{
+							{
+								Timestamp: clock().Add(2*time.Hour + 40*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.2",
+								PrevHash:  "hash #3.1",
+							},
+							{
+								Timestamp: clock().Add(2*time.Hour + 20*time.Minute),
+								Data:      new(MockData),
+								Hash:      "hash #3.1",
+								PrevHash:  "hash #2",
+							},
+						}
+						blocksForStoring := BlockGroup{
+							{
+								Timestamp: clock().Add(2 * time.Hour),
+								Data:      new(MockData),
+								Hash:      "hash #3",
+								PrevHash:  "hash #2",
+							},
+						}
+
+						storage := new(MockGroupStorage)
+						storage.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+						storage.On("DeleteBlockGroup", blocksForDeleting).Return(nil)
+						storage.On("StoreBlockGroup", blocksForStoring).Return(nil)
+						storage.On("LoadLastBlock").Return(Block{}, iotest.ErrTimeout)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				loader: func() Loader {
+					blocks := BlockGroup{
+						{
+							Timestamp: clock().Add(2 * time.Hour),
+							Data:      new(MockData),
+							Hash:      "hash #3",
+							PrevHash:  "hash #2",
+						},
+						{
+							Timestamp: clock().Add(time.Hour),
+							Data: func() Data {
+								data := new(MockData)
+								data.
+									On("Equal", mock.AnythingOfType("*blockchain.MockData")).
+									Return(true)
+
+								return data
+							}(),
+							Hash:     "hash #2",
+							PrevHash: "hash #1",
+						},
+						{
+							Timestamp: clock(),
+							Data:      new(MockData),
+							Hash:      "hash #1",
+							PrevHash:  "",
+						},
+					}
+
+					loader := new(MockLoader)
+					loader.On("LoadBlocks", nil, 23).Return(blocks, 26, nil)
+
+					return loader
+				}(),
+				chunkSize: 23,
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.Error,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			blockchain := &Blockchain{
+				dependencies: data.fields.dependencies,
+				lastBlock:    data.fields.lastBlock,
+			}
+			gotErr := blockchain.Merge(data.args.loader, data.args.chunkSize)
+
+			mock.AssertExpectationsForObjects(
+				test,
+				data.fields.dependencies.Proofer,
+				data.fields.dependencies.Storage,
+				data.fields.lastBlock.Data,
+				data.args.loader,
+				blockchain.lastBlock.Data,
+			)
+			assert.Equal(test, data.wantLastBlock, blockchain.lastBlock)
+			data.wantErr(test, gotErr)
+		})
+	}
+}
