@@ -4,6 +4,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ErrEqualDifficulties ...
+var ErrEqualDifficulties = errors.New("equal difficulties")
+
 // Dependencies ...
 type Dependencies struct {
 	BlockDependencies
@@ -62,5 +65,58 @@ func (blockchain *Blockchain) AddBlock(data Data) error {
 	}
 
 	blockchain.lastBlock = block
+	return nil
+}
+
+// Merge ...
+func (blockchain *Blockchain) Merge(loader Loader, chunkSize int) error {
+	leftDifferences, rightDifferences, err :=
+		FindDifferences(blockchain, loader, chunkSize)
+	if err != nil {
+		return errors.Wrap(err, "unable to find differences")
+	}
+
+	leftDifficulty, err :=
+		leftDifferences.Difficulty(blockchain.dependencies.Proofer)
+	if err != nil {
+		return errors.Wrap(
+			err,
+			"unable to calculate the difficulty of the left differences",
+		)
+	}
+
+	rightDifficulty, err :=
+		rightDifferences.Difficulty(blockchain.dependencies.Proofer)
+	if err != nil {
+		return errors.Wrap(
+			err,
+			"unable to calculate the difficulty of the right differences",
+		)
+	}
+
+	if leftDifficulty > rightDifficulty {
+		return nil
+	}
+	if leftDifficulty == rightDifficulty {
+		return ErrEqualDifficulties
+	}
+
+	// if leftDifficulty < rightDifficulty...
+	if err = blockchain.dependencies.Storage.
+		DeleteBlockGroup(leftDifferences); err != nil {
+		return errors.Wrap(err, "unable to delete the left differences")
+	}
+
+	if err = blockchain.dependencies.Storage.
+		StoreBlockGroup(rightDifferences); err != nil {
+		return errors.Wrap(err, "unable to store the right differences")
+	}
+
+	lastBlock, err := blockchain.dependencies.Storage.LoadLastBlock()
+	if err != nil {
+		return errors.Wrap(err, "unable to load the last block")
+	}
+	blockchain.lastBlock = lastBlock
+
 	return nil
 }
