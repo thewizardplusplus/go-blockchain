@@ -14,6 +14,18 @@ type MemoryStorage struct {
 	isSorted  bool
 }
 
+// NewMemoryStorage ...
+func NewMemoryStorage(blocks blockchain.BlockGroup) *MemoryStorage {
+	storage := &MemoryStorage{blocks: blocks}
+	for _, block := range storage.blocks {
+		if block.Timestamp.After(storage.lastBlock.Timestamp) {
+			storage.lastBlock = block
+		}
+	}
+
+	return storage
+}
+
 // LoadBlocks ...
 func (storage *MemoryStorage) LoadBlocks(cursor interface{}, count int) (
 	blocks blockchain.BlockGroup,
