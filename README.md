@@ -229,6 +229,125 @@ func main() {
 }
 ```
 
+`blockchain.Blockchain.Merge()`:
+
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"time"
+
+	blockchain "github.com/thewizardplusplus/go-blockchain"
+	"github.com/thewizardplusplus/go-blockchain/proofers"
+	"github.com/thewizardplusplus/go-blockchain/storing"
+	"github.com/thewizardplusplus/go-blockchain/storing/storages"
+)
+
+func main() {
+	timestamp := time.Date(2006, time.January, 2, 15, 4, 5, 0, time.UTC)
+	blockGroupOne := blockchain.BlockGroup{
+		{
+			Timestamp: timestamp.Add(2*time.Hour + 40*time.Minute),
+			Data:      blockchain.NewData("block #1.2"),
+			Hash:      "250:0:hash #3.2",
+			PrevHash:  "23:0:hash #3.1",
+		},
+		{
+			Timestamp: timestamp.Add(2*time.Hour + 20*time.Minute),
+			Data:      blockchain.NewData("block #1.1"),
+			Hash:      "250:0:hash #3.1",
+			PrevHash:  "23:0:hash #2",
+		},
+		{
+			Timestamp: timestamp.Add(time.Hour),
+			Data:      blockchain.NewData("block #0"),
+			Hash:      "23:0:hash #2",
+			PrevHash:  "23:0:hash #1",
+		},
+		{
+			Timestamp: timestamp,
+			Data:      blockchain.NewData("genesis block"),
+			Hash:      "23:0:hash #1",
+			PrevHash:  "",
+		},
+	}
+	blockchainInstanceOne, err :=
+		blockchain.NewBlockchain(nil, blockchain.Dependencies{
+			BlockDependencies: blockchain.BlockDependencies{
+				Proofer: proofers.ProofOfWork{TargetBit: 248},
+			},
+			Storage: storing.NewGroupStorage(storages.NewMemoryStorage(blockGroupOne)),
+		})
+	if err != nil {
+		log.Fatalf("unable to create the blockchain #1: %v", err)
+	}
+
+	blockGroupTwo := blockchain.BlockGroup{
+		{
+			Timestamp: timestamp.Add(2 * time.Hour),
+			Data:      blockchain.NewData("block #1"),
+			Hash:      "23:0:hash #3",
+			PrevHash:  "23:0:hash #2",
+		},
+		{
+			Timestamp: timestamp.Add(time.Hour),
+			Data:      blockchain.NewData("block #0"),
+			Hash:      "23:0:hash #2",
+			PrevHash:  "23:0:hash #1",
+		},
+		{
+			Timestamp: timestamp,
+			Data:      blockchain.NewData("genesis block"),
+			Hash:      "23:0:hash #1",
+			PrevHash:  "",
+		},
+	}
+	blockchainInstanceTwo, err :=
+		blockchain.NewBlockchain(nil, blockchain.Dependencies{
+			BlockDependencies: blockchain.BlockDependencies{
+				Proofer: proofers.ProofOfWork{TargetBit: 248},
+			},
+			Storage: storing.NewGroupStorage(storages.NewMemoryStorage(blockGroupTwo)),
+		})
+	if err != nil {
+		log.Fatalf("unable to create the blockchain #2: %v", err)
+	}
+
+	if err := blockchainInstanceOne.Merge(blockchainInstanceTwo, 3); err != nil {
+		log.Fatalf("unable to merge the blockchains: %v", err)
+	}
+
+	mergedBlocks, _, _ := blockchainInstanceOne.LoadBlocks(nil, 10)
+	blocksBytes, _ := json.MarshalIndent(mergedBlocks, "", "  ")
+	fmt.Println(string(blocksBytes))
+
+	// Output:
+	// [
+	//   {
+	//     "Timestamp": "2006-01-02T17:04:05Z",
+	//     "Data": "block #1",
+	//     "Hash": "23:0:hash #3",
+	//     "PrevHash": "23:0:hash #2"
+	//   },
+	//   {
+	//     "Timestamp": "2006-01-02T16:04:05Z",
+	//     "Data": "block #0",
+	//     "Hash": "23:0:hash #2",
+	//     "PrevHash": "23:0:hash #1"
+	//   },
+	//   {
+	//     "Timestamp": "2006-01-02T15:04:05Z",
+	//     "Data": "genesis block",
+	//     "Hash": "23:0:hash #1",
+	//     "PrevHash": ""
+	//   }
+	// ]
+}
+```
+
 `blockchain.Block`:
 
 ```go
@@ -424,7 +543,7 @@ func main() {
 }
 ```
 
-`loading.LoadStorage`:
+`loading.LoadStorage()`:
 
 ```go
 package main
