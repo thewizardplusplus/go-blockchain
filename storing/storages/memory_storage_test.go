@@ -9,6 +9,88 @@ import (
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
+func TestNewMemoryStorage(test *testing.T) {
+	type args struct {
+		blocks blockchain.BlockGroup
+	}
+
+	for _, data := range []struct {
+		name string
+		args args
+		want *MemoryStorage
+	}{
+		{
+			name: "without blocks",
+			args: args{
+				blocks: nil,
+			},
+			want: &MemoryStorage{},
+		},
+		{
+			name: "with the blocks",
+			args: args{
+				blocks: blockchain.BlockGroup{
+					{
+						Timestamp: clock(),
+						Data:      new(MockData),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+					{
+						Timestamp: clock().Add(2 * time.Hour),
+						Data:      new(MockData),
+						Hash:      "hash #3",
+						PrevHash:  "hash #2",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data:      new(MockData),
+						Hash:      "hash #2",
+						PrevHash:  "hash #1",
+					},
+				},
+			},
+			want: &MemoryStorage{
+				blocks: blockchain.BlockGroup{
+					{
+						Timestamp: clock(),
+						Data:      new(MockData),
+						Hash:      "hash #1",
+						PrevHash:  "",
+					},
+					{
+						Timestamp: clock().Add(2 * time.Hour),
+						Data:      new(MockData),
+						Hash:      "hash #3",
+						PrevHash:  "hash #2",
+					},
+					{
+						Timestamp: clock().Add(time.Hour),
+						Data:      new(MockData),
+						Hash:      "hash #2",
+						PrevHash:  "hash #1",
+					},
+				},
+				lastBlock: blockchain.Block{
+					Timestamp: clock().Add(2 * time.Hour),
+					Data:      new(MockData),
+					Hash:      "hash #3",
+					PrevHash:  "hash #2",
+				},
+			},
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			got := NewMemoryStorage(data.args.blocks)
+
+			for _, block := range got.blocks {
+				mock.AssertExpectationsForObjects(test, block.Data)
+			}
+			assert.Equal(test, data.want, got)
+		})
+	}
+}
+
 func TestMemoryStorage_LoadBlocks(test *testing.T) {
 	type fields struct {
 		blocks   blockchain.BlockGroup
