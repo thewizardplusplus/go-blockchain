@@ -123,7 +123,7 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 			},
 			wantBlocks:       nil,
 			wantIsSorted:     assert.True,
-			wantLoadedBlocks: nil,
+			wantLoadedBlocks: blockchain.BlockGroup{},
 			wantNextCursor:   0,
 			wantErr:          assert.NoError,
 		},

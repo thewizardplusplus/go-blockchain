@@ -35,7 +35,13 @@ func (storage *MemoryStorage) LoadBlocks(cursor interface{}, count int) (
 	storage.sortIfNeed()
 
 	loader := loaders.MemoryLoader(storage.blocks)
-	return loader.LoadBlocks(cursor, count)
+	// the memory loader never returns an error
+	blocks, nextCursor, _ = loader.LoadBlocks(cursor, count) // nolint: gosec
+
+	copiedBlocks := make(blockchain.BlockGroup, len(blocks))
+	copy(copiedBlocks, blocks)
+
+	return copiedBlocks, nextCursor, nil
 }
 
 // LoadLastBlock ...
