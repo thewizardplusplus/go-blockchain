@@ -1,5 +1,27 @@
 # Change Log
 
+## [v1.4](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4) (2022-03-09)
+
+Add merging the blockchain model with another one.
+
+- models:
+  - blockchain:
+    - operations:
+      - merging with another blockchain:
+        - selecting a fork based on a maximal total difficulty;
+        - with automatic deleting orphan blocks;
+- storages:
+  - operations:
+    - creation from a block group;
+- additionally:
+  - return nil instead empty array from `loaders.MemoryLoader.LoadBlocks()` method;
+  - copy the loaded blocks in the `storages.MemoryStorage.LoadBlocks()` method;
+  - fix the unit tests:
+    - add the missed tests without blocks;
+    - add the tests with checking pointers for the `storages.MemoryStorage.LoadBlocks()` method;
+  - examples:
+    - add the example with merging the blockchain model with another one.
+
 ## [v1.4-beta.1](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4-beta.1) (2022-03-06)
 
 Add calculating a difficulty of blocks.
