@@ -284,6 +284,40 @@ func TestMemoryStorage_LoadBlocks(test *testing.T) {
 	}
 }
 
+func TestMemoryStorage_LoadBlocks_checkPointers(test *testing.T) {
+	blocks := blockchain.BlockGroup{
+		{
+			Timestamp: clock().Add(2 * time.Hour),
+			Data:      new(MockData),
+			Hash:      "hash #3",
+			PrevHash:  "hash #2",
+		},
+		{
+			Timestamp: clock().Add(time.Hour),
+			Data:      new(MockData),
+			Hash:      "hash #2",
+			PrevHash:  "hash #1",
+		},
+		{
+			Timestamp: clock(),
+			Data:      new(MockData),
+			Hash:      "hash #1",
+			PrevHash:  "",
+		},
+	}
+	storage := MemoryStorage{blocks: blocks, isSorted: true}
+	loadedBlocks, _, _ := storage.LoadBlocks(nil, len(blocks))
+
+	for _, block := range storage.blocks {
+		mock.AssertExpectationsForObjects(test, block.Data)
+	}
+	for index := range loadedBlocks {
+		block, loadedBlock := &blocks[index], &loadedBlocks[index]
+		assert.Equal(test, block, loadedBlock)
+		assert.NotSame(test, block, loadedBlock)
+	}
+}
+
 func TestMemoryStorage_LoadLastBlock(test *testing.T) {
 	type fields struct {
 		blocks    blockchain.BlockGroup
