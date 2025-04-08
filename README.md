@@ -117,24 +117,8 @@ The library that implements models and algorithms of blockchain.
 
 ## Installation
 
-Prepare the directory:
-
 ```
-$ mkdir --parents "$(go env GOPATH)/src/github.com/thewizardplusplus/"
-$ cd "$(go env GOPATH)/src/github.com/thewizardplusplus/"
-```
-
-Clone this repository:
-
-```
-$ git clone https://github.com/thewizardplusplus/go-blockchain.git
-$ cd go-blockchain
-```
-
-Install dependencies with the [dep](https://golang.github.io/dep/) tool:
-
-```
-$ dep ensure -vendor-only
+$ go get github.com/thewizardplusplus/go-blockchain
 ```
 
 ## Examples
