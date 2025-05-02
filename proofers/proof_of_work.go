@@ -97,24 +97,13 @@ func (proofer ProofOfWork) HashEx(
 
 // Validate ...
 func (proofer ProofOfWork) Validate(block blockchain.Block) error {
-	hashParts, targetBit, err := parseHash(block.Hash)
+	hashParts, err := parseHash(block.Hash)
 	if err != nil {
-		return fmt.Errorf(
-			"unable to parse the hash: %w",
-			errors.Join(err, ErrInvalidParameters),
-		)
-	}
-
-	targetBitIndex, err := powValueTypes.NewTargetBitIndex(targetBit)
-	if err != nil {
-		return fmt.Errorf(
-			"unable to construct the target bit index: %w",
-			errors.Join(err, ErrInvalidParameters),
-		)
+		return fmt.Errorf("unable to parse the hash: %w", err)
 	}
 
 	challenge, err := pow.NewChallengeBuilder().
-		SetTargetBitIndex(targetBitIndex).
+		SetTargetBitIndex(hashParts.targetBitIndex).
 		SetSerializedPayload(powValueTypes.NewSerializedPayload(block.MergedData())).
 		SetHash(powValueTypes.NewHash(sha256.New())).
 		SetHashDataLayout(powValueTypes.MustParseHashDataLayout(
@@ -130,26 +119,10 @@ func (proofer ProofOfWork) Validate(block blockchain.Block) error {
 		)
 	}
 
-	nonce, err := powValueTypes.ParseNonce(hashParts[1])
-	if err != nil {
-		return fmt.Errorf(
-			"unable to parse the nonce: %w",
-			errors.Join(err, ErrInvalidParameters),
-		)
-	}
-
-	rawHashSum, err := hex.DecodeString(hashParts[2])
-	if err != nil {
-		return fmt.Errorf(
-			"unable to decode the hash sum: %w",
-			errors.Join(err, ErrInvalidParameters),
-		)
-	}
-
 	solution, err := pow.NewSolutionBuilder().
 		SetChallenge(challenge).
-		SetNonce(nonce).
-		SetHashSum(powValueTypes.NewHashSum(rawHashSum)).
+		SetNonce(hashParts.nonce).
+		SetHashSum(hashParts.hashSum).
 		Build()
 	if err != nil {
 		return fmt.Errorf(
@@ -167,27 +140,66 @@ func (proofer ProofOfWork) Validate(block blockchain.Block) error {
 
 // Difficulty ...
 func (proofer ProofOfWork) Difficulty(hash string) (int, error) {
-	_, targetBit, err := parseHash(hash)
+	hashParts, err := parseHash(hash)
 	if err != nil {
 		return 0, fmt.Errorf("unable to parse the hash: %w", err)
 	}
 
-	difficulty := maximalTargetBit - targetBit
+	difficulty := maximalTargetBit - hashParts.targetBitIndex.ToInt()
 	return difficulty, nil
 }
 
-func parseHash(hash string) (hashParts []string, targetBit int, err error) {
-	hashParts = strings.SplitN(hash, hashPartSeparator, hashPartCount)
-	if len(hashParts) != hashPartCount {
-		return nil, 0,
-			errors.New("the hash contains the invalid quantity of the parts")
+type hashParts struct {
+	targetBitIndex powValueTypes.TargetBitIndex
+	nonce          powValueTypes.Nonce
+	hashSum        powValueTypes.HashSum
+}
+
+func parseHash(hash string) (hashParts, error) {
+	rawHashParts := strings.SplitN(hash, hashPartSeparator, hashPartCount)
+	if len(rawHashParts) != hashPartCount {
+		return hashParts{}, errors.Join(
+			errors.New("the hash contains the invalid quantity of the parts"),
+			ErrInvalidParameters,
+		)
 	}
 
-	targetBitAsStr := hashParts[0]
-	targetBit, err = strconv.Atoi(targetBitAsStr)
+	rawTargetBitIndex, err := strconv.Atoi(rawHashParts[0])
 	if err != nil {
-		return nil, 0, fmt.Errorf("unable to parse the target bit: %w", err)
+		return hashParts{}, fmt.Errorf(
+			"unable to parse the target bit: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
 	}
 
-	return hashParts, targetBit, nil
+	targetBitIndex, err := powValueTypes.NewTargetBitIndex(rawTargetBitIndex)
+	if err != nil {
+		return hashParts{}, fmt.Errorf(
+			"unable to construct the target bit index: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
+	}
+
+	nonce, err := powValueTypes.ParseNonce(rawHashParts[1])
+	if err != nil {
+		return hashParts{}, fmt.Errorf(
+			"unable to parse the nonce: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
+	}
+
+	rawHashSum, err := hex.DecodeString(rawHashParts[2])
+	if err != nil {
+		return hashParts{}, fmt.Errorf(
+			"unable to decode the hash sum: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
+	}
+
+	hashParts := hashParts{
+		targetBitIndex: targetBitIndex,
+		nonce:          nonce,
+		hashSum:        powValueTypes.NewHashSum(rawHashSum),
+	}
+	return hashParts, nil
 }

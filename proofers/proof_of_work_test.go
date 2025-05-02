@@ -346,37 +346,11 @@ func TestProofOfWork_Validate(test *testing.T) {
 			},
 		},
 		{
-			name: "error/unable to build the challenge",
-			args: args{
-				block: blockchain.Block{
-					Timestamp: clock(),
-					Data: func() blockchain.Data {
-						data := new(MockData)
-						data.On("String").Return("hash")
-
-						return data
-					}(),
-					Hash: "1000:" +
-						"26:" +
-						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
-					PrevHash: "previous hash",
-				},
-			},
-			wantErr: func(test assert.TestingT, err error, msgAndArgs ...any) bool {
-				return assert.ErrorIs(test, err, ErrInvalidParameters)
-			},
-		},
-		{
 			name: "error/unable to parse the nonce",
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
-					Data: func() blockchain.Data {
-						data := new(MockData)
-						data.On("String").Return("hash")
-
-						return data
-					}(),
+					Data:      new(MockData),
 					Hash: "248:" +
 						"invalid:" +
 						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
@@ -392,13 +366,29 @@ func TestProofOfWork_Validate(test *testing.T) {
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "248:26:invalid",
+					PrevHash:  "previous hash",
+				},
+			},
+			wantErr: func(test assert.TestingT, err error, msgAndArgs ...any) bool {
+				return assert.ErrorIs(test, err, ErrInvalidParameters)
+			},
+		},
+		{
+			name: "error/unable to build the challenge",
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
 					Data: func() blockchain.Data {
 						data := new(MockData)
 						data.On("String").Return("hash")
 
 						return data
 					}(),
-					Hash:     "248:26:invalid",
+					Hash: "1000:" +
+						"26:" +
+						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
 					PrevHash: "previous hash",
 				},
 			},
