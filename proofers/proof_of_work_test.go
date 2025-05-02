@@ -271,22 +271,17 @@ func TestProofOfWork_HashEx(test *testing.T) {
 }
 
 func TestProofOfWork_Validate(test *testing.T) {
-	type fields struct {
-		TargetBit int
-	}
 	type args struct {
 		block blockchain.Block
 	}
 
 	for _, data := range []struct {
-		name   string
-		fields fields
-		args   args
-		want   assert.ErrorAssertionFunc
+		name    string
+		args    args
+		wantErr assert.ErrorAssertionFunc
 	}{
 		{
-			name:   "success",
-			fields: fields{TargetBit: 23},
+			name: "success",
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
@@ -302,103 +297,161 @@ func TestProofOfWork_Validate(test *testing.T) {
 					PrevHash: "previous hash",
 				},
 			},
-			want: assert.NoError,
+			wantErr: assert.NoError,
 		},
 		{
-			name:   "failure with another block data",
-			fields: fields{TargetBit: 23},
-			args: args{
-				block: blockchain.Block{
-					Timestamp: clock(),
-					Data: func() blockchain.Data {
-						data := new(MockData)
-						data.On("String").Return("hash #2")
-
-						return data
-					}(),
-					Hash: "248:" +
-						"26:" +
-						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
-					PrevHash: "previous hash",
-				},
-			},
-			want: assert.Error,
-		},
-		{
-			name:   "failure with another nonce",
-			fields: fields{TargetBit: 23},
-			args: args{
-				block: blockchain.Block{
-					Timestamp: clock(),
-					Data: func() blockchain.Data {
-						data := new(MockData)
-						data.On("String").Return("hash")
-
-						return data
-					}(),
-					Hash: "248:" +
-						"42:" +
-						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
-					PrevHash: "previous hash",
-				},
-			},
-			want: assert.Error,
-		},
-		{
-			name:   "failure with another target bit",
-			fields: fields{TargetBit: 23},
-			args: args{
-				block: blockchain.Block{
-					Timestamp: clock(),
-					Data: func() blockchain.Data {
-						data := new(MockData)
-						data.On("String").Return("hash")
-
-						return data
-					}(),
-					Hash: "42:" +
-						"26:" +
-						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
-					PrevHash: "previous hash",
-				},
-			},
-			want: assert.Error,
-		},
-		{
-			name:   "incorrect hash structure",
-			fields: fields{TargetBit: 23},
+			name: "error/the hash contains the invalid quantity of the parts",
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
 					Data:      new(MockData),
-					Hash:      "incorrect",
+					Hash:      "invalid",
 					PrevHash:  "previous hash",
 				},
 			},
-			want: assert.Error,
+			wantErr: func(test assert.TestingT, err error, msgAndArgs ...any) bool {
+				return assert.ErrorIs(test, err, ErrInvalidParameters)
+			},
 		},
 		{
-			name:   "incorrect target bit",
-			fields: fields{TargetBit: 23},
+			name: "error/unable to parse the target bit",
 			args: args{
 				block: blockchain.Block{
 					Timestamp: clock(),
 					Data:      new(MockData),
-					Hash: "incorrect:" +
+					Hash: "invalid:" +
 						"26:" +
 						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
 					PrevHash: "previous hash",
 				},
 			},
-			want: assert.Error,
+			wantErr: func(test assert.TestingT, err error, msgAndArgs ...any) bool {
+				return assert.ErrorIs(test, err, ErrInvalidParameters)
+			},
+		},
+		{
+			name: "error/unable to construct the target bit index",
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash: "-23:" +
+						"26:" +
+						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
+					PrevHash: "previous hash",
+				},
+			},
+			wantErr: func(test assert.TestingT, err error, msgAndArgs ...any) bool {
+				return assert.ErrorIs(test, err, ErrInvalidParameters)
+			},
+		},
+		{
+			name: "error/unable to build the challenge",
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data: func() blockchain.Data {
+						data := new(MockData)
+						data.On("String").Return("hash")
+
+						return data
+					}(),
+					Hash: "1000:" +
+						"26:" +
+						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
+					PrevHash: "previous hash",
+				},
+			},
+			wantErr: func(test assert.TestingT, err error, msgAndArgs ...any) bool {
+				return assert.ErrorIs(test, err, ErrInvalidParameters)
+			},
+		},
+		{
+			name: "error/unable to parse the nonce",
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data: func() blockchain.Data {
+						data := new(MockData)
+						data.On("String").Return("hash")
+
+						return data
+					}(),
+					Hash: "248:" +
+						"invalid:" +
+						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
+					PrevHash: "previous hash",
+				},
+			},
+			wantErr: func(test assert.TestingT, err error, msgAndArgs ...any) bool {
+				return assert.ErrorIs(test, err, ErrInvalidParameters)
+			},
+		},
+		{
+			name: "error/unable to decode the hash sum",
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data: func() blockchain.Data {
+						data := new(MockData)
+						data.On("String").Return("hash")
+
+						return data
+					}(),
+					Hash:     "248:26:invalid",
+					PrevHash: "previous hash",
+				},
+			},
+			wantErr: func(test assert.TestingT, err error, msgAndArgs ...any) bool {
+				return assert.ErrorIs(test, err, ErrInvalidParameters)
+			},
+		},
+		{
+			name: "error/unable to build the solution",
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data: func() blockchain.Data {
+						data := new(MockData)
+						data.On("String").Return("hash")
+
+						return data
+					}(),
+					Hash:     "248:26:00c4c39529ced1cb3e32086b19b75383",
+					PrevHash: "previous hash",
+				},
+			},
+			wantErr: func(test assert.TestingT, err error, msgAndArgs ...any) bool {
+				return assert.ErrorIs(test, err, ErrInvalidParameters)
+			},
+		},
+		{
+			name: "error/unable to verify the solution",
+			args: args{
+				block: blockchain.Block{
+					Timestamp: clock(),
+					Data: func() blockchain.Data {
+						data := new(MockData)
+						data.On("String").Return("different hash")
+
+						return data
+					}(),
+					Hash: "248:" +
+						"26:" +
+						"00c4c39529ced1cb3e32086b19b753831f6396c9fa79079bc93c1c76a6244191",
+					PrevHash: "previous hash",
+				},
+			},
+			wantErr: func(test assert.TestingT, err error, msgAndArgs ...any) bool {
+				return assert.ErrorIs(test, err, powErrors.ErrValidationFailure)
+			},
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
-			proofer := ProofOfWork{TargetBit: data.fields.TargetBit}
-			got := proofer.Validate(data.args.block)
+			err := (ProofOfWork{}).Validate(data.args.block)
 
 			mock.AssertExpectationsForObjects(test, data.args.block.Data)
-			data.want(test, got)
+			data.wantErr(test, err)
 		})
 	}
 }

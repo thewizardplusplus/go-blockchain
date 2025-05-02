@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"math/big"
 	"strconv"
 	"strings"
 
@@ -100,15 +99,67 @@ func (proofer ProofOfWork) HashEx(
 func (proofer ProofOfWork) Validate(block blockchain.Block) error {
 	hashParts, targetBit, err := parseHash(block.Hash)
 	if err != nil {
-		return fmt.Errorf("unable to parse the hash: %w", err)
+		return fmt.Errorf(
+			"unable to parse the hash: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
 	}
 
-	targetBitAsStr, nonceAsStr := hashParts[0], hashParts[1]
-	data := block.MergedData() + nonceAsStr + targetBitAsStr
-	hash := makeHash(data)
-	target := makeTarget(targetBit)
-	if !isHashFitTarget(hash, target) {
-		return errors.New("the hash does not fit the target")
+	targetBitIndex, err := powValueTypes.NewTargetBitIndex(targetBit)
+	if err != nil {
+		return fmt.Errorf(
+			"unable to construct the target bit index: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
+	}
+
+	challenge, err := pow.NewChallengeBuilder().
+		SetTargetBitIndex(targetBitIndex).
+		SetSerializedPayload(powValueTypes.NewSerializedPayload(block.MergedData())).
+		SetHash(powValueTypes.NewHash(sha256.New())).
+		SetHashDataLayout(powValueTypes.MustParseHashDataLayout(
+			"{{ .Challenge.SerializedPayload.ToString }}" +
+				"{{ .Nonce.ToString }}" +
+				"{{ .Challenge.TargetBitIndex.ToInt }}",
+		)).
+		Build()
+	if err != nil {
+		return fmt.Errorf(
+			"unable to build the challenge: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
+	}
+
+	nonce, err := powValueTypes.ParseNonce(hashParts[1])
+	if err != nil {
+		return fmt.Errorf(
+			"unable to parse the nonce: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
+	}
+
+	rawHashSum, err := hex.DecodeString(hashParts[2])
+	if err != nil {
+		return fmt.Errorf(
+			"unable to decode the hash sum: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
+	}
+
+	solution, err := pow.NewSolutionBuilder().
+		SetChallenge(challenge).
+		SetNonce(nonce).
+		SetHashSum(powValueTypes.NewHashSum(rawHashSum)).
+		Build()
+	if err != nil {
+		return fmt.Errorf(
+			"unable to build the solution: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
+	}
+
+	if err := solution.Verify(); err != nil {
+		return fmt.Errorf("unable to verify the solution: %w", err)
 	}
 
 	return nil
@@ -123,25 +174,6 @@ func (proofer ProofOfWork) Difficulty(hash string) (int, error) {
 
 	difficulty := maximalTargetBit - targetBit
 	return difficulty, nil
-}
-
-func makeHash(data string) []byte {
-	hash := sha256.Sum256([]byte(data))
-	return hash[:]
-}
-
-func makeTarget(targetBit int) *big.Int {
-	target := big.NewInt(0)
-	target.SetBit(target, targetBit, 1)
-
-	return target
-}
-
-func isHashFitTarget(hash []byte, target *big.Int) bool {
-	hashAsInt := big.NewInt(0)
-	hashAsInt.SetBytes(hash)
-
-	return hashAsInt.Cmp(target) == -1 // is less
 }
 
 func parseHash(hash string) (hashParts []string, targetBit int, err error) {
