@@ -1,9 +1,8 @@
 package blockchain
 
 import (
+	"fmt"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // ValidationMode ...
@@ -32,19 +31,19 @@ func (blocks BlockGroup) IsValid(
 		prevBlock := &blocks[0]
 		err := prependedChunk.IsLastBlockValid(prevBlock, AsBlockchainChunk, proofer)
 		if err != nil {
-			return errors.Wrap(err, "the prepended chunk is not valid")
+			return fmt.Errorf("the prepended chunk is not valid: %w", err)
 		}
 	}
 
 	for index, block := range blocks[:len(blocks)-1] {
 		prevBlock := &blocks[index+1]
 		if err := block.IsValid(prevBlock, proofer); err != nil {
-			return errors.Wrapf(err, "block #%d is not valid", index)
+			return fmt.Errorf("block #%d is not valid: %w", index, err)
 		}
 	}
 
 	if err := blocks.IsLastBlockValid(nil, validationMode, proofer); err != nil {
-		return errors.Wrap(err, "the last block is not valid")
+		return fmt.Errorf("the last block is not valid: %w", err)
 	}
 
 	return nil
@@ -60,7 +59,7 @@ func (blocks BlockGroup) IsLastBlockValid(
 	switch lastBlock := blocks[len(blocks)-1]; validationMode {
 	case AsFullBlockchain:
 		if err = lastBlock.IsValidGenesisBlock(proofer); err != nil {
-			err = errors.Wrap(err, "the last block was validated as a genesis block")
+			err = fmt.Errorf("the last block was validated as a genesis block: %w", err)
 		}
 	case AsBlockchainChunk:
 		err = lastBlock.IsValid(prevBlock, proofer)
@@ -97,10 +96,10 @@ func (blocks BlockGroup) Difficulty(proofer Proofer) (int, error) {
 	for index, block := range blocks {
 		difficulty, err := proofer.Difficulty(block.Hash)
 		if err != nil {
-			return 0, errors.Wrapf(
-				err,
-				"unable to calculate the difficulty of the block #%d",
+			return 0, fmt.Errorf(
+				"unable to calculate the difficulty of the block #%d: %w",
 				index,
+				err,
 			)
 		}
 

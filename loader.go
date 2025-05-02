@@ -1,7 +1,8 @@
 package blockchain
 
 import (
-	"github.com/pkg/errors"
+	"errors"
+	"fmt"
 )
 
 // ErrNoMatch ...
@@ -26,12 +27,12 @@ func FindDifferences(leftLoader Loader, rightLoader Loader, chunkSize int) (
 ) {
 	leftBlocks, _, err := leftLoader.LoadBlocks(nil, chunkSize)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "unable to load the left blocks")
+		return nil, nil, fmt.Errorf("unable to load the left blocks: %w", err)
 	}
 
 	rightBlocks, _, err := rightLoader.LoadBlocks(nil, chunkSize)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "unable to load the right blocks")
+		return nil, nil, fmt.Errorf("unable to load the right blocks: %w", err)
 	}
 
 	leftIndex, rightIndex, hasMatch := leftBlocks.FindDifferences(rightBlocks)

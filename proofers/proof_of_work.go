@@ -3,11 +3,12 @@ package proofers
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"math/big"
 	"strconv"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
@@ -46,7 +47,7 @@ func (proofer ProofOfWork) Hash(block blockchain.Block) string {
 func (proofer ProofOfWork) Validate(block blockchain.Block) error {
 	hashParts, targetBit, err := parseHash(block.Hash)
 	if err != nil {
-		return errors.Wrap(err, "unable to parse the hash")
+		return fmt.Errorf("unable to parse the hash: %w", err)
 	}
 
 	targetBitAsStr, nonceAsStr := hashParts[0], hashParts[1]
@@ -64,7 +65,7 @@ func (proofer ProofOfWork) Validate(block blockchain.Block) error {
 func (proofer ProofOfWork) Difficulty(hash string) (int, error) {
 	_, targetBit, err := parseHash(hash)
 	if err != nil {
-		return 0, errors.Wrap(err, "unable to parse the hash")
+		return 0, fmt.Errorf("unable to parse the hash: %w", err)
 	}
 
 	difficulty := maximalTargetBit - targetBit
@@ -100,7 +101,7 @@ func parseHash(hash string) (hashParts []string, targetBit int, err error) {
 	targetBitAsStr := hashParts[0]
 	targetBit, err = strconv.Atoi(targetBitAsStr)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "unable to parse the target bit")
+		return nil, 0, fmt.Errorf("unable to parse the target bit: %w", err)
 	}
 
 	return hashParts, targetBit, nil

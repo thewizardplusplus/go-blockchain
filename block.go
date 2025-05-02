@@ -1,9 +1,9 @@
 package blockchain
 
 import (
+	"errors"
+	"fmt"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // Clock ...
@@ -92,7 +92,7 @@ func (block Block) IsValid(prevBlock *Block, proofer Proofer) error {
 	}
 
 	if err := proofer.Validate(block); err != nil {
-		return errors.Wrap(err, "the validation via the proofer was failed")
+		return fmt.Errorf("the validation via the proofer was failed: %w", err)
 	}
 
 	return nil

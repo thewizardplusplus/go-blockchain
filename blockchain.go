@@ -1,7 +1,8 @@
 package blockchain
 
 import (
-	"github.com/pkg/errors"
+	"errors"
+	"fmt"
 )
 
 // ErrEqualDifficulties ...
@@ -28,16 +29,16 @@ func NewBlockchain(
 	lastBlock, err := dependencies.Storage.LoadLastBlock()
 	switch {
 	case err == nil:
-	case errors.Cause(err) == ErrEmptyStorage && genesisBlockData != nil:
+	case errors.Is(err, ErrEmptyStorage) && genesisBlockData != nil:
 		genesisBlock :=
 			NewGenesisBlock(genesisBlockData, dependencies.BlockDependencies)
 		if err = dependencies.Storage.StoreBlock(genesisBlock); err != nil {
-			return nil, errors.Wrap(err, "unable to store the genesis block")
+			return nil, fmt.Errorf("unable to store the genesis block: %w", err)
 		}
 
 		lastBlock = genesisBlock
 	default:
-		return nil, errors.Wrap(err, "unable to load the last block")
+		return nil, fmt.Errorf("unable to load the last block: %w", err)
 	}
 
 	blockchain := &Blockchain{dependencies: dependencies, lastBlock: lastBlock}
@@ -61,7 +62,7 @@ func (blockchain *Blockchain) AddBlock(data Data) error {
 		blockchain.dependencies.BlockDependencies,
 	)
 	if err := blockchain.dependencies.Storage.StoreBlock(block); err != nil {
-		return errors.Wrap(err, "unable to store the block")
+		return fmt.Errorf("unable to store the block: %w", err)
 	}
 
 	blockchain.lastBlock = block
@@ -73,24 +74,24 @@ func (blockchain *Blockchain) Merge(loader Loader, chunkSize int) error {
 	leftDifferences, rightDifferences, err :=
 		FindDifferences(blockchain, loader, chunkSize)
 	if err != nil {
-		return errors.Wrap(err, "unable to find differences")
+		return fmt.Errorf("unable to find differences: %w", err)
 	}
 
 	leftDifficulty, err :=
 		leftDifferences.Difficulty(blockchain.dependencies.Proofer)
 	if err != nil {
-		return errors.Wrap(
+		return fmt.Errorf(
+			"unable to calculate the difficulty of the left differences: %w",
 			err,
-			"unable to calculate the difficulty of the left differences",
 		)
 	}
 
 	rightDifficulty, err :=
 		rightDifferences.Difficulty(blockchain.dependencies.Proofer)
 	if err != nil {
-		return errors.Wrap(
+		return fmt.Errorf(
+			"unable to calculate the difficulty of the right differences: %w",
 			err,
-			"unable to calculate the difficulty of the right differences",
 		)
 	}
 
@@ -104,17 +105,17 @@ func (blockchain *Blockchain) Merge(loader Loader, chunkSize int) error {
 	// if leftDifficulty < rightDifficulty...
 	if err = blockchain.dependencies.Storage.
 		DeleteBlockGroup(leftDifferences); err != nil {
-		return errors.Wrap(err, "unable to delete the left differences")
+		return fmt.Errorf("unable to delete the left differences: %w", err)
 	}
 
 	if err = blockchain.dependencies.Storage.
 		StoreBlockGroup(rightDifferences); err != nil {
-		return errors.Wrap(err, "unable to store the right differences")
+		return fmt.Errorf("unable to store the right differences: %w", err)
 	}
 
 	lastBlock, err := blockchain.dependencies.Storage.LoadLastBlock()
 	if err != nil {
-		return errors.Wrap(err, "unable to load the last block")
+		return fmt.Errorf("unable to load the last block: %w", err)
 	}
 	blockchain.lastBlock = lastBlock
 

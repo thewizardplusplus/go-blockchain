@@ -1,7 +1,8 @@
 package loading
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
@@ -31,8 +32,8 @@ func (loader LastBlockValidatingLoader) LoadBlocks(
 	nextBlocks, _, err := loader.Loader.LoadBlocks(nextCursor, count)
 	if err != nil {
 		const message = "unable to preload the next blocks " +
-			"corresponding to cursor %v (next cursor %v)"
-		return nil, nil, errors.Wrapf(err, message, cursor, nextCursor)
+			"corresponding to cursor %v (next cursor %v): %w"
+		return nil, nil, fmt.Errorf(message, cursor, nextCursor, err)
 	}
 
 	var prevBlock *blockchain.Block
@@ -46,8 +47,8 @@ func (loader LastBlockValidatingLoader) LoadBlocks(
 	err = blocks.IsLastBlockValid(prevBlock, validationMode, loader.Proofer)
 	if err != nil {
 		const message = "the last block of the blocks corresponding to cursor %v " +
-			"is not valid"
-		return nil, nil, errors.Wrapf(err, message, cursor)
+			"is not valid: %w"
+		return nil, nil, fmt.Errorf(message, cursor, err)
 	}
 
 	return blocks, nextCursor, nil

@@ -1,7 +1,8 @@
 package loading
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
@@ -16,16 +17,16 @@ func LoadStorage(
 	for {
 		blocks, nextCursor, err := loader.LoadBlocks(cursor, chunkSize)
 		if err != nil {
-			const message = "unable to load the blocks corresponding to cursor %v"
-			return cursor, errors.Wrapf(err, message, cursor)
+			const message = "unable to load the blocks corresponding to cursor %v: %w"
+			return cursor, fmt.Errorf(message, cursor, err)
 		}
 		if len(blocks) == 0 {
 			break
 		}
 
 		if err := storage.StoreBlockGroup(blocks); err != nil {
-			const message = "unable to store the blocks corresponding to cursor %v"
-			return cursor, errors.Wrapf(err, message, cursor)
+			const message = "unable to store the blocks corresponding to cursor %v: %w"
+			return cursor, fmt.Errorf(message, cursor, err)
 		}
 
 		cursor = nextCursor

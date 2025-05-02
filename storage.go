@@ -1,7 +1,7 @@
 package blockchain
 
 import (
-	"github.com/pkg/errors"
+	"errors"
 )
 
 // ErrEmptyStorage ...

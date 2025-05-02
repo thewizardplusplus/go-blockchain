@@ -1,7 +1,8 @@
 package storing
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	"github.com/thewizardplusplus/go-blockchain"
 )
 
@@ -16,7 +17,7 @@ func (wrapper GroupStorageWrapper) StoreBlockGroup(
 ) error {
 	for index, block := range blocks {
 		if err := wrapper.StoreBlock(block); err != nil {
-			return errors.Wrapf(err, "unable to store block #%d", index)
+			return fmt.Errorf("unable to store block #%d: %w", index, err)
 		}
 	}
 
@@ -29,7 +30,7 @@ func (wrapper GroupStorageWrapper) DeleteBlockGroup(
 ) error {
 	for index, block := range blocks {
 		if err := wrapper.DeleteBlock(block); err != nil {
-			return errors.Wrapf(err, "unable to delete block #%d", index)
+			return fmt.Errorf("unable to delete block #%d: %w", index, err)
 		}
 	}
 
