@@ -1,6 +1,7 @@
 package proofers
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -9,7 +10,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/samber/mo"
 	"github.com/thewizardplusplus/go-blockchain"
+	pow "github.com/thewizardplusplus/go-pow"
+	powErrors "github.com/thewizardplusplus/go-pow/errors"
+	powValueTypes "github.com/thewizardplusplus/go-pow/value-types"
 )
 
 const (
@@ -18,29 +23,77 @@ const (
 	maximalTargetBit  = sha256.Size*8 - 1
 )
 
+var ErrInvalidParameters = errors.New("invalid parameters")
+
 // ProofOfWork ...
 type ProofOfWork struct {
-	TargetBit int
+	TargetBit                int
+	MaxAttemptCount          mo.Option[int]
+	RandomInitialNonceParams mo.Option[powValueTypes.RandomNonceParams]
 }
 
 // Hash ...
+//
+// Deprecated: Use [ProofOfWork.HashEx] instead.
 func (proofer ProofOfWork) Hash(block blockchain.Block) string {
-	var nonce big.Int
-	var hash []byte
-	targetBitAsStr := strconv.Itoa(proofer.TargetBit)
-	target := makeTarget(proofer.TargetBit)
-	for {
-		data := block.MergedData() + nonce.String() + targetBitAsStr
-		hash = makeHash(data)
-		if isHashFitTarget(hash, target) {
-			break
-		}
+	hash, _ := proofer.HashEx(context.Background(), block)
+	return hash
+}
 
-		nonce.Add(&nonce, big.NewInt(1)) // nonce += 1
+// HashEx ...
+func (proofer ProofOfWork) HashEx(
+	ctx context.Context,
+	block blockchain.Block,
+) (string, error) {
+	targetBitIndex, err := powValueTypes.NewTargetBitIndex(proofer.TargetBit)
+	if err != nil {
+		return "", fmt.Errorf(
+			"unable to construct the target bit index: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
 	}
 
-	hashParts := []string{targetBitAsStr, nonce.String(), hex.EncodeToString(hash)}
-	return strings.Join(hashParts, hashPartSeparator)
+	challenge, err := pow.NewChallengeBuilder().
+		SetTargetBitIndex(targetBitIndex).
+		SetSerializedPayload(powValueTypes.NewSerializedPayload(block.MergedData())).
+		SetHash(powValueTypes.NewHash(sha256.New())).
+		SetHashDataLayout(powValueTypes.MustParseHashDataLayout(
+			"{{ .Challenge.SerializedPayload.ToString }}" +
+				"{{ .Nonce.ToString }}" +
+				"{{ .Challenge.TargetBitIndex.ToInt }}",
+		)).
+		Build()
+	if err != nil {
+		return "", fmt.Errorf(
+			"unable to build the challenge: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
+	}
+
+	solution, err := challenge.Solve(ctx, pow.SolveParams{
+		MaxAttemptCount:          proofer.MaxAttemptCount,
+		RandomInitialNonceParams: proofer.RandomInitialNonceParams,
+	})
+	if err != nil {
+		if !errors.Is(err, powErrors.ErrIO) &&
+			!errors.Is(err, powErrors.ErrTaskInterruption) {
+			err = errors.Join(err, ErrInvalidParameters)
+		}
+
+		return "", fmt.Errorf("unable to solve the challenge: %w", err)
+	}
+
+	hashSum, isPresent := solution.HashSum().Get()
+	if !isPresent {
+		return "", fmt.Errorf("hash sum is absent in the solution: %w", err)
+	}
+
+	hashParts := []string{
+		strconv.Itoa(proofer.TargetBit),
+		solution.Nonce().ToString(),
+		hex.EncodeToString(hashSum.ToBytes()),
+	}
+	return strings.Join(hashParts, hashPartSeparator), nil
 }
 
 // Validate ...
