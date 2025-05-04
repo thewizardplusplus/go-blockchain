@@ -364,12 +364,19 @@ func main() {
 		Proofer: proofers.ProofOfWork{TargetBit: 248},
 	}
 
-	blocks := []blockchain.Block{
-		blockchain.NewGenesisBlock(
-			blockchain.NewData("genesis block"),
-			blockDependencies,
-		),
+	genesisBlock, err := blockchain.NewGenesisBlockEx(
+		context.Background(),
+		blockchain.NewGenesisBlockExParams{
+			Clock:   blockDependencies.Clock,
+			Data:    blockchain.NewData("genesis block"),
+			Proofer: blockDependencies.Proofer,
+		},
+	)
+	if err != nil {
+		log.Fatalf("unable to create a new genesis block: %s", err)
 	}
+
+	blocks := []blockchain.Block{genesisBlock}
 	for i := 0; i < 5; i++ {
 		block, err := blockchain.NewBlockEx(
 			context.Background(),

@@ -80,7 +80,15 @@ func NewBlockEx(ctx context.Context, params NewBlockExParams) (Block, error) {
 //
 // Deprecated: Use [NewGenesisBlockEx] instead.
 func NewGenesisBlock(data Data, dependencies BlockDependencies) Block {
-	return NewBlock(data, Block{}, dependencies)
+	genesisBlock, _ := NewGenesisBlockEx(
+		context.Background(),
+		NewGenesisBlockExParams{
+			Clock:   dependencies.Clock,
+			Data:    data,
+			Proofer: dependencies.Proofer,
+		},
+	)
+	return genesisBlock
 }
 
 // NewGenesisBlockExParams ...
