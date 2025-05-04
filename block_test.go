@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"context"
 	"testing"
 	"testing/iotest"
 	"time"
@@ -34,6 +35,101 @@ func TestNewBlock(test *testing.T) {
 	}
 	mock.AssertExpectationsForObjects(test, data, proofer)
 	assert.Equal(test, wantedBlock, block)
+}
+
+func TestNewBlockEx(test *testing.T) {
+	type args struct {
+		ctx    context.Context
+		params NewBlockExParams
+	}
+
+	for _, data := range []struct {
+		name    string
+		args    args
+		want    Block
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "success",
+			args: args{
+				ctx: context.Background(),
+				params: NewBlockExParams{
+					Clock: clock,
+					Data:  new(MockData),
+					PrevBlock: Block{
+						Hash: "previous hash",
+					},
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On(
+								"HashEx",
+								context.Background(),
+								Block{
+									Timestamp: clock(),
+									Data:      new(MockData),
+									PrevHash:  "previous hash",
+								},
+							).
+							Return("hash", nil)
+
+						return proofer
+					}(),
+				},
+			},
+			want: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error",
+			args: args{
+				ctx: context.Background(),
+				params: NewBlockExParams{
+					Clock: clock,
+					Data:  new(MockData),
+					PrevBlock: Block{
+						Hash: "previous hash",
+					},
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On(
+								"HashEx",
+								context.Background(),
+								Block{
+									Timestamp: clock(),
+									Data:      new(MockData),
+									PrevHash:  "previous hash",
+								},
+							).
+							Return("", iotest.ErrTimeout)
+
+						return proofer
+					}(),
+				},
+			},
+			want:    Block{},
+			wantErr: assert.Error,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			got, err := NewBlockEx(data.args.ctx, data.args.params)
+
+			assert.Equal(test, data.want, got)
+			data.wantErr(test, err)
+
+			mock.AssertExpectationsForObjects(
+				test,
+				data.args.params.Data,
+				data.args.params.Proofer,
+			)
+		})
+	}
 }
 
 func TestNewGenesisBlock(test *testing.T) {

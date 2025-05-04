@@ -35,6 +35,8 @@ type Block struct {
 }
 
 // NewBlock ...
+//
+// Deprecated: Use [NewBlockEx] instead.
 func NewBlock(
 	data Data,
 	prevBlock Block,
@@ -48,6 +50,31 @@ func NewBlock(
 	block.Hash = dependencies.Proofer.Hash(block)
 
 	return block
+}
+
+// NewBlockExParams ...
+type NewBlockExParams struct {
+	Clock     Clock
+	Data      Data
+	PrevBlock Block
+	Proofer   Proofer
+}
+
+// NewBlockEx ...
+func NewBlockEx(ctx context.Context, params NewBlockExParams) (Block, error) {
+	block := Block{
+		Timestamp: params.Clock(),
+		Data:      params.Data,
+		PrevHash:  params.PrevBlock.Hash,
+	}
+
+	var err error
+	block.Hash, err = params.Proofer.HashEx(ctx, block)
+	if err != nil {
+		return Block{}, fmt.Errorf("unable to hash a new block: %w", err)
+	}
+
+	return block, nil
 }
 
 // NewGenesisBlock ...
