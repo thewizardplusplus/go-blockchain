@@ -14,12 +14,16 @@ func TestNewBlock(test *testing.T) {
 	data := new(MockData)
 	proofer := new(MockProofer)
 	proofer.
-		On("Hash", Block{
-			Timestamp: clock(),
-			Data:      data,
-			PrevHash:  "previous hash",
-		}).
-		Return("hash")
+		On(
+			"HashEx",
+			context.Background(),
+			Block{
+				Timestamp: clock(),
+				Data:      data,
+				PrevHash:  "previous hash",
+			},
+		).
+		Return("hash", nil)
 
 	prevBlock := Block{Hash: "previous hash"}
 	block := NewBlock(data, prevBlock, BlockDependencies{
@@ -136,12 +140,16 @@ func TestNewGenesisBlock(test *testing.T) {
 	data := new(MockData)
 	proofer := new(MockProofer)
 	proofer.
-		On("Hash", Block{
-			Timestamp: clock(),
-			Data:      data,
-			PrevHash:  "",
-		}).
-		Return("hash")
+		On(
+			"HashEx",
+			context.Background(),
+			Block{
+				Timestamp: clock(),
+				Data:      data,
+				PrevHash:  "",
+			},
+		).
+		Return("hash", nil)
 
 	block := NewGenesisBlock(data, BlockDependencies{
 		Clock:   clock,

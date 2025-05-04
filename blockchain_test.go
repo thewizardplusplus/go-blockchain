@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"context"
 	"testing"
 	"testing/iotest"
 	"time"
@@ -66,12 +67,16 @@ func TestNewBlockchain(test *testing.T) {
 						Proofer: func() Proofer {
 							proofer := new(MockProofer)
 							proofer.
-								On("Hash", Block{
-									Timestamp: clock(),
-									Data:      new(MockData),
-									PrevHash:  "",
-								}).
-								Return("hash")
+								On(
+									"HashEx",
+									context.Background(),
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										PrevHash:  "",
+									},
+								).
+								Return("hash", nil)
 
 							return proofer
 						}(),
@@ -150,12 +155,16 @@ func TestNewBlockchain(test *testing.T) {
 						Proofer: func() Proofer {
 							proofer := new(MockProofer)
 							proofer.
-								On("Hash", Block{
-									Timestamp: clock(),
-									Data:      new(MockData),
-									PrevHash:  "",
-								}).
-								Return("hash")
+								On(
+									"HashEx",
+									context.Background(),
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										PrevHash:  "",
+									},
+								).
+								Return("hash", nil)
 
 							return proofer
 						}(),
@@ -331,12 +340,16 @@ func TestBlockchain_AddBlock(test *testing.T) {
 						Proofer: func() Proofer {
 							proofer := new(MockProofer)
 							proofer.
-								On("Hash", Block{
-									Timestamp: clock(),
-									Data:      new(MockData),
-									PrevHash:  "hash",
-								}).
-								Return("next hash")
+								On(
+									"HashEx",
+									context.Background(),
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										PrevHash:  "hash",
+									},
+								).
+								Return("next hash", nil)
 
 							return proofer
 						}(),
@@ -382,12 +395,16 @@ func TestBlockchain_AddBlock(test *testing.T) {
 						Proofer: func() Proofer {
 							proofer := new(MockProofer)
 							proofer.
-								On("Hash", Block{
-									Timestamp: clock(),
-									Data:      new(MockData),
-									PrevHash:  "hash",
-								}).
-								Return("next hash")
+								On(
+									"HashEx",
+									context.Background(),
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										PrevHash:  "hash",
+									},
+								).
+								Return("next hash", nil)
 
 							return proofer
 						}(),

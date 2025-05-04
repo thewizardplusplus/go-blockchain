@@ -343,8 +343,10 @@ func main() {
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/thewizardplusplus/go-blockchain"
@@ -369,11 +371,20 @@ func main() {
 		),
 	}
 	for i := 0; i < 5; i++ {
-		blocks = append(blocks, blockchain.NewBlock(
-			blockchain.NewData(fmt.Sprintf("block #%d", i)),
-			blocks[len(blocks)-1],
-			blockDependencies,
-		))
+		block, err := blockchain.NewBlockEx(
+			context.Background(),
+			blockchain.NewBlockExParams{
+				Clock:     blockDependencies.Clock,
+				Data:      blockchain.NewData(fmt.Sprintf("block #%d", i)),
+				PrevBlock: blocks[len(blocks)-1],
+				Proofer:   blockDependencies.Proofer,
+			},
+		)
+		if err != nil {
+			log.Fatalf("unable to create a new block: %s", err)
+		}
+
+		blocks = append(blocks, block)
 	}
 
 	blocksBytes, _ := json.MarshalIndent(blocks, "", "  ")

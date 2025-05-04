@@ -42,13 +42,12 @@ func NewBlock(
 	prevBlock Block,
 	dependencies BlockDependencies,
 ) Block {
-	block := Block{
-		Timestamp: dependencies.Clock(),
+	block, _ := NewBlockEx(context.Background(), NewBlockExParams{
+		Clock:     dependencies.Clock,
 		Data:      data,
-		PrevHash:  prevBlock.Hash,
-	}
-	block.Hash = dependencies.Proofer.Hash(block)
-
+		PrevBlock: prevBlock,
+		Proofer:   dependencies.Proofer,
+	})
 	return block
 }
 
