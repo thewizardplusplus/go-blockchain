@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -14,6 +15,7 @@ type Clock func() time.Time
 // Proofer ...
 type Proofer interface {
 	Hash(block Block) string
+	HashEx(ctx context.Context, block Block) (string, error)
 	Validate(block Block) error
 	Difficulty(hash string) (int, error)
 }

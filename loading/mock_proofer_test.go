@@ -3,6 +3,7 @@
 package loading
 
 import (
+	context "context"
 	mock "github.com/stretchr/testify/mock"
 	blockchain "github.com/thewizardplusplus/go-blockchain"
 )
@@ -45,6 +46,27 @@ func (_m *MockProofer) Hash(block blockchain.Block) string {
 	}
 
 	return r0
+}
+
+// HashEx provides a mock function with given fields: ctx, block
+func (_m *MockProofer) HashEx(ctx context.Context, block blockchain.Block) (string, error) {
+	ret := _m.Called(ctx, block)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(context.Context, blockchain.Block) string); ok {
+		r0 = rf(ctx, block)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, blockchain.Block) error); ok {
+		r1 = rf(ctx, block)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // Validate provides a mock function with given fields: block
