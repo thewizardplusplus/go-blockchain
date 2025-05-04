@@ -166,6 +166,95 @@ func TestNewGenesisBlock(test *testing.T) {
 	assert.Equal(test, wantedBlock, block)
 }
 
+func TestNewGenesisBlockEx(test *testing.T) {
+	type args struct {
+		ctx    context.Context
+		params NewGenesisBlockExParams
+	}
+
+	for _, data := range []struct {
+		name    string
+		args    args
+		want    Block
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "success",
+			args: args{
+				ctx: context.Background(),
+				params: NewGenesisBlockExParams{
+					Clock: clock,
+					Data:  new(MockData),
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On(
+								"HashEx",
+								context.Background(),
+								Block{
+									Timestamp: clock(),
+									Data:      new(MockData),
+									PrevHash:  "",
+								},
+							).
+							Return("hash", nil)
+
+						return proofer
+					}(),
+				},
+			},
+			want: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "",
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error",
+			args: args{
+				ctx: context.Background(),
+				params: NewGenesisBlockExParams{
+					Clock: clock,
+					Data:  new(MockData),
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On(
+								"HashEx",
+								context.Background(),
+								Block{
+									Timestamp: clock(),
+									Data:      new(MockData),
+									PrevHash:  "",
+								},
+							).
+							Return("", iotest.ErrTimeout)
+
+						return proofer
+					}(),
+				},
+			},
+			want:    Block{},
+			wantErr: assert.Error,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			got, err := NewGenesisBlockEx(data.args.ctx, data.args.params)
+
+			assert.Equal(test, data.want, got)
+			data.wantErr(test, err)
+
+			mock.AssertExpectationsForObjects(
+				test,
+				data.args.params.Data,
+				data.args.params.Proofer,
+			)
+		})
+	}
+}
+
 func TestBlock_MergedData(test *testing.T) {
 	data := new(MockData)
 	data.On("String").Return("hash")

@@ -77,8 +77,35 @@ func NewBlockEx(ctx context.Context, params NewBlockExParams) (Block, error) {
 }
 
 // NewGenesisBlock ...
+//
+// Deprecated: Use [NewGenesisBlockEx] instead.
 func NewGenesisBlock(data Data, dependencies BlockDependencies) Block {
 	return NewBlock(data, Block{}, dependencies)
+}
+
+// NewGenesisBlockExParams ...
+type NewGenesisBlockExParams struct {
+	Clock   Clock
+	Data    Data
+	Proofer Proofer
+}
+
+// NewGenesisBlockEx ...
+func NewGenesisBlockEx(
+	ctx context.Context,
+	params NewGenesisBlockExParams,
+) (Block, error) {
+	genesisBlock, err := NewBlockEx(ctx, NewBlockExParams{
+		Clock:     params.Clock,
+		Data:      params.Data,
+		PrevBlock: Block{},
+		Proofer:   params.Proofer,
+	})
+	if err != nil {
+		return Block{}, fmt.Errorf("unable to create a new block: %w", err)
+	}
+
+	return genesisBlock, nil
 }
 
 // MergedData ...
