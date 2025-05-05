@@ -32,9 +32,7 @@ func NewBlockchain(
 	dependencies Dependencies,
 ) (*Blockchain, error) {
 	blockchain, err := NewBlockchainEx(context.Background(), NewBlockchainExParams{
-		Clock:            dependencies.Clock,
-		Proofer:          dependencies.Proofer,
-		Storage:          dependencies.Storage,
+		Dependencies:     dependencies,
 		GenesisBlockData: mo.EmptyableToOption(genesisBlockData),
 	})
 	if err != nil {
@@ -46,9 +44,7 @@ func NewBlockchain(
 
 // NewBlockchainExParams ...
 type NewBlockchainExParams struct {
-	Clock            Clock
-	Proofer          Proofer
-	Storage          GroupStorage
+	Dependencies     Dependencies
 	GenesisBlockData mo.Option[Data]
 }
 
@@ -57,7 +53,7 @@ func NewBlockchainEx(
 	ctx context.Context,
 	params NewBlockchainExParams,
 ) (*Blockchain, error) {
-	lastBlock, err := params.Storage.LoadLastBlock()
+	lastBlock, err := params.Dependencies.Storage.LoadLastBlock()
 	if err != nil &&
 		(!errors.Is(err, ErrEmptyStorage) || params.GenesisBlockData.IsAbsent()) {
 		return nil, fmt.Errorf("unable to load the last block: %w", err)
@@ -65,15 +61,14 @@ func NewBlockchainEx(
 
 	if errors.Is(err, ErrEmptyStorage) && params.GenesisBlockData.IsPresent() {
 		genesisBlock, err := NewGenesisBlockEx(ctx, NewGenesisBlockExParams{
-			Clock:   params.Clock,
-			Data:    params.GenesisBlockData.MustGet(),
-			Proofer: params.Proofer,
+			Dependencies: params.Dependencies.BlockDependencies,
+			Data:         params.GenesisBlockData.MustGet(),
 		})
 		if err != nil {
 			return nil, fmt.Errorf("unable to create a new genesis block: %w", err)
 		}
 
-		if err = params.Storage.StoreBlock(genesisBlock); err != nil {
+		if err = params.Dependencies.Storage.StoreBlock(genesisBlock); err != nil {
 			return nil, fmt.Errorf("unable to store the genesis block: %w", err)
 		}
 
@@ -81,15 +76,8 @@ func NewBlockchainEx(
 	}
 
 	blockchain := &Blockchain{
-		dependencies: Dependencies{
-			BlockDependencies: BlockDependencies{
-				Clock:   params.Clock,
-				Proofer: params.Proofer,
-			},
-
-			Storage: params.Storage,
-		},
-		lastBlock: lastBlock,
+		dependencies: params.Dependencies,
+		lastBlock:    lastBlock,
 	}
 	return blockchain, nil
 }
@@ -117,10 +105,9 @@ func (blockchain *Blockchain) AddBlock(data Data) error {
 // AddBlockEx ...
 func (blockchain *Blockchain) AddBlockEx(ctx context.Context, data Data) error {
 	block, err := NewBlockEx(ctx, NewBlockExParams{
-		Clock:     blockchain.dependencies.Clock,
-		Data:      data,
-		PrevBlock: blockchain.lastBlock,
-		Proofer:   blockchain.dependencies.Proofer,
+		Dependencies: blockchain.dependencies.BlockDependencies,
+		Data:         data,
+		PrevBlock:    blockchain.lastBlock,
 	})
 	if err != nil {
 		return fmt.Errorf("unable to create a new block: %w", err)

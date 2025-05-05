@@ -43,32 +43,30 @@ func NewBlock(
 	dependencies BlockDependencies,
 ) Block {
 	block, _ := NewBlockEx(context.Background(), NewBlockExParams{
-		Clock:     dependencies.Clock,
-		Data:      data,
-		PrevBlock: prevBlock,
-		Proofer:   dependencies.Proofer,
+		Dependencies: dependencies,
+		Data:         data,
+		PrevBlock:    prevBlock,
 	})
 	return block
 }
 
 // NewBlockExParams ...
 type NewBlockExParams struct {
-	Clock     Clock
-	Data      Data
-	PrevBlock Block
-	Proofer   Proofer
+	Dependencies BlockDependencies
+	Data         Data
+	PrevBlock    Block
 }
 
 // NewBlockEx ...
 func NewBlockEx(ctx context.Context, params NewBlockExParams) (Block, error) {
 	block := Block{
-		Timestamp: params.Clock(),
+		Timestamp: params.Dependencies.Clock(),
 		Data:      params.Data,
 		PrevHash:  params.PrevBlock.Hash,
 	}
 
 	var err error
-	block.Hash, err = params.Proofer.HashEx(ctx, block)
+	block.Hash, err = params.Dependencies.Proofer.HashEx(ctx, block)
 	if err != nil {
 		return Block{}, fmt.Errorf("unable to hash a new block: %w", err)
 	}
@@ -83,9 +81,8 @@ func NewGenesisBlock(data Data, dependencies BlockDependencies) Block {
 	genesisBlock, _ := NewGenesisBlockEx(
 		context.Background(),
 		NewGenesisBlockExParams{
-			Clock:   dependencies.Clock,
-			Data:    data,
-			Proofer: dependencies.Proofer,
+			Dependencies: dependencies,
+			Data:         data,
 		},
 	)
 	return genesisBlock
@@ -93,9 +90,8 @@ func NewGenesisBlock(data Data, dependencies BlockDependencies) Block {
 
 // NewGenesisBlockExParams ...
 type NewGenesisBlockExParams struct {
-	Clock   Clock
-	Data    Data
-	Proofer Proofer
+	Dependencies BlockDependencies
+	Data         Data
 }
 
 // NewGenesisBlockEx ...
@@ -104,10 +100,9 @@ func NewGenesisBlockEx(
 	params NewGenesisBlockExParams,
 ) (Block, error) {
 	genesisBlock, err := NewBlockEx(ctx, NewBlockExParams{
-		Clock:     params.Clock,
-		Data:      params.Data,
-		PrevBlock: Block{},
-		Proofer:   params.Proofer,
+		Dependencies: params.Dependencies,
+		Data:         params.Data,
+		PrevBlock:    Block{},
 	})
 	if err != nil {
 		return Block{}, fmt.Errorf("unable to create a new block: %w", err)

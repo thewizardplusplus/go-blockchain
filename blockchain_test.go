@@ -230,24 +230,29 @@ func TestNewBlockchainEx(test *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				params: NewBlockchainExParams{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-					Storage: func() GroupStorage {
-						storage := new(MockGroupStorage)
-						storage.
-							On("LoadLastBlock").
-							Return(
-								Block{
-									Timestamp: clock(),
-									Data:      new(MockData),
-									Hash:      "hash",
-									PrevHash:  "previous hash",
-								},
-								nil,
-							)
+					Dependencies: Dependencies{
+						BlockDependencies: BlockDependencies{
+							Clock:   clock,
+							Proofer: new(MockProofer),
+						},
 
-						return storage
-					}(),
+						Storage: func() GroupStorage {
+							storage := new(MockGroupStorage)
+							storage.
+								On("LoadLastBlock").
+								Return(
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										Hash:      "hash",
+										PrevHash:  "previous hash",
+									},
+									nil,
+								)
+
+							return storage
+						}(),
+					},
 					GenesisBlockData: mo.Some[Data](new(MockData)),
 				},
 			},
@@ -265,39 +270,44 @@ func TestNewBlockchainEx(test *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				params: NewBlockchainExParams{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On(
-								"HashEx",
-								context.Background(),
-								Block{
+					Dependencies: Dependencies{
+						BlockDependencies: BlockDependencies{
+							Clock: clock,
+							Proofer: func() Proofer {
+								proofer := new(MockProofer)
+								proofer.
+									On(
+										"HashEx",
+										context.Background(),
+										Block{
+											Timestamp: clock(),
+											Data:      new(MockData),
+											PrevHash:  "",
+										},
+									).
+									Return("hash", nil)
+
+								return proofer
+							}(),
+						},
+
+						Storage: func() GroupStorage {
+							storage := new(MockGroupStorage)
+							storage.
+								On("LoadLastBlock").
+								Return(Block{}, ErrEmptyStorage)
+							storage.
+								On("StoreBlock", Block{
 									Timestamp: clock(),
 									Data:      new(MockData),
+									Hash:      "hash",
 									PrevHash:  "",
-								},
-							).
-							Return("hash", nil)
+								}).
+								Return(nil)
 
-						return proofer
-					}(),
-					Storage: func() GroupStorage {
-						storage := new(MockGroupStorage)
-						storage.
-							On("LoadLastBlock").
-							Return(Block{}, ErrEmptyStorage)
-						storage.
-							On("StoreBlock", Block{
-								Timestamp: clock(),
-								Data:      new(MockData),
-								Hash:      "hash",
-								PrevHash:  "",
-							}).
-							Return(nil)
-
-						return storage
-					}(),
+							return storage
+						}(),
+					},
 					GenesisBlockData: mo.Some[Data](new(MockData)),
 				},
 			},
@@ -315,16 +325,21 @@ func TestNewBlockchainEx(test *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				params: NewBlockchainExParams{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-					Storage: func() GroupStorage {
-						storage := new(MockGroupStorage)
-						storage.
-							On("LoadLastBlock").
-							Return(Block{}, iotest.ErrTimeout)
+					Dependencies: Dependencies{
+						BlockDependencies: BlockDependencies{
+							Clock:   clock,
+							Proofer: new(MockProofer),
+						},
 
-						return storage
-					}(),
+						Storage: func() GroupStorage {
+							storage := new(MockGroupStorage)
+							storage.
+								On("LoadLastBlock").
+								Return(Block{}, iotest.ErrTimeout)
+
+							return storage
+						}(),
+					},
 					GenesisBlockData: mo.Some[Data](new(MockData)),
 				},
 			},
@@ -337,16 +352,21 @@ func TestNewBlockchainEx(test *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				params: NewBlockchainExParams{
-					Clock:   clock,
-					Proofer: new(MockProofer),
-					Storage: func() GroupStorage {
-						storage := new(MockGroupStorage)
-						storage.
-							On("LoadLastBlock").
-							Return(Block{}, ErrEmptyStorage)
+					Dependencies: Dependencies{
+						BlockDependencies: BlockDependencies{
+							Clock:   clock,
+							Proofer: new(MockProofer),
+						},
 
-						return storage
-					}(),
+						Storage: func() GroupStorage {
+							storage := new(MockGroupStorage)
+							storage.
+								On("LoadLastBlock").
+								Return(Block{}, ErrEmptyStorage)
+
+							return storage
+						}(),
+					},
 					GenesisBlockData: mo.None[Data](),
 				},
 			},
@@ -359,31 +379,36 @@ func TestNewBlockchainEx(test *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				params: NewBlockchainExParams{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On(
-								"HashEx",
-								context.Background(),
-								Block{
-									Timestamp: clock(),
-									Data:      new(MockData),
-									PrevHash:  "",
-								},
-							).
-							Return("", iotest.ErrTimeout)
+					Dependencies: Dependencies{
+						BlockDependencies: BlockDependencies{
+							Clock: clock,
+							Proofer: func() Proofer {
+								proofer := new(MockProofer)
+								proofer.
+									On(
+										"HashEx",
+										context.Background(),
+										Block{
+											Timestamp: clock(),
+											Data:      new(MockData),
+											PrevHash:  "",
+										},
+									).
+									Return("", iotest.ErrTimeout)
 
-						return proofer
-					}(),
-					Storage: func() GroupStorage {
-						storage := new(MockGroupStorage)
-						storage.
-							On("LoadLastBlock").
-							Return(Block{}, ErrEmptyStorage)
+								return proofer
+							}(),
+						},
 
-						return storage
-					}(),
+						Storage: func() GroupStorage {
+							storage := new(MockGroupStorage)
+							storage.
+								On("LoadLastBlock").
+								Return(Block{}, ErrEmptyStorage)
+
+							return storage
+						}(),
+					},
 					GenesisBlockData: mo.Some[Data](new(MockData)),
 				},
 			},
@@ -396,39 +421,44 @@ func TestNewBlockchainEx(test *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				params: NewBlockchainExParams{
-					Clock: clock,
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On(
-								"HashEx",
-								context.Background(),
-								Block{
+					Dependencies: Dependencies{
+						BlockDependencies: BlockDependencies{
+							Clock: clock,
+							Proofer: func() Proofer {
+								proofer := new(MockProofer)
+								proofer.
+									On(
+										"HashEx",
+										context.Background(),
+										Block{
+											Timestamp: clock(),
+											Data:      new(MockData),
+											PrevHash:  "",
+										},
+									).
+									Return("hash", nil)
+
+								return proofer
+							}(),
+						},
+
+						Storage: func() GroupStorage {
+							storage := new(MockGroupStorage)
+							storage.
+								On("LoadLastBlock").
+								Return(Block{}, ErrEmptyStorage)
+							storage.
+								On("StoreBlock", Block{
 									Timestamp: clock(),
 									Data:      new(MockData),
+									Hash:      "hash",
 									PrevHash:  "",
-								},
-							).
-							Return("hash", nil)
+								}).
+								Return(iotest.ErrTimeout)
 
-						return proofer
-					}(),
-					Storage: func() GroupStorage {
-						storage := new(MockGroupStorage)
-						storage.
-							On("LoadLastBlock").
-							Return(Block{}, ErrEmptyStorage)
-						storage.
-							On("StoreBlock", Block{
-								Timestamp: clock(),
-								Data:      new(MockData),
-								Hash:      "hash",
-								PrevHash:  "",
-							}).
-							Return(iotest.ErrTimeout)
-
-						return storage
-					}(),
+							return storage
+						}(),
+					},
 					GenesisBlockData: mo.Some[Data](new(MockData)),
 				},
 			},
@@ -452,8 +482,8 @@ func TestNewBlockchainEx(test *testing.T) {
 			}
 			mock.AssertExpectationsForObjects(
 				test,
-				data.args.params.Proofer,
-				data.args.params.Storage,
+				data.args.params.Dependencies.Proofer,
+				data.args.params.Dependencies.Storage,
 			)
 			if got != nil {
 				mock.AssertExpectationsForObjects(test, got.lastBlock.Data)

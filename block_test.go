@@ -58,27 +58,29 @@ func TestNewBlockEx(test *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				params: NewBlockExParams{
-					Clock: clock,
-					Data:  new(MockData),
+					Dependencies: BlockDependencies{
+						Clock: clock,
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.
+								On(
+									"HashEx",
+									context.Background(),
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										PrevHash:  "previous hash",
+									},
+								).
+								Return("hash", nil)
+
+							return proofer
+						}(),
+					},
+					Data: new(MockData),
 					PrevBlock: Block{
 						Hash: "previous hash",
 					},
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On(
-								"HashEx",
-								context.Background(),
-								Block{
-									Timestamp: clock(),
-									Data:      new(MockData),
-									PrevHash:  "previous hash",
-								},
-							).
-							Return("hash", nil)
-
-						return proofer
-					}(),
 				},
 			},
 			want: Block{
@@ -94,27 +96,29 @@ func TestNewBlockEx(test *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				params: NewBlockExParams{
-					Clock: clock,
-					Data:  new(MockData),
+					Dependencies: BlockDependencies{
+						Clock: clock,
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.
+								On(
+									"HashEx",
+									context.Background(),
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										PrevHash:  "previous hash",
+									},
+								).
+								Return("", iotest.ErrTimeout)
+
+							return proofer
+						}(),
+					},
+					Data: new(MockData),
 					PrevBlock: Block{
 						Hash: "previous hash",
 					},
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On(
-								"HashEx",
-								context.Background(),
-								Block{
-									Timestamp: clock(),
-									Data:      new(MockData),
-									PrevHash:  "previous hash",
-								},
-							).
-							Return("", iotest.ErrTimeout)
-
-						return proofer
-					}(),
 				},
 			},
 			want:    Block{},
@@ -130,7 +134,7 @@ func TestNewBlockEx(test *testing.T) {
 			mock.AssertExpectationsForObjects(
 				test,
 				data.args.params.Data,
-				data.args.params.Proofer,
+				data.args.params.Dependencies.Proofer,
 			)
 		})
 	}
@@ -183,24 +187,26 @@ func TestNewGenesisBlockEx(test *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				params: NewGenesisBlockExParams{
-					Clock: clock,
-					Data:  new(MockData),
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On(
-								"HashEx",
-								context.Background(),
-								Block{
-									Timestamp: clock(),
-									Data:      new(MockData),
-									PrevHash:  "",
-								},
-							).
-							Return("hash", nil)
+					Dependencies: BlockDependencies{
+						Clock: clock,
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.
+								On(
+									"HashEx",
+									context.Background(),
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										PrevHash:  "",
+									},
+								).
+								Return("hash", nil)
 
-						return proofer
-					}(),
+							return proofer
+						}(),
+					},
+					Data: new(MockData),
 				},
 			},
 			want: Block{
@@ -216,24 +222,26 @@ func TestNewGenesisBlockEx(test *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				params: NewGenesisBlockExParams{
-					Clock: clock,
-					Data:  new(MockData),
-					Proofer: func() Proofer {
-						proofer := new(MockProofer)
-						proofer.
-							On(
-								"HashEx",
-								context.Background(),
-								Block{
-									Timestamp: clock(),
-									Data:      new(MockData),
-									PrevHash:  "",
-								},
-							).
-							Return("", iotest.ErrTimeout)
+					Dependencies: BlockDependencies{
+						Clock: clock,
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.
+								On(
+									"HashEx",
+									context.Background(),
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										PrevHash:  "",
+									},
+								).
+								Return("", iotest.ErrTimeout)
 
-						return proofer
-					}(),
+							return proofer
+						}(),
+					},
+					Data: new(MockData),
 				},
 			},
 			want:    Block{},
@@ -249,7 +257,7 @@ func TestNewGenesisBlockEx(test *testing.T) {
 			mock.AssertExpectationsForObjects(
 				test,
 				data.args.params.Data,
-				data.args.params.Proofer,
+				data.args.params.Dependencies.Proofer,
 			)
 		})
 	}

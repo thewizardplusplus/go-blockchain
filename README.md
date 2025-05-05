@@ -151,15 +151,18 @@ func main() {
 			timestamp = timestamp.Add(time.Hour)
 			return timestamp
 		},
-		Proofer: proofers.ProofOfWork{TargetBit: 248},
+		Proofer: proofers.ProofOfWork{
+			TargetBit: 248,
+		},
 	}
 
 	blockchainInstance, err := blockchain.NewBlockchainEx(
 		context.Background(),
 		blockchain.NewBlockchainExParams{
-			Clock:            blockDependencies.Clock,
-			Proofer:          blockDependencies.Proofer,
-			Storage:          storing.NewGroupStorage(&storages.MemoryStorage{}),
+			Dependencies: blockchain.Dependencies{
+				BlockDependencies: blockDependencies,
+				Storage:           storing.NewGroupStorage(&storages.MemoryStorage{}),
+			},
 			GenesisBlockData: mo.Some(blockchain.NewData("genesis block")),
 		},
 	)
@@ -243,6 +246,13 @@ import (
 )
 
 func main() {
+	blockDependencies := blockchain.BlockDependencies{
+		Clock: time.Now,
+		Proofer: proofers.ProofOfWork{
+			TargetBit: 248,
+		},
+	}
+
 	timestamp := time.Date(2006, time.January, 2, 15, 4, 5, 0, time.UTC)
 	blockGroupOne := blockchain.BlockGroup{
 		{
@@ -287,13 +297,12 @@ func main() {
 	blockchainInstanceOne, err := blockchain.NewBlockchainEx(
 		context.Background(),
 		blockchain.NewBlockchainExParams{
-			Clock: time.Now,
-			Proofer: proofers.ProofOfWork{
-				TargetBit: 248,
+			Dependencies: blockchain.Dependencies{
+				BlockDependencies: blockDependencies,
+				Storage: storing.NewGroupStorage(
+					storages.NewMemoryStorage(blockGroupOne),
+				),
 			},
-			Storage: storing.NewGroupStorage(
-				storages.NewMemoryStorage(blockGroupOne),
-			),
 			GenesisBlockData: mo.None[blockchain.Data](),
 		},
 	)
@@ -334,13 +343,12 @@ func main() {
 	blockchainInstanceTwo, err := blockchain.NewBlockchainEx(
 		context.Background(),
 		blockchain.NewBlockchainExParams{
-			Clock: time.Now,
-			Proofer: proofers.ProofOfWork{
-				TargetBit: 248,
+			Dependencies: blockchain.Dependencies{
+				BlockDependencies: blockDependencies,
+				Storage: storing.NewGroupStorage(
+					storages.NewMemoryStorage(blockGroupTwo),
+				),
 			},
-			Storage: storing.NewGroupStorage(
-				storages.NewMemoryStorage(blockGroupTwo),
-			),
 			GenesisBlockData: mo.None[blockchain.Data](),
 		},
 	)
@@ -404,15 +412,16 @@ func main() {
 			timestamp = timestamp.Add(time.Hour)
 			return timestamp
 		},
-		Proofer: proofers.ProofOfWork{TargetBit: 248},
+		Proofer: proofers.ProofOfWork{
+			TargetBit: 248,
+		},
 	}
 
 	genesisBlock, err := blockchain.NewGenesisBlockEx(
 		context.Background(),
 		blockchain.NewGenesisBlockExParams{
-			Clock:   blockDependencies.Clock,
-			Data:    blockchain.NewData("genesis block"),
-			Proofer: blockDependencies.Proofer,
+			Dependencies: blockDependencies,
+			Data:         blockchain.NewData("genesis block"),
 		},
 	)
 	if err != nil {
@@ -424,10 +433,9 @@ func main() {
 		block, err := blockchain.NewBlockEx(
 			context.Background(),
 			blockchain.NewBlockExParams{
-				Clock:     blockDependencies.Clock,
-				Data:      blockchain.NewData(fmt.Sprintf("block #%d", i)),
-				PrevBlock: blocks[len(blocks)-1],
-				Proofer:   blockDependencies.Proofer,
+				Dependencies: blockDependencies,
+				Data:         blockchain.NewData(fmt.Sprintf("block #%d", i)),
+				PrevBlock:    blocks[len(blocks)-1],
 			},
 		)
 		if err != nil {
