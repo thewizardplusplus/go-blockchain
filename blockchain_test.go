@@ -6,6 +6,7 @@ import (
 	"testing/iotest"
 	"time"
 
+	"github.com/samber/mo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -206,6 +207,256 @@ func TestNewBlockchain(test *testing.T) {
 			if gotBlockchain != nil {
 				mock.AssertExpectationsForObjects(test, gotBlockchain.lastBlock.Data)
 				assert.Equal(test, data.wantLastBlock, gotBlockchain.lastBlock)
+			}
+		})
+	}
+}
+
+func TestNewBlockchainEx(test *testing.T) {
+	type args struct {
+		ctx    context.Context
+		params NewBlockchainExParams
+	}
+
+	for _, data := range []struct {
+		name          string
+		args          args
+		want          assert.ValueAssertionFunc
+		wantLastBlock Block
+		wantErr       assert.ErrorAssertionFunc
+	}{
+		{
+			name: "success/with a nonempty storage",
+			args: args{
+				ctx: context.Background(),
+				params: NewBlockchainExParams{
+					Clock:   clock,
+					Proofer: new(MockProofer),
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
+						storage.
+							On("LoadLastBlock").
+							Return(
+								Block{
+									Timestamp: clock(),
+									Data:      new(MockData),
+									Hash:      "hash",
+									PrevHash:  "previous hash",
+								},
+								nil,
+							)
+
+						return storage
+					}(),
+					GenesisBlockData: mo.Some[Data](new(MockData)),
+				},
+			},
+			want: assert.NotNil,
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "success/with an empty storage",
+			args: args{
+				ctx: context.Background(),
+				params: NewBlockchainExParams{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On(
+								"HashEx",
+								context.Background(),
+								Block{
+									Timestamp: clock(),
+									Data:      new(MockData),
+									PrevHash:  "",
+								},
+							).
+							Return("hash", nil)
+
+						return proofer
+					}(),
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
+						storage.
+							On("LoadLastBlock").
+							Return(Block{}, ErrEmptyStorage)
+						storage.
+							On("StoreBlock", Block{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "hash",
+								PrevHash:  "",
+							}).
+							Return(nil)
+
+						return storage
+					}(),
+					GenesisBlockData: mo.Some[Data](new(MockData)),
+				},
+			},
+			want: assert.NotNil,
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "",
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error/unable to load the last block/regular error",
+			args: args{
+				ctx: context.Background(),
+				params: NewBlockchainExParams{
+					Clock:   clock,
+					Proofer: new(MockProofer),
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
+						storage.
+							On("LoadLastBlock").
+							Return(Block{}, iotest.ErrTimeout)
+
+						return storage
+					}(),
+					GenesisBlockData: mo.Some[Data](new(MockData)),
+				},
+			},
+			want:          assert.Nil,
+			wantLastBlock: Block{},
+			wantErr:       assert.Error,
+		},
+		{
+			name: "error/unable to load the last block/empty storage",
+			args: args{
+				ctx: context.Background(),
+				params: NewBlockchainExParams{
+					Clock:   clock,
+					Proofer: new(MockProofer),
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
+						storage.
+							On("LoadLastBlock").
+							Return(Block{}, ErrEmptyStorage)
+
+						return storage
+					}(),
+					GenesisBlockData: mo.None[Data](),
+				},
+			},
+			want:          assert.Nil,
+			wantLastBlock: Block{},
+			wantErr:       assert.Error,
+		},
+		{
+			name: "error/unable to create a new genesis block",
+			args: args{
+				ctx: context.Background(),
+				params: NewBlockchainExParams{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On(
+								"HashEx",
+								context.Background(),
+								Block{
+									Timestamp: clock(),
+									Data:      new(MockData),
+									PrevHash:  "",
+								},
+							).
+							Return("", iotest.ErrTimeout)
+
+						return proofer
+					}(),
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
+						storage.
+							On("LoadLastBlock").
+							Return(Block{}, ErrEmptyStorage)
+
+						return storage
+					}(),
+					GenesisBlockData: mo.Some[Data](new(MockData)),
+				},
+			},
+			want:          assert.Nil,
+			wantLastBlock: Block{},
+			wantErr:       assert.Error,
+		},
+		{
+			name: "error/unable to store the genesis block",
+			args: args{
+				ctx: context.Background(),
+				params: NewBlockchainExParams{
+					Clock: clock,
+					Proofer: func() Proofer {
+						proofer := new(MockProofer)
+						proofer.
+							On(
+								"HashEx",
+								context.Background(),
+								Block{
+									Timestamp: clock(),
+									Data:      new(MockData),
+									PrevHash:  "",
+								},
+							).
+							Return("hash", nil)
+
+						return proofer
+					}(),
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
+						storage.
+							On("LoadLastBlock").
+							Return(Block{}, ErrEmptyStorage)
+						storage.
+							On("StoreBlock", Block{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "hash",
+								PrevHash:  "",
+							}).
+							Return(iotest.ErrTimeout)
+
+						return storage
+					}(),
+					GenesisBlockData: mo.Some[Data](new(MockData)),
+				},
+			},
+			want:          assert.Nil,
+			wantLastBlock: Block{},
+			wantErr:       assert.Error,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			got, err := NewBlockchainEx(data.args.ctx, data.args.params)
+
+			data.want(test, got)
+			if got != nil {
+				assert.Equal(test, data.wantLastBlock, got.lastBlock)
+			}
+			data.wantErr(test, err)
+
+			if genesisBlockData, isPresent :=
+				data.args.params.GenesisBlockData.Get(); isPresent {
+				mock.AssertExpectationsForObjects(test, genesisBlockData)
+			}
+			mock.AssertExpectationsForObjects(
+				test,
+				data.args.params.Proofer,
+				data.args.params.Storage,
+			)
+			if got != nil {
+				mock.AssertExpectationsForObjects(test, got.lastBlock.Data)
 			}
 		})
 	}

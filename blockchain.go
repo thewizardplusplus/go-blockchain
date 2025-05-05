@@ -1,8 +1,11 @@
 package blockchain
 
 import (
+	"context"
 	"errors"
 	"fmt"
+
+	"github.com/samber/mo"
 )
 
 // ErrEqualDifficulties ...
@@ -22,6 +25,8 @@ type Blockchain struct {
 }
 
 // NewBlockchain ...
+//
+// Deprecated: Use [NewBlockchainEx] instead.
 func NewBlockchain(
 	genesisBlockData Data,
 	dependencies Dependencies,
@@ -42,6 +47,56 @@ func NewBlockchain(
 	}
 
 	blockchain := &Blockchain{dependencies: dependencies, lastBlock: lastBlock}
+	return blockchain, nil
+}
+
+// NewBlockchainExParams ...
+type NewBlockchainExParams struct {
+	Clock            Clock
+	Proofer          Proofer
+	Storage          GroupStorage
+	GenesisBlockData mo.Option[Data]
+}
+
+// NewBlockchainEx ...
+func NewBlockchainEx(
+	ctx context.Context,
+	params NewBlockchainExParams,
+) (*Blockchain, error) {
+	lastBlock, err := params.Storage.LoadLastBlock()
+	if err != nil &&
+		(!errors.Is(err, ErrEmptyStorage) || params.GenesisBlockData.IsAbsent()) {
+		return nil, fmt.Errorf("unable to load the last block: %w", err)
+	}
+
+	if errors.Is(err, ErrEmptyStorage) && params.GenesisBlockData.IsPresent() {
+		genesisBlock, err := NewGenesisBlockEx(ctx, NewGenesisBlockExParams{
+			Clock:   params.Clock,
+			Data:    params.GenesisBlockData.MustGet(),
+			Proofer: params.Proofer,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("unable to create a new genesis block: %w", err)
+		}
+
+		if err = params.Storage.StoreBlock(genesisBlock); err != nil {
+			return nil, fmt.Errorf("unable to store the genesis block: %w", err)
+		}
+
+		lastBlock = genesisBlock
+	}
+
+	blockchain := &Blockchain{
+		dependencies: Dependencies{
+			BlockDependencies: BlockDependencies{
+				Clock:   params.Clock,
+				Proofer: params.Proofer,
+			},
+
+			Storage: params.Storage,
+		},
+		lastBlock: lastBlock,
+	}
 	return blockchain, nil
 }
 
