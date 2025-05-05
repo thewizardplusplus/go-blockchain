@@ -52,21 +52,9 @@ func (proofer ProofOfWork) HashEx(
 		)
 	}
 
-	challenge, err := pow.NewChallengeBuilder().
-		SetTargetBitIndex(targetBitIndex).
-		SetSerializedPayload(powValueTypes.NewSerializedPayload(block.MergedData())).
-		SetHash(powValueTypes.NewHash(sha256.New())).
-		SetHashDataLayout(powValueTypes.MustParseHashDataLayout(
-			"{{ .Challenge.SerializedPayload.ToString }}" +
-				"{{ .Nonce.ToString }}" +
-				"{{ .Challenge.TargetBitIndex.ToInt }}",
-		)).
-		Build()
+	challenge, err := buildChallenge(targetBitIndex, block)
 	if err != nil {
-		return "", fmt.Errorf(
-			"unable to build the challenge: %w",
-			errors.Join(err, ErrInvalidParameters),
-		)
+		return "", fmt.Errorf("unable to build the challenge: %w", err)
 	}
 
 	solution, err := challenge.Solve(ctx, pow.SolveParams{
@@ -102,21 +90,9 @@ func (proofer ProofOfWork) Validate(block blockchain.Block) error {
 		return fmt.Errorf("unable to parse the hash: %w", err)
 	}
 
-	challenge, err := pow.NewChallengeBuilder().
-		SetTargetBitIndex(hashParts.targetBitIndex).
-		SetSerializedPayload(powValueTypes.NewSerializedPayload(block.MergedData())).
-		SetHash(powValueTypes.NewHash(sha256.New())).
-		SetHashDataLayout(powValueTypes.MustParseHashDataLayout(
-			"{{ .Challenge.SerializedPayload.ToString }}" +
-				"{{ .Nonce.ToString }}" +
-				"{{ .Challenge.TargetBitIndex.ToInt }}",
-		)).
-		Build()
+	challenge, err := buildChallenge(hashParts.targetBitIndex, block)
 	if err != nil {
-		return fmt.Errorf(
-			"unable to build the challenge: %w",
-			errors.Join(err, ErrInvalidParameters),
-		)
+		return fmt.Errorf("unable to build the challenge: %w", err)
 	}
 
 	solution, err := pow.NewSolutionBuilder().
@@ -147,6 +123,30 @@ func (proofer ProofOfWork) Difficulty(hash string) (int, error) {
 
 	difficulty := maximalTargetBit - hashParts.targetBitIndex.ToInt()
 	return difficulty, nil
+}
+
+func buildChallenge(
+	targetBitIndex powValueTypes.TargetBitIndex,
+	block blockchain.Block,
+) (pow.Challenge, error) {
+	challenge, err := pow.NewChallengeBuilder().
+		SetTargetBitIndex(targetBitIndex).
+		SetSerializedPayload(powValueTypes.NewSerializedPayload(block.MergedData())).
+		SetHash(powValueTypes.NewHash(sha256.New())).
+		SetHashDataLayout(powValueTypes.MustParseHashDataLayout(
+			"{{ .Challenge.SerializedPayload.ToString }}" +
+				"{{ .Nonce.ToString }}" +
+				"{{ .Challenge.TargetBitIndex.ToInt }}",
+		)).
+		Build()
+	if err != nil {
+		return pow.Challenge{}, fmt.Errorf(
+			"unable to build the challenge: %w",
+			errors.Join(err, ErrInvalidParameters),
+		)
+	}
+
+	return challenge, nil
 }
 
 type hashParts struct {
