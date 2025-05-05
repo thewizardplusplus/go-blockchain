@@ -248,26 +248,40 @@ func main() {
 		{
 			Timestamp: timestamp.Add(2*time.Hour + 40*time.Minute),
 			Data:      blockchain.NewData("block #1.2"),
-			Hash:      "250:0:hash #3.2",
-			PrevHash:  "23:0:hash #3.1",
+			Hash: "250:" +
+				"57:" +
+				"02988cf0f90c7771e726245c71416c6c376a2a473e90f3d0a7ba9787af421b34",
+			PrevHash: "250:" +
+				"7:" +
+				"031d530789698389a084fd7a32e4b315d59fb0791a7b22ac4dce90be5a030eb5",
 		},
 		{
 			Timestamp: timestamp.Add(2*time.Hour + 20*time.Minute),
 			Data:      blockchain.NewData("block #1.1"),
-			Hash:      "250:0:hash #3.1",
-			PrevHash:  "23:0:hash #2",
+			Hash: "250:" +
+				"7:" +
+				"031d530789698389a084fd7a32e4b315d59fb0791a7b22ac4dce90be5a030eb5",
+			PrevHash: "240:" +
+				"25578:" +
+				"0000d382b7d47324d79ba6178449f9ebbd08a20412c2fa548a32f6ad217f6ce9",
 		},
 		{
 			Timestamp: timestamp.Add(time.Hour),
 			Data:      blockchain.NewData("block #0"),
-			Hash:      "23:0:hash #2",
-			PrevHash:  "23:0:hash #1",
+			Hash: "240:" +
+				"25578:" +
+				"0000d382b7d47324d79ba6178449f9ebbd08a20412c2fa548a32f6ad217f6ce9",
+			PrevHash: "240:" +
+				"73021:" +
+				"00004a15cf538f5e4d3592c68ee4ac6dd3d3b99d7fa5effcd75fe07c58eb213e",
 		},
 		{
 			Timestamp: timestamp,
 			Data:      blockchain.NewData("genesis block"),
-			Hash:      "23:0:hash #1",
-			PrevHash:  "",
+			Hash: "240:" +
+				"73021:" +
+				"00004a15cf538f5e4d3592c68ee4ac6dd3d3b99d7fa5effcd75fe07c58eb213e",
+			PrevHash: "",
 		},
 	}
 	blockchainInstanceOne, err := blockchain.NewBlockchainEx(
@@ -291,20 +305,30 @@ func main() {
 		{
 			Timestamp: timestamp.Add(2 * time.Hour),
 			Data:      blockchain.NewData("block #1"),
-			Hash:      "23:0:hash #3",
-			PrevHash:  "23:0:hash #2",
+			Hash: "240:" +
+				"885:" +
+				"0000afa95e15291e5d6e7b5454292841114904f4d4b81c8187e838b7fe7d7b25",
+			PrevHash: "240:" +
+				"25578:" +
+				"0000d382b7d47324d79ba6178449f9ebbd08a20412c2fa548a32f6ad217f6ce9",
 		},
 		{
 			Timestamp: timestamp.Add(time.Hour),
 			Data:      blockchain.NewData("block #0"),
-			Hash:      "23:0:hash #2",
-			PrevHash:  "23:0:hash #1",
+			Hash: "240:" +
+				"25578:" +
+				"0000d382b7d47324d79ba6178449f9ebbd08a20412c2fa548a32f6ad217f6ce9",
+			PrevHash: "240:" +
+				"73021:" +
+				"00004a15cf538f5e4d3592c68ee4ac6dd3d3b99d7fa5effcd75fe07c58eb213e",
 		},
 		{
 			Timestamp: timestamp,
 			Data:      blockchain.NewData("genesis block"),
-			Hash:      "23:0:hash #1",
-			PrevHash:  "",
+			Hash: "240:" +
+				"73021:" +
+				"00004a15cf538f5e4d3592c68ee4ac6dd3d3b99d7fa5effcd75fe07c58eb213e",
+			PrevHash: "",
 		},
 	}
 	blockchainInstanceTwo, err := blockchain.NewBlockchainEx(
@@ -337,19 +361,19 @@ func main() {
 	//   {
 	//     "Timestamp": "2006-01-02T17:04:05Z",
 	//     "Data": "block #1",
-	//     "Hash": "23:0:hash #3",
-	//     "PrevHash": "23:0:hash #2"
+	//     "Hash": "240:885:0000afa95e15291e5d6e7b5454292841114904f4d4b81c8187e838b7fe7d7b25",
+	//     "PrevHash": "240:25578:0000d382b7d47324d79ba6178449f9ebbd08a20412c2fa548a32f6ad217f6ce9"
 	//   },
 	//   {
 	//     "Timestamp": "2006-01-02T16:04:05Z",
 	//     "Data": "block #0",
-	//     "Hash": "23:0:hash #2",
-	//     "PrevHash": "23:0:hash #1"
+	//     "Hash": "240:25578:0000d382b7d47324d79ba6178449f9ebbd08a20412c2fa548a32f6ad217f6ce9",
+	//     "PrevHash": "240:73021:00004a15cf538f5e4d3592c68ee4ac6dd3d3b99d7fa5effcd75fe07c58eb213e"
 	//   },
 	//   {
 	//     "Timestamp": "2006-01-02T15:04:05Z",
 	//     "Data": "genesis block",
-	//     "Hash": "23:0:hash #1",
+	//     "Hash": "240:73021:00004a15cf538f5e4d3592c68ee4ac6dd3d3b99d7fa5effcd75fe07c58eb213e",
 	//     "PrevHash": ""
 	//   }
 	// ]
