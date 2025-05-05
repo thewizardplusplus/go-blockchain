@@ -31,22 +31,16 @@ func NewBlockchain(
 	genesisBlockData Data,
 	dependencies Dependencies,
 ) (*Blockchain, error) {
-	lastBlock, err := dependencies.Storage.LoadLastBlock()
-	switch {
-	case err == nil:
-	case errors.Is(err, ErrEmptyStorage) && genesisBlockData != nil:
-		genesisBlock :=
-			NewGenesisBlock(genesisBlockData, dependencies.BlockDependencies)
-		if err = dependencies.Storage.StoreBlock(genesisBlock); err != nil {
-			return nil, fmt.Errorf("unable to store the genesis block: %w", err)
-		}
-
-		lastBlock = genesisBlock
-	default:
-		return nil, fmt.Errorf("unable to load the last block: %w", err)
+	blockchain, err := NewBlockchainEx(context.Background(), NewBlockchainExParams{
+		Clock:            dependencies.Clock,
+		Proofer:          dependencies.Proofer,
+		Storage:          dependencies.Storage,
+		GenesisBlockData: mo.EmptyableToOption(genesisBlockData),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("unable to create a new blockchain: %w", err)
 	}
 
-	blockchain := &Blockchain{dependencies: dependencies, lastBlock: lastBlock}
 	return blockchain, nil
 }
 

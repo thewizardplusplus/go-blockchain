@@ -130,11 +130,13 @@ $ go get github.com/thewizardplusplus/go-blockchain
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"time"
 
+	"github.com/samber/mo"
 	"github.com/thewizardplusplus/go-blockchain"
 	"github.com/thewizardplusplus/go-blockchain/proofers"
 	"github.com/thewizardplusplus/go-blockchain/storing"
@@ -152,15 +154,17 @@ func main() {
 		Proofer: proofers.ProofOfWork{TargetBit: 248},
 	}
 
-	blockchainInstance, err := blockchain.NewBlockchain(
-		blockchain.NewData("genesis block"),
-		blockchain.Dependencies{
-			BlockDependencies: blockDependencies,
-			Storage:           storing.NewGroupStorage(&storages.MemoryStorage{}),
+	blockchainInstance, err := blockchain.NewBlockchainEx(
+		context.Background(),
+		blockchain.NewBlockchainExParams{
+			Clock:            blockDependencies.Clock,
+			Proofer:          blockDependencies.Proofer,
+			Storage:          storing.NewGroupStorage(&storages.MemoryStorage{}),
+			GenesisBlockData: mo.Some(blockchain.NewData("genesis block")),
 		},
 	)
 	if err != nil {
-		log.Fatalf("unable to create the blockchain: %v", err)
+		log.Fatalf("unable to create a new blockchain: %v", err)
 	}
 
 	const blockCount = 5
@@ -224,11 +228,13 @@ func main() {
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"time"
 
+	"github.com/samber/mo"
 	blockchain "github.com/thewizardplusplus/go-blockchain"
 	"github.com/thewizardplusplus/go-blockchain/proofers"
 	"github.com/thewizardplusplus/go-blockchain/storing"
@@ -263,13 +269,19 @@ func main() {
 			PrevHash:  "",
 		},
 	}
-	blockchainInstanceOne, err :=
-		blockchain.NewBlockchain(nil, blockchain.Dependencies{
-			BlockDependencies: blockchain.BlockDependencies{
-				Proofer: proofers.ProofOfWork{TargetBit: 248},
+	blockchainInstanceOne, err := blockchain.NewBlockchainEx(
+		context.Background(),
+		blockchain.NewBlockchainExParams{
+			Clock: time.Now,
+			Proofer: proofers.ProofOfWork{
+				TargetBit: 248,
 			},
-			Storage: storing.NewGroupStorage(storages.NewMemoryStorage(blockGroupOne)),
-		})
+			Storage: storing.NewGroupStorage(
+				storages.NewMemoryStorage(blockGroupOne),
+			),
+			GenesisBlockData: mo.None[blockchain.Data](),
+		},
+	)
 	if err != nil {
 		log.Fatalf("unable to create the blockchain #1: %v", err)
 	}
@@ -294,13 +306,19 @@ func main() {
 			PrevHash:  "",
 		},
 	}
-	blockchainInstanceTwo, err :=
-		blockchain.NewBlockchain(nil, blockchain.Dependencies{
-			BlockDependencies: blockchain.BlockDependencies{
-				Proofer: proofers.ProofOfWork{TargetBit: 248},
+	blockchainInstanceTwo, err := blockchain.NewBlockchainEx(
+		context.Background(),
+		blockchain.NewBlockchainExParams{
+			Clock: time.Now,
+			Proofer: proofers.ProofOfWork{
+				TargetBit: 248,
 			},
-			Storage: storing.NewGroupStorage(storages.NewMemoryStorage(blockGroupTwo)),
-		})
+			Storage: storing.NewGroupStorage(
+				storages.NewMemoryStorage(blockGroupTwo),
+			),
+			GenesisBlockData: mo.None[blockchain.Data](),
+		},
+	)
 	if err != nil {
 		log.Fatalf("unable to create the blockchain #2: %v", err)
 	}
