@@ -169,10 +169,11 @@ func main() {
 
 	const blockCount = 5
 	for i := 0; i < blockCount; i++ {
-		if err := blockchainInstance.AddBlock(
+		if err := blockchainInstance.AddBlockEx(
+			context.Background(),
 			blockchain.NewData(fmt.Sprintf("block #%d", i)),
 		); err != nil {
-			log.Fatalf("unable to add the block: %v", err)
+			log.Fatalf("unable to add a new block: %v", err)
 		}
 	}
 

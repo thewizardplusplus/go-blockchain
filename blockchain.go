@@ -107,16 +107,10 @@ func (blockchain Blockchain) LoadBlocks(cursor interface{}, count int) (
 //
 // Deprecated: Use [AddBlockEx] instead.
 func (blockchain *Blockchain) AddBlock(data Data) error {
-	block := NewBlock(
-		data,
-		blockchain.lastBlock,
-		blockchain.dependencies.BlockDependencies,
-	)
-	if err := blockchain.dependencies.Storage.StoreBlock(block); err != nil {
-		return fmt.Errorf("unable to store the block: %w", err)
+	if err := blockchain.AddBlockEx(context.Background(), data); err != nil {
+		return fmt.Errorf("unable to add a new block: %w", err)
 	}
 
-	blockchain.lastBlock = block
 	return nil
 }
 
