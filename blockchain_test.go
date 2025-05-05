@@ -714,6 +714,202 @@ func TestBlockchain_AddBlock(test *testing.T) {
 	}
 }
 
+func TestBlockchain_AddBlockEx(test *testing.T) {
+	type fields struct {
+		dependencies Dependencies
+		lastBlock    Block
+	}
+	type args struct {
+		ctx  context.Context
+		data Data
+	}
+
+	for _, data := range []struct {
+		name          string
+		fields        fields
+		args          args
+		wantLastBlock Block
+		wantErr       assert.ErrorAssertionFunc
+	}{
+		{
+			name: "success",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Clock: clock,
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.
+								On(
+									"HashEx",
+									context.Background(),
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										PrevHash:  "hash",
+									},
+								).
+								Return("next hash", nil)
+
+							return proofer
+						}(),
+					},
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
+						storage.
+							On("StoreBlock", Block{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "next hash",
+								PrevHash:  "hash",
+							}).
+							Return(nil)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				ctx:  context.Background(),
+				data: new(MockData),
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "next hash",
+				PrevHash:  "hash",
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error/unable to create a new block",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Clock: clock,
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.
+								On(
+									"HashEx",
+									context.Background(),
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										PrevHash:  "hash",
+									},
+								).
+								Return("", iotest.ErrTimeout)
+
+							return proofer
+						}(),
+					},
+					Storage: new(MockGroupStorage),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				ctx:  context.Background(),
+				data: new(MockData),
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.Error,
+		},
+		{
+			name: "error/unable to store the block",
+			fields: fields{
+				dependencies: Dependencies{
+					BlockDependencies: BlockDependencies{
+						Clock: clock,
+						Proofer: func() Proofer {
+							proofer := new(MockProofer)
+							proofer.
+								On(
+									"HashEx",
+									context.Background(),
+									Block{
+										Timestamp: clock(),
+										Data:      new(MockData),
+										PrevHash:  "hash",
+									},
+								).
+								Return("next hash", nil)
+
+							return proofer
+						}(),
+					},
+					Storage: func() GroupStorage {
+						storage := new(MockGroupStorage)
+						storage.
+							On("StoreBlock", Block{
+								Timestamp: clock(),
+								Data:      new(MockData),
+								Hash:      "next hash",
+								PrevHash:  "hash",
+							}).
+							Return(iotest.ErrTimeout)
+
+						return storage
+					}(),
+				},
+				lastBlock: Block{
+					Timestamp: clock(),
+					Data:      new(MockData),
+					Hash:      "hash",
+					PrevHash:  "previous hash",
+				},
+			},
+			args: args{
+				ctx:  context.Background(),
+				data: new(MockData),
+			},
+			wantLastBlock: Block{
+				Timestamp: clock(),
+				Data:      new(MockData),
+				Hash:      "hash",
+				PrevHash:  "previous hash",
+			},
+			wantErr: assert.Error,
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			blockchain := &Blockchain{
+				dependencies: data.fields.dependencies,
+				lastBlock:    data.fields.lastBlock,
+			}
+			err := blockchain.AddBlockEx(data.args.ctx, data.args.data)
+
+			assert.Equal(test, data.wantLastBlock, blockchain.lastBlock)
+			data.wantErr(test, err)
+
+			mock.AssertExpectationsForObjects(
+				test,
+				data.fields.dependencies.Proofer,
+				data.fields.dependencies.Storage,
+				data.fields.lastBlock.Data,
+				data.args.data,
+				blockchain.lastBlock.Data,
+			)
+		})
+	}
+}
+
 func TestBlockchain_Merge(test *testing.T) {
 	type fields struct {
 		dependencies Dependencies
