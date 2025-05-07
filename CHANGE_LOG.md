@@ -1,5 +1,57 @@
 # Change Log
 
+## [v1.4.1](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4.1) (2025-05-07)
+
+_The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)._
+
+> **Main change**: Extracted the [Proof-of-Work](https://en.wikipedia.org/wiki/Proof_of_work) implementation into a separate library [`github.com/thewizardplusplus/go-pow`](https://github.com/thewizardplusplus/go-pow), enabling cancellable block generation, error handling and enhanced configuration options.
+
+### Added
+
+- **Extended PoW interface and functionality**:
+  - Extended the `Proofer` interface to accommodate cancellable implementations with error handling.
+  - The `ProofOfWork` implementation now supports:
+    - **Limiting the number of hash attempts** during mining.
+    - **Choosing a random starting nonce** from a specified range.
+  - Added the `ProofOfWork.HashEx()` method — a cancellable version of `Hash()` that also returns an error.
+  - Updated the `ProofOfWork.Validate()` method to support extended validation logic.
+- **New functions and methods for block and blockchain creation** — all of which:
+  - Accept a [`context.Context`](https://pkg.go.dev/context@go1.23.0#Context) for cancellation.
+  - Return an error alongside the result.
+  - New functions and methods list:
+    - `NewBlockEx()`
+    - `NewGenesisBlockEx()`
+    - `NewBlockchainEx()`
+    - `Blockchain.AddBlockEx()`
+
+### Changed
+
+- **Integration with the new PoW library**:
+  - Functions `NewBlock()`, `NewGenesisBlock()`, `NewBlockchain()` and methods `Blockchain.AddBlock()`, `ProofOfWork.Hash()` now delegate to their `*Ex()` counterparts, which support cancellation and error handling.
+- **Code improvements**:
+  - Refactored the `parseHash()` function for improved readability and robustness.
+  - Introduced `buildChallenge()` helper function to centralize PoW challenge construction.
+  - Updated mocks to support the enhanced `Proofer` interface and the lastest version of the [mockery](https://github.com/vektra/mockery) tool.
+
+### Deprecated
+
+- The legacy methods `NewBlock()`, `NewGenesisBlock()`, `NewBlockchain()`, `Blockchain.AddBlock()`, and `ProofOfWork.Hash()` remain available for backward compatibility but lack cancellation support and proper error handling. Use the corresponding `*Ex()` methods instead.
+
+### Removed
+
+- **Nothing removed** — backward compatibility is fully preserved in this release.
+
+### Fixed
+
+- Fixed the documentation example for the `Blockchain.Merge()` method.
+
+### CI / Internal
+
+- Migrated to `go.mod` for dependency management.
+- Replaced `github.com/pkg/errors` with the Go standard library’s [`errors`](https://pkg.go.dev/errors@go1.23.0) package.
+- Switched to [`golangci-lint`](https://golangci-lint.run/) for static analysis.
+- Set up GitHub Actions for linting and testing.
+
 ## [v1.4](https://github.com/thewizardplusplus/go-blockchain/tree/v1.4) (2022-03-09)
 
 Add merging the blockchain model with another one.
