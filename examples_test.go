@@ -269,7 +269,7 @@ func ExampleBlock() {
 			blockchain.NewBlockExParams{
 				Dependencies: blockDependencies,
 				Data:         blockchain.NewData(fmt.Sprintf("block #%d", i)),
-				PrevBlock:    blocks[len(blocks)-1],
+				PrevBlock:    mo.Some(blocks[len(blocks)-1]),
 			},
 		)
 		if err != nil {

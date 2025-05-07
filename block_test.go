@@ -6,6 +6,7 @@ import (
 	"testing/iotest"
 	"time"
 
+	"github.com/samber/mo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -78,9 +79,9 @@ func TestNewBlockEx(test *testing.T) {
 						}(),
 					},
 					Data: new(MockData),
-					PrevBlock: Block{
+					PrevBlock: mo.Some(Block{
 						Hash: "previous hash",
-					},
+					}),
 				},
 			},
 			want: Block{
@@ -116,9 +117,9 @@ func TestNewBlockEx(test *testing.T) {
 						}(),
 					},
 					Data: new(MockData),
-					PrevBlock: Block{
+					PrevBlock: mo.Some(Block{
 						Hash: "previous hash",
-					},
+					}),
 				},
 			},
 			want:    Block{},

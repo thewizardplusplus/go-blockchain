@@ -400,6 +400,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/samber/mo"
 	"github.com/thewizardplusplus/go-blockchain"
 	"github.com/thewizardplusplus/go-blockchain/proofers"
 )
@@ -435,7 +436,7 @@ func main() {
 			blockchain.NewBlockExParams{
 				Dependencies: blockDependencies,
 				Data:         blockchain.NewData(fmt.Sprintf("block #%d", i)),
-				PrevBlock:    blocks[len(blocks)-1],
+				PrevBlock:    mo.Some(blocks[len(blocks)-1]),
 			},
 		)
 		if err != nil {

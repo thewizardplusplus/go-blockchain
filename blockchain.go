@@ -107,7 +107,7 @@ func (blockchain *Blockchain) AddBlockEx(ctx context.Context, data Data) error {
 	block, err := NewBlockEx(ctx, NewBlockExParams{
 		Dependencies: blockchain.dependencies.BlockDependencies,
 		Data:         data,
-		PrevBlock:    blockchain.lastBlock,
+		PrevBlock:    mo.Some(blockchain.lastBlock),
 	})
 	if err != nil {
 		return fmt.Errorf("unable to create a new block: %w", err)

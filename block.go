@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/samber/mo"
 )
 
 // Clock ...
@@ -45,7 +47,7 @@ func NewBlock(
 	block, _ := NewBlockEx(context.Background(), NewBlockExParams{
 		Dependencies: dependencies,
 		Data:         data,
-		PrevBlock:    prevBlock,
+		PrevBlock:    mo.EmptyableToOption(prevBlock),
 	})
 	return block
 }
@@ -54,15 +56,20 @@ func NewBlock(
 type NewBlockExParams struct {
 	Dependencies BlockDependencies
 	Data         Data
-	PrevBlock    Block
+	PrevBlock    mo.Option[Block]
 }
 
 // NewBlockEx ...
 func NewBlockEx(ctx context.Context, params NewBlockExParams) (Block, error) {
+	var prevHash string
+	if prevBlock, isPresent := params.PrevBlock.Get(); isPresent {
+		prevHash = prevBlock.Hash
+	}
+
 	block := Block{
 		Timestamp: params.Dependencies.Clock(),
 		Data:      params.Data,
-		PrevHash:  params.PrevBlock.Hash,
+		PrevHash:  prevHash,
 	}
 
 	var err error
@@ -102,7 +109,7 @@ func NewGenesisBlockEx(
 	genesisBlock, err := NewBlockEx(ctx, NewBlockExParams{
 		Dependencies: params.Dependencies,
 		Data:         params.Data,
-		PrevBlock:    Block{},
+		PrevBlock:    mo.None[Block](),
 	})
 	if err != nil {
 		return Block{}, fmt.Errorf("unable to create a new block: %w", err)
